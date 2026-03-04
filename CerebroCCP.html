@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPF Intelligent Contact Centre</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+        :root {
+            --bg:#e6edf3; --border:#d0d7de; --accent:#58a6ff;
+            --green:#3fb950; --red:#f85149; --yellow:#d29922;
+            --text:#0d1117; --navy:#001F5F;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'IBM Plex Sans',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+        /* ── HEADER ── */
+        .header { background:var(--navy); border-bottom:1px solid #0a3080; padding:0 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; height:54px; gap:14px; }
+        .hdr-left { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .hdr-logo { height:80px; width:auto; object-fit:contain; flex-shrink:0; }
+        .hdr-logo-fallback { width:80px; height:80px; background:linear-gradient(135deg,#c0392b,#7a1212); border-radius:50%; border:2px solid rgba(255,255,255,0.3); display:none; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+        .hdr-divider { width:1px; height:26px; background:rgba(255,255,255,0.22); flex-shrink:0; }
+        .hdr-title { font-size:14px; font-weight:600; color:#fff; white-space:nowrap; letter-spacing:0.3px; }
+        .hdr-center { flex:1; max-width:460px; position:relative; }
+        .hdr-search { width:100%; padding:7px 12px 7px 34px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; font-size:12.5px; font-family:'IBM Plex Sans',sans-serif; outline:none; transition:all 0.2s; }
+        .hdr-search::placeholder { color:rgba(255,255,255,0.45); }
+        .hdr-search:focus { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.38); box-shadow:0 0 0 3px rgba(127,179,255,0.14); }
+        .srch-ico { position:absolute; left:9px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.45); font-size:13px; pointer-events:none; }
+        .hdr-right { display:flex; align-items:center; gap:2px; flex-shrink:0; }
+        .hic { display:flex; align-items:center; gap:5px; padding:6px 9px; border-radius:6px; cursor:pointer; color:rgba(255,255,255,0.78); font-size:12px; border:none; background:none; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s,color 0.15s; white-space:nowrap; }
+        .hic:hover { background:rgba(255,255,255,0.11); color:#fff; }
+        .hic svg { width:17px; height:17px; flex-shrink:0; }
+        .hic .lbl { font-size:11.5px; font-weight:500; }
+        .nb-wrap { position:relative; }
+        .nb-dot { position:absolute; top:5px; right:7px; width:6px; height:6px; background:var(--red); border-radius:50%; border:1.5px solid var(--navy); }
+        .hdr-avatar { width:29px; height:29px; border-radius:50%; background:linear-gradient(135deg,#0078d4,#005a9e); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; cursor:pointer; border:2px solid rgba(255,255,255,0.28); transition:border-color 0.15s; }
+        .hdr-avatar:hover { border-color:rgba(255,255,255,0.65); }
+        #connection-status { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:4px 9px; border-radius:4px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.65); white-space:nowrap; margin-left:4px; }
+        #connection-status.connected { color:var(--green); border-color:var(--green); }
+        #connection-status.disconnected { color:#ff8080; border-color:rgba(248,81,73,0.5); }
+
+        /* ── LAYOUT ── */
+        .workspace { display:grid; grid-template-columns:260px 1fr 340px; flex:1; overflow:hidden; }
+
+        /* ── CENTER SPLIT */
+        .ccp-area { background:#fff; display:grid; grid-template-columns:1fr 1fr; border-right:1px solid var(--border); overflow:hidden; }
+        .center-left  { display:flex; flex-direction:column; overflow:hidden; border-right:2px solid var(--navy); }
+        .center-right { display:flex; flex-direction:column; overflow:hidden; background:#f6f8fa; }
+
+        /* ── SIDEBAR ── */
+        .sidebar { background:#f6f8fa; border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; }
+        .ss { padding:14px 16px; border-bottom:1px solid var(--border); }
+        .ss h4 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#57606a; margin-bottom:10px; }
+        .agent-card { display:flex; align-items:center; gap:12px; }
+        .agent-av { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0078d4,#005a9e); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
+        .agent-det { flex:1; min-width:0; }
+        .agent-nm { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text); }
+        .asr { display:flex; align-items:center; gap:6px; margin-top:2px; }
+        .sdot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .dot-avail { background:var(--green); box-shadow:0 0 6px var(--green); }
+        .dot-unavail { background:var(--red); }
+        .dot-acw { background:var(--yellow); }
+        .slbl { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; }
+        .sbtns { display:flex; gap:8px; }
+        .btn { padding:7px 14px; border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; background:#fff; color:var(--text); }
+        .btn:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+        .btn-g { background:rgba(63,185,80,0.1); border-color:var(--green); color:#1a7f37; }
+        .btn-r { background:rgba(248,81,73,0.1); border-color:var(--red); color:#cf222e; }
+        .btn-y { background:rgba(210,153,34,0.1); border-color:var(--yellow); color:#9a6700; }
+        .btn-b { background:rgba(9,105,218,0.1); border-color:#0969da; color:#0969da; }
+        .btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+        .call-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; display:none; }
+        .call-card.active { display:block; border-color:var(--green); background:rgba(63,185,80,0.04); }
+        .call-card .fl { margin-bottom:8px; font-size:12px; color:var(--text); }
+        .call-card .fl label { color:#57606a; margin-right:6px; }
+        .call-card .fl span { font-family:'IBM Plex Mono',monospace; }
+        .cbtns { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+        .cbtns .btn { padding:5px 10px; font-size:11px; }
+        .alog { flex:1; overflow-y:auto; max-height:160px; }
+        .li { padding:5px 8px; border-left:2px solid var(--border); margin-bottom:4px; font-size:11px; font-family:'IBM Plex Mono',monospace; color:#57606a; background:#fff; border-radius:0 4px 4px 0; }
+        .li.success { border-color:var(--green); color:#1a7f37; }
+        .li.error { border-color:var(--red); color:#cf222e; }
+        .li.warning { border-color:var(--yellow); color:#9a6700; }
+        .li .ts { color:#8c959f; margin-right:6px; }
+        .qc { background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px 12px; border-left-width:3px; border-left-style:solid; }
+        .qc .qn { font-size:12px; font-weight:700; color:var(--text); }
+        .qc .qd { font-size:11px; color:#57606a; margin-top:2px; }
+        .qc .qm { font-size:10px; color:#8c959f; margin-top:4px; font-family:'IBM Plex Mono',monospace; }
+
+        /* ── CENTER ── */
+        .ccp-hdr { padding:10px 16px; border-bottom:1px solid var(--border); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#57606a; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; background:#f6f8fa; }
+
+        /* ── INCOMING CALL PANEL ── */
+        .inc-panel { display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:40px 24px; background:#fff; }
+        .inc-panel.visible { display:flex; }
+        .inc-ring-wrap { position:relative; display:flex; align-items:center; justify-content:center; }
+        .inc-ring { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#1a7f37,#2ea043); display:flex; align-items:center; justify-content:center; font-size:36px; animation:ringpulse 1.4s ease-in-out infinite; box-shadow:0 4px 24px rgba(63,185,80,0.35); }
+        @keyframes ringpulse {
+            0%   { box-shadow:0 0 0 0 rgba(63,185,80,0.55),0 4px 24px rgba(63,185,80,0.35); }
+            60%  { box-shadow:0 0 0 20px rgba(63,185,80,0),0 4px 24px rgba(63,185,80,0.35); }
+            100% { box-shadow:0 0 0 0 rgba(63,185,80,0),0 4px 24px rgba(63,185,80,0.35); }
+        }
+        .inc-info { text-align:center; }
+        .inc-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#8c959f; margin-bottom:6px; }
+        .inc-phone { font-size:26px; font-weight:700; color:var(--navy); font-family:'IBM Plex Mono',monospace; letter-spacing:1px; }
+        .inc-queue { font-size:12px; color:#57606a; margin-top:4px; }
+        .inc-wait  { font-size:11px; color:#8c959f; margin-top:2px; font-family:'IBM Plex Mono',monospace; }
+        .inc-actions { display:flex; gap:20px; align-items:center; }
+        .inc-btn { width:68px; height:68px; border-radius:50%; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:11px; font-weight:700; font-family:'IBM Plex Sans',sans-serif; transition:transform 0.15s, box-shadow 0.15s; }
+        .inc-btn:hover { transform:scale(1.08); }
+        .inc-accept { background:linear-gradient(135deg,#1a7f37,#2ea043); color:#fff; box-shadow:0 4px 16px rgba(46,160,67,0.45); }
+        .inc-accept:hover { box-shadow:0 6px 24px rgba(46,160,67,0.6); }
+        .inc-reject { background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff; box-shadow:0 4px 16px rgba(220,38,38,0.4); }
+        .inc-reject:hover { box-shadow:0 6px 24px rgba(220,38,38,0.55); }
+        .inc-btn svg { width:26px; height:26px; }
+        .inc-btn-lbl { font-size:10px; font-weight:700; letter-spacing:0.3px; }
+
+        /* ── CUSTOMER PROFILE BAR ── */
+        .cpb { display:none; background:#fff; border-bottom:2px solid var(--navy); flex-shrink:0; }
+        .cpb.active { display:block; }
+        .cpb.ringing { border-bottom-color:var(--green); }
+        .cpb-summary { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; gap:12px; }
+        .cpb-left { display:flex; align-items:center; gap:11px; min-width:0; }
+        .cpb-av { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--navy),#0a3080); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; border:2px solid rgba(0,31,95,0.15); }
+        .cpb-name { font-size:14px; font-weight:700; color:var(--navy); }
+        .cpb-meta { display:flex; align-items:center; gap:7px; margin-top:4px; flex-wrap:wrap; }
+        .cpb-nric { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; background:#f0f3f6; padding:2px 7px; border-radius:4px; border:1px solid var(--border); }
+        .ptag { font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; text-transform:uppercase; letter-spacing:0.3px; }
+        .ptag-cit { background:rgba(0,31,95,0.08); color:var(--navy); border:1px solid rgba(0,31,95,0.17); }
+        .ptag-onl { background:rgba(63,185,80,0.1); color:#1a7f37; border:1px solid rgba(63,185,80,0.3); }
+        .cpb-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .qs-wrap { display:flex; gap:8px; }
+        .qs { text-align:center; padding:4px 12px; background:#f6f8fa; border:1px solid var(--border); border-radius:6px; }
+        .qs-v { font-size:14px; font-weight:700; color:var(--navy); font-family:'IBM Plex Mono',monospace; }
+        .qs-l { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; }
+        .btn-vd { padding:7px 15px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+        .btn-vd:hover { background:#0a3080; }
+        .chev { transition:transform 0.25s; display:inline-block; font-style:normal; }
+        .btn-vd.open .chev { transform:rotate(180deg); }
+        .cpb-acc { max-height:0; overflow:hidden; transition:max-height 0.33s ease, opacity 0.25s ease; opacity:0; }
+        .cpb-acc.open { max-height:240px; opacity:1; }
+        .cpb-inner { padding:11px 16px 13px; border-top:1px solid #e8ecf0; background:#fafbfc; }
+        .cpb-inner h5 { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8c959f; margin-bottom:9px; }
+        .pf-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:9px 14px; }
+        .pf { min-width:0; }
+        .pf label { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:2px; }
+        .pf span { font-size:12px; color:var(--text); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+        .pf.wide { grid-column:span 2; }
+        .pf.wide span { white-space:normal; }
+        .pf span.mono { font-family:'IBM Plex Mono',monospace; color:var(--navy); }
+
+        /* ── IDLE STATE ── */
+        .idle-panel { display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:#8c959f; padding:40px; text-align:center; }
+        .idle-panel .idle-ico { font-size:44px; opacity:0.3; }
+        .idle-panel p { font-size:13px; line-height:1.7; }
+
+        .txstatus { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:3px 8px; border-radius:4px; background:#eaeef2; color:#57606a; border:1px solid var(--border); }
+        .txstatus.live { color:var(--green); border-color:var(--green); background:rgba(63,185,80,0.08); animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+        /* ════════════════════════════════════════
+           REDESIGNED TRANSCRIPT SECTION
+           Matching the reference UI style
+        ════════════════════════════════════════ */
+        .tx-section { display:none; flex:1; flex-direction:column; overflow:hidden; }
+        .tx-section.visible { display:flex; }
+
+        .sentbar { padding:7px 16px; border-bottom:1px solid var(--border); flex-shrink:0; background:#f6f8fa; }
+        .sentlbls { display:flex; justify-content:space-between; font-size:10px; color:#57606a; margin-bottom:4px; font-family:'IBM Plex Mono',monospace; }
+        .senttrack { height:5px; background:#e1e4e8; border-radius:3px; overflow:hidden; }
+        .sentfill { height:100%; border-radius:3px; transition:width 0.5s, background 0.5s; width:50%; background:var(--yellow); }
+
+        /* Transcript message list */
+        .txmsgs { flex:1; overflow-y:auto; padding:12px 0; display:flex; flex-direction:column; background:#fff; }
+        .txmsgs::-webkit-scrollbar{width:4px} .txmsgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+        .empty-s { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#8c959f; gap:10px; text-align:center; padding:40px; }
+        .empty-s .ico { font-size:32px; opacity:0.5; }
+        .empty-s p { font-size:13px; line-height:1.6; }
+
+        /* ── New-style transcript row ── */
+        .tx-row { display:flex; gap:0; padding:6px 0; animation:fi 0.3s ease; }
+        @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+        .tx-time { width:64px; flex-shrink:0; padding-top:3px; padding-left:12px; }
+        .tx-time span { font-size:10px; font-family:'IBM Plex Mono',monospace; color:#8c959f; }
+
+        .tx-role { width:68px; flex-shrink:0; padding-top:3px; }
+        .tx-role span { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
+        .tx-role .role-agent { color:#0969da; }
+        .tx-role .role-customer { color:#57606a; }
+
+        .tx-bubble { flex:1; min-width:0; }
+        .tx-bubble-inner {
+            padding:8px 12px;
+            border-radius:6px;
+            font-size:12.5px;
+            line-height:1.6;
+            border-left:2px solid transparent;
+        }
+        .tx-bubble-inner.agent-bubble {
+            background:rgba(9,105,218,0.05);
+            border-left-color:#0969da;
+        }
+        .tx-bubble-inner.customer-bubble {
+            background:#fff;
+            border-left-color:#d0d7de;
+            border:1px solid #eaecef;
+            border-left:2px solid #d0d7de;
+        }
+        .tx-bubble-inner .speaker-name {
+            font-size:10px;
+            font-weight:600;
+            color:#8c959f;
+            margin-right:6px;
+        }
+        .tx-bubble-inner .bubble-text { color:#0d1117; }
+
+        .tx-sent { width:72px; flex-shrink:0; display:flex; align-items:flex-start; justify-content:flex-end; padding-top:4px; padding-right:12px; }
+        .sent-badge {
+            display:inline-flex; align-items:center; gap:4px;
+            padding:2px 6px; border-radius:4px;
+            font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;
+            white-space:nowrap;
+        }
+        .sent-positive { background:rgba(63,185,80,0.08); color:#1a7f37; border:1px solid rgba(63,185,80,0.25); }
+        .sent-negative { background:rgba(248,81,73,0.08); color:#cf222e; border:1px solid rgba(248,81,73,0.25); }
+        .sent-neutral  { background:rgba(139,148,158,0.1); color:#57606a; border:1px solid rgba(139,148,158,0.25); }
+        .sent-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+        .sent-dot-pos { background:#3fb950; }
+        .sent-dot-neg { background:#f85149; }
+        .sent-dot-neu { background:#8c959f; }
+
+        /* ── AI NOTE inline (violet strip) ── */
+        .tx-ai-note { display:flex; justify-content:center; padding:6px 12px; }
+        .tx-ai-note-inner {
+            display:flex; align-items:flex-start; gap:8px;
+            padding:8px 12px;
+            background:#f5f0ff;
+            border:1px solid #ddd0f8;
+            border-radius:6px;
+            width:100%;
+        }
+        .tx-ai-note-inner .ai-note-icon { font-size:11px; flex-shrink:0; margin-top:1px; }
+        .tx-ai-note-inner .ai-note-label {
+            font-size:10px; font-weight:700; color:#6e40c9;
+            text-transform:uppercase; letter-spacing:0.6px;
+            flex-shrink:0; margin-right:4px;
+        }
+        .tx-ai-note-inner .ai-note-text { font-size:11px; color:#5a3ea1; line-height:1.5; }
+
+        /* ── AI Follow-up suggestions strip ── */
+        .tx-followups { padding:8px 12px 4px; }
+        .tx-followups-header { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+        .tx-followups-header .fu-icon { font-size:11px; color:#8250df; }
+        .tx-followups-header .fu-label { font-size:10px; font-weight:700; color:#6e40c9; }
+        .tx-followups-header .fu-note { font-size:10px; color:#8c959f; font-style:italic; }
+        .tx-followup-btns { display:flex; flex-wrap:wrap; gap:6px; }
+        .fu-btn-primary {
+            padding:5px 12px; font-size:11px; font-weight:600;
+            background:var(--navy); color:#fff;
+            border:none; border-radius:6px; cursor:pointer;
+            font-family:'IBM Plex Sans',sans-serif;
+            transition:background 0.15s;
+        }
+        .fu-btn-primary:hover { background:#0a3080; }
+        .fu-btn-secondary {
+            padding:5px 10px; font-size:11px;
+            background:#fff; color:#0d1117;
+            border:1px solid var(--border); border-radius:6px; cursor:pointer;
+            font-family:'IBM Plex Sans',sans-serif;
+            transition:all 0.15s;
+        }
+        .fu-btn-secondary:hover { border-color:var(--navy); }
+
+        .dbgbar { padding:6px 16px; border-top:1px solid var(--border); background:#f6f8fa; display:flex; justify-content:space-between; font-size:10px; font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
+        #aps-status{color:#8c959f} #aps-status.connected{color:var(--green)} #aps-status.error{color:var(--red)}
+
+        /* ── AMAZON Q ── */
+        .qpanel { background:#f6f8fa; display:flex; flex-direction:column; overflow:hidden; border-left:1px solid var(--border); }
+        .qphdr { padding:12px 16px; border-bottom:1px solid var(--border); background:var(--navy); display:flex; align-items:center; justify-content:space-between; }
+        .qphdr h3 { font-size:13px; font-weight:700; color:#7fb3ff; }
+        .qpbdy { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:12px; }
+        .qpbdy::-webkit-scrollbar{width:4px} .qpbdy::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .qcard { background:#fff; border:1px solid var(--border); border-radius:8px; padding:14px; }
+        .qctitle { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+        .qcard p { font-size:12px; color:var(--text); line-height:1.6; }
+        .qdispatch { margin-top:10px; width:100%; padding:8px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.15s; }
+        .qdispatch:hover { background:#0a3080; }
+        .qkbl { display:block; font-size:12px; color:#0969da; text-decoration:none; padding:4px 0; }
+        .qkbl:hover { text-decoration:underline; }
+        .qdnote { margin-top:6px; font-size:10px; color:#8c959f; font-style:italic; }
+        .qaski { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; outline:none; font-family:'IBM Plex Sans',sans-serif; }
+        .qaski:focus { border-color:var(--navy); }
+        .qpfoot { padding:8px 16px; border-top:1px solid var(--border); background:#fff; font-size:11px; color:#8c959f; font-family:'IBM Plex Mono',monospace; }
+        .sidebar::-webkit-scrollbar{width:4px} .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+        /* ── KEYWORD HIGHLIGHT (in transcript bubbles) ── */
+        .kw-highlight {
+            background:rgba(248,81,73,0.12);
+            color:#b91c1c;
+            border-radius:3px;
+            padding:0 3px;
+            font-weight:600;
+        }
+
+        /* ── INCIDENT FORM ── */
+        .form-hdr { padding:10px 14px; border-bottom:1px solid var(--border); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#57606a; flex-shrink:0; background:#f6f8fa; display:flex; align-items:center; justify-content:space-between; }
+        .form-hdr .form-badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:none; letter-spacing:0; }
+        .form-idle { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#8c959f; text-align:center; padding:30px; }
+        .form-idle .f-ico { font-size:36px; opacity:0.3; }
+        .form-idle p { font-size:12px; line-height:1.7; }
+        .form-body { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+        .form-body::-webkit-scrollbar{width:4px} .form-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .form-section { background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+        .form-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#57606a; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .frow { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+        .frow.full { grid-template-columns:1fr; }
+        .frow.three { grid-template-columns:1fr 1fr 1fr; }
+        .fld label { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:3px; font-weight:600; }
+        .fld input, .fld select, .fld textarea {
+            width:100%; padding:6px 9px; border:1px solid var(--border); border-radius:5px;
+            font-size:12px; font-family:'IBM Plex Sans',sans-serif; color:var(--text);
+            background:#fff; outline:none; transition:border-color 0.15s;
+        }
+        .fld input:focus, .fld select:focus, .fld textarea:focus { border-color:var(--navy); box-shadow:0 0 0 2px rgba(0,31,95,0.08); }
+        .fld input.auto-filled { background:rgba(0,31,95,0.04); color:var(--navy); font-weight:500; }
+        .fld textarea { resize:vertical; min-height:72px; line-height:1.5; }
+        .ai-summary-box { background:linear-gradient(135deg,rgba(0,31,95,0.04),rgba(88,166,255,0.06)); border:1px solid rgba(0,31,95,0.18); border-radius:6px; padding:10px 12px; font-size:12px; color:#0d1117; line-height:1.6; min-height:60px; }
+        .ai-tag { display:inline-flex; align-items:center; gap:4px; font-size:10px; background:rgba(88,166,255,0.1); color:#0969da; border:1px solid rgba(88,166,255,0.3); border-radius:10px; padding:2px 8px; font-weight:600; margin-bottom:6px; }
+        .ai-idle { color:#8c959f; font-size:12px; font-style:italic; }
+        .form-submit-row { display:flex; gap:8px; margin-top:2px; }
+        .btn-submit { flex:1; padding:9px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s; }
+        .btn-submit:hover { background:#0a3080; }
+        .btn-clear { padding:9px 14px; background:#fff; color:#57606a; border:1px solid var(--border); border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
+        .btn-clear:hover { border-color:#cf222e; color:#cf222e; }
+        .kw-alert { display:none; margin:10px 14px 0; padding:8px 12px; border-radius:6px; background:rgba(248,81,73,0.07); border:1px solid rgba(248,81,73,0.35); font-size:11px; color:#cf222e; font-weight:600; animation:fi 0.3s ease; }
+
+        @keyframes suggestion-pop { 0%{transform:scale(0.97);opacity:0} 100%{transform:scale(1);opacity:1} }
+        .suggestion-new { animation:suggestion-pop 0.35s ease forwards; }
+        .kw-tag-pill { display:inline-flex; align-items:center; font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; background:rgba(248,81,73,0.1); color:#cf222e; border:1px solid rgba(248,81,73,0.3); margin:2px; font-family:'IBM Plex Mono',monospace; }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="hdr-left">
+        <img src="ministry-of-home-affairs.png" alt="MHA" class="hdr-logo" id="hdr-logo"
+             onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
+        <div class="hdr-logo-fallback" id="logo-fb">🛡️</div>
+        <div class="hdr-divider"></div>
+        <div class="hdr-title">SPF Intelligent Contact Centre</div>
+    </div>
+    <div class="hdr-center">
+        <span class="srch-ico">🔍</span>
+        <input type="text" class="hdr-search" placeholder="Search people, cases, NRIC, vehicles…">
+    </div>
+    <div class="hdr-right">
+        <button class="hic" title="Knowledge Base">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span class="lbl">Knowledge base</span>
+        </button>
+        <div class="nb-wrap">
+            <button class="hic" title="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+            </button>
+            <span class="nb-dot"></span>
+        </div>
+        <button class="hic" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </button>
+        <div class="hdr-avatar" id="hdr-av" title="Agent">A</div>
+        <div id="connection-status" class="disconnected">⬤ Disconnected</div>
+    </div>
+</div>
+
+<div class="workspace">
+
+    <!-- ── LEFT SIDEBAR ── -->
+    <div class="sidebar">
+        <div class="ss">
+            <h4>Agent</h4>
+            <div class="agent-card">
+                <div class="agent-av" id="agent-avatar">?</div>
+                <div class="agent-det">
+                    <div class="agent-nm" id="agent-name">Not Logged In</div>
+                    <div class="asr">
+                        <div class="sdot dot-unavail" id="status-dot"></div>
+                        <div class="slbl" id="status-label">Offline</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ss">
+            <h4>Status</h4>
+            <div class="sbtns">
+                <button class="btn btn-g" onclick="setAgentStatus('Available')">Available</button>
+                <button class="btn btn-r" onclick="setAgentStatus('Unavailable')">Unavailable</button>
+            </div>
+        </div>
+        <div class="ss">
+            <h4>Active Call</h4>
+            <div id="call-info" class="call-card">
+                <div class="fl"><label>From:</label><span id="caller-number">—</span></div>
+                <div class="fl"><label>Duration:</label><span id="call-duration">00:00</span></div>
+                <div class="fl"><label>Status:</label><span id="call-status">—</span></div>
+                <div class="cbtns">
+                    <button class="btn btn-g" onclick="acceptCall()">✓ Accept</button>
+                    <button class="btn btn-r" onclick="endCall()">✕ End</button>
+                    <button id="btn-hold-sb" class="btn btn-y" onclick="holdCall()">⏸ Hold</button>
+                    <button id="btn-mute-sb" class="btn btn-b" onclick="muteCall()">🔇 Mute</button>
+                </div>
+            </div>
+            <div id="no-call-msg" style="font-size:12px;color:#8c959f">No active call</div>
+        </div>
+        <div class="ss" style="flex:1;display:flex;flex-direction:column">
+            <h4>Customers in Queue</h4>
+            <div style="display:flex;flex-direction:column;gap:8px;overflow-y:auto">
+                <div class="qc" style="border-left-color:#f85149"><div class="qn">Ahmad bin Hassan</div><div class="qd">Lost property – wallet at Orchard MRT</div><div class="qm">IR-2024-71846 · Waiting 04:12</div></div>
+                <div class="qc" style="border-left-color:#d29922"><div class="qn">Lisa Ng Mei Hua</div><div class="qd">Parking dispute – blocked driveway</div><div class="qm">IR-2024-71801 · Waiting 02:45</div></div>
+                <div class="qc" style="border-left-color:#3fb950"><div class="qn">Raj Kumar</div><div class="qd">Suspicious activity – loitering near school</div><div class="qm">IR-2024-71823 · Waiting 01:08</div></div>
+                <div class="qc" style="border-left-color:#3fb950"><div class="qn">Mohammad Faizal</div><div class="qd">Noise complaint – loud music</div><div class="qm">IR-2024-71835 · Waiting 00:33</div></div>
+            </div>
+        </div>
+        <div class="ss" style="display:flex;flex-direction:column;border-bottom:none">
+            <h4>Activity Log</h4>
+            <div class="alog" id="activity-log"><div class="li">System initialized</div></div>
+        </div>
+    </div>
+
+    <!-- ── CENTER ── -->
+    <div class="ccp-area" id="ccp-area">
+    <div class="center-left">
+        <div id="ccp-container" style="position:fixed;left:-9999px;top:-9999px;width:320px;height:480px;overflow:hidden;pointer-events:none;"></div>
+
+        <!-- CUSTOMER PROFILE BAR -->
+        <div id="cpb" class="cpb">
+            <div class="cpb-summary">
+                <div class="cpb-left">
+                    <div class="cpb-av" id="cpb-av">JP</div>
+                    <div>
+                        <div class="cpb-name" id="cpb-name">JOHNNY PANG JUN JIE</div>
+                        <div class="cpb-meta">
+                            <span class="cpb-nric" id="cpb-nric">NRIC: T0012345A</span>
+                            <span class="ptag ptag-cit">SG Citizen</span>
+                            <span class="ptag ptag-onl" id="cpb-online-tag">● Calling in</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cpb-right">
+                    <div class="qs-wrap">
+                        <div class="qs"><div class="qs-v">3</div><div class="qs-l">Past Reports</div></div>
+                        <div class="qs"><div class="qs-v" id="dur-mini">00:00</div><div class="qs-l">Call Time</div></div>
+                    </div>
+                    <button class="btn-vd" id="btn-vd" onclick="toggleProfile()">
+                        View Details <i class="chev">▾</i>
+                    </button>
+                </div>
+            </div>
+            <div class="cpb-acc" id="cpb-acc">
+                <div class="cpb-inner">
+                    <h5>Personal Information</h5>
+                    <div class="pf-grid">
+                        <div class="pf"><label>Date of Birth</label><span>1 March 2000</span></div>
+                        <div class="pf"><label>Age</label><span>25 yrs old</span></div>
+                        <div class="pf"><label>Gender</label><span>Male</span></div>
+                        <div class="pf"><label>Race</label><span>Chinese</span></div>
+                        <div class="pf"><label>Citizenship</label><span>Singapore Citizen</span></div>
+                        <div class="pf"><label>Marital Status</label><span>Single</span></div>
+                        <div class="pf"><label>Contact Number</label><span class="mono">9999 8888</span></div>
+                        <div class="pf"><label>Religion</label><span>Free Thinker</span></div>
+                        <div class="pf wide"><label>Residential Address</label><span>Blk 123 Tanjong Pagar Plaza #12-456, Postal Code 081123</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATE 1 — IDLE -->
+        <div class="idle-panel" id="idle-panel">
+            <div class="idle-ico">📵</div>
+            <p>No active call<br><span style="font-size:11px;color:#aaa">Waiting for incoming calls…</span></p>
+        </div>
+
+        <!-- STATE 2 — RINGING -->
+        <div class="inc-panel" id="inc-panel">
+            <div class="inc-ring-wrap">
+                <div class="inc-ring">📞</div>
+            </div>
+            <div class="inc-info">
+                <div class="inc-label">Incoming Call</div>
+                <div class="inc-phone" id="inc-phone">+65 9999 8888</div>
+                <div class="inc-queue" id="inc-queue">Queue: General Enquiries</div>
+                <div class="inc-wait" id="inc-wait">Waiting 00:00</div>
+            </div>
+            <div class="inc-actions">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <button class="inc-btn inc-reject" onclick="rejectCall()" title="Reject">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                    <span class="inc-btn-lbl" style="color:#cf222e">Reject</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <button class="inc-btn inc-accept" onclick="acceptCall()" title="Accept">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </button>
+                    <span class="inc-btn-lbl" style="color:#1a7f37">Accept</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATE 3 — CONNECTED (live transcript) -->
+        <div class="tx-section" id="tx-section">
+            <div class="ccp-hdr">
+                <span>Live Transcript</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <button id="btn-hold" class="btn btn-y" style="padding:4px 10px;font-size:11px" onclick="holdCall()">⏸ Hold</button>
+                    <button id="btn-mute" class="btn btn-b" style="padding:4px 10px;font-size:11px" onclick="muteCall()">🔇 Mute</button>
+                    <button class="btn btn-r" style="padding:4px 10px;font-size:11px" onclick="endCall()">✕ End Call</button>
+                    <div id="tx-status" class="txstatus">Idle</div>
+                </div>
+            </div>
+            <div class="sentbar">
+                <div class="sentlbls">
+                    <span>😟 Negative</span>
+                    <span id="sent-lbl" style="color:#57606a">Neutral</span>
+                    <span>😊 Positive</span>
+                </div>
+                <div class="senttrack"><div class="sentfill" id="sent-fill"></div></div>
+            </div>
+
+            <!-- Transcript messages -->
+            <div class="txmsgs" id="tx-msgs">
+                <div class="empty-s" id="empty-s">
+                    <div class="ico">💬</div>
+                    <p>Transcript will appear here<br>as the conversation progresses</p>
+                </div>
+            </div>
+
+            <div class="dbgbar">
+                <span id="aps-status">AppSync: Not connected</span>
+                <span style="color:#8c959f" id="msg-count">0 utterances</span>
+            </div>
+        </div>
+
+    </div><!-- /center-left -->
+
+    <!-- CENTER RIGHT — INCIDENT REPORT FORM -->
+    <div class="center-right" id="center-right">
+        <div class="form-hdr">
+            <span>📋 Incident Report</span>
+            <span id="form-badge" class="form-badge" style="background:rgba(139,148,158,0.15);color:#57606a;">Waiting for call</span>
+        </div>
+        <div id="kw-alert" class="kw-alert">🔍 <span id="kw-alert-text">Keyword detected</span></div>
+        <div id="form-idle" class="form-idle">
+            <div class="f-ico">📋</div>
+            <p>Incident report will<br>auto-populate when<br>a call connects</p>
+        </div>
+        <div id="form-body" class="form-body" style="display:none">
+            <div class="form-section">
+                <div class="form-section-title">🤖 AI Summary <span style="font-size:9px;font-weight:500;color:#8c959f;text-transform:none;letter-spacing:0;">Auto-generated from transcript</span></div>
+                <div class="ai-tag">✨ Live AI Analysis</div>
+                <div class="ai-summary-box" id="ai-summary"><span class="ai-idle">Listening to call… summary will appear as conversation progresses.</span></div>
+                <div id="kw-tags-row" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;"></div>
+            </div>
+            <div class="form-section">
+                <div class="form-section-title">👤 Reporter Details</div>
+                <div class="frow">
+                    <div class="fld"><label>Full Name</label><input type="text" id="ff-name" class="auto-filled" readonly></div>
+                    <div class="fld"><label>NRIC / FIN</label><input type="text" id="ff-nric" class="auto-filled" readonly></div>
+                </div>
+                <div class="frow three">
+                    <div class="fld"><label>Contact Number</label><input type="text" id="ff-phone" class="auto-filled" readonly></div>
+                    <div class="fld"><label>Age</label><input type="text" id="ff-age" class="auto-filled" readonly></div>
+                    <div class="fld"><label>Gender</label><input type="text" id="ff-gender" class="auto-filled" readonly></div>
+                </div>
+                <div class="frow full">
+                    <div class="fld"><label>Residential Address</label><input type="text" id="ff-addr" class="auto-filled" readonly></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="form-section-title">🚨 Incident Details</div>
+                <div class="frow">
+                    <div class="fld"><label>Incident Type</label>
+                        <select id="ff-type">
+                            <option value="">— Select —</option>
+                            <option>Lost Property</option><option>Theft</option>
+                            <option>Harassment</option><option>Noise Complaint</option>
+                            <option>Suspicious Activity</option><option>Road Accident</option>
+                            <option>Assault</option><option>Fraud / Scam</option><option>Other</option>
+                        </select>
+                    </div>
+                    <div class="fld"><label>Priority</label>
+                        <select id="ff-priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="frow">
+                    <div class="fld"><label>Date</label><input type="text" id="ff-date" class="auto-filled"></div>
+                    <div class="fld"><label>Time Reported</label><input type="text" id="ff-time" class="auto-filled"></div>
+                </div>
+                <div class="frow full">
+                    <div class="fld"><label>Location of Incident</label><input type="text" id="ff-loc" placeholder="e.g. Blk 412 Ang Mo Kio Ave 10"></div>
+                </div>
+                <div class="frow full">
+                    <div class="fld"><label>Brief Description</label><textarea id="ff-desc" placeholder="Describe the incident..."></textarea></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <div class="form-section-title">📝 Officer Notes</div>
+                <div class="frow full">
+                    <div class="fld"><textarea id="ff-notes" placeholder="Additional observations or follow-up actions…" style="min-height:56px"></textarea></div>
+                </div>
+                <div class="frow three">
+                    <div class="fld"><label>Handled By</label><input type="text" id="ff-agent" class="auto-filled" readonly></div>
+                    <div class="fld"><label>Call ID</label><input type="text" id="ff-callid" class="auto-filled" readonly></div>
+                    <div class="fld"><label>Duration</label><input type="text" id="ff-dur" class="auto-filled" readonly></div>
+                </div>
+            </div>
+            <div class="form-submit-row">
+                <button class="btn-clear" onclick="clearForm()">🗑 Clear</button>
+                <button class="btn-submit" onclick="submitForm()">✔ Submit Incident Report</button>
+            </div>
+        </div>
+    </div>
+    </div><!-- /ccp-area -->
+
+    <!-- ── RIGHT: AMAZON Q ── -->
+    <div class="qpanel">
+        <div class="qphdr">
+            <h3>🤖 Amazon Q — Connect Assistant</h3>
+            <div class="txstatus live">Live</div>
+        </div>
+        <div class="qpbdy" id="q-panel-body">
+            <div class="qcard" id="q-default-action">
+                <div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>
+                <p>Waiting for call to connect. Suggestions will appear automatically when keywords are detected in the transcript.</p>
+            </div>
+            <div class="qcard" id="q-default-kb">
+                <div class="qctitle" style="color:#57606a">📚 Knowledge Base</div>
+                <a href="#" class="qkbl">↗ SOP: Harassment &amp; Neighbour Disputes</a>
+                <a href="#" class="qkbl">↗ Protection Order Application Guide</a>
+                <a href="#" class="qkbl">↗ Dealing with Neighbourhood Disputes: A Guide for Residents</a>
+                <a href="#" class="qkbl">↗ Reviewing local ordinances related to noise and public disturbances</a>
+            </div>
+            <div class="qcard">
+                <div class="qctitle" style="color:#57606a">✍️ AI Generated Draft</div>
+                <p>Repeat harassment complaint by Mdm Tan Mei Ling against neighbour at Blk 412 AMK Ave 10. Subject reportedly made verbal threats and kicked reporter's door. Reporter expresses fear for safety.</p>
+                <div class="qdnote">Review and edit before submission</div>
+            </div>
+            <div class="qcard">
+                <div class="qctitle" style="color:#57606a">💬 Ask a Question</div>
+                <input type="text" class="qaski" placeholder="Ask a question...">
+            </div>
+        </div>
+        <div class="qpfoot">Amazon Q · Connect Assistant</div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/amazon-connect-streams@2/release/connect-streams-min.js"></script>
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const ccpUrl      = "https://cerebro.my.connect.aws/ccp-v2";
+const APPSYNC_WS  = "wss://oya5jdgo4nauphhubeisoaqre4.appsync-realtime-api.us-west-2.amazonaws.com/graphql";
+const APPSYNC_HOST = "oya5jdgo4nauphhubeisoaqre4.appsync-api.us-west-2.amazonaws.com";
+const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2channel(name:$name){name data}}";
+const TOKEN_ATTR  = "token";
+
+// ── GLOBAL STATE ──────────────────────────────────────────────────────────────
+let agent=null, contact=null, timer=null, t0=null, ws=null, txCount=0, sentScores=[];
+let waitTimer=null, waitStart=null;
+
+// ════════════════════════════════════════════════════════════════════════════
+//  KEYWORD RULES — sorted longest-first so multi-word phrases match before
+//  shorter ones (e.g. "do not have the official admission offer" before "offer")
+// ════════════════════════════════════════════════════════════════════════════
+const KW_RULES = [
+  {
+    id: 'no_offer',
+    label: 'No Admission Offer',
+    // Sorted: longest phrase first
+    keywords: [
+      'do not have the official admission offer',
+      'does not have the official admission offer',
+      'don\'t have the official admission offer'
+    ]
+  },
+  {
+    id: 'offer',
+    label: 'Official Admission Offer',
+    keywords: [
+      'official admission offer',
+      'in-principal acceptance',
+      'in-principle acceptance'
+    ]
+  },
+  {
+    id: 'disruption',
+    label: 'Disruption',
+    keywords: [
+      'disruption',
+      'disrupted',
+      'disrupting'
+    ]
+  },
+  // ── original SPF rules retained below ──
+  {
+    id: 'fraud',
+    label: 'Fraud / Scam',
+    keywords: ['fraud','fraudulent','scam','phishing','fake transaction',
+               'someone used my card','unauthorized','unauthorised','compromised']
+  },
+  {
+    id: 'harassment',
+    label: 'Harassment',
+    keywords: ['harass','harassment','threaten','threat','verbal abuse',
+               'kicked','shouted','disturbing me','intimidate','bully']
+  },
+  {
+    id: 'lost_property',
+    label: 'Lost Property',
+    keywords: ['lost','missing','wallet','passport','lost and found',
+               'left behind','cannot find','misplaced','found item']
+  },
+  {
+    id: 'noise',
+    label: 'Noise Complaint',
+    keywords: ['noise','loud music','party noise','cannot sleep','late night noise']
+  },
+  {
+    id: 'suspicious',
+    label: 'Suspicious Activity',
+    keywords: ['suspicious','loitering','following me','stranger','unusual','trespassing']
+  },
+  {
+    id: 'accident',
+    label: 'Road Accident',
+    keywords: ['accident','crash','collision','hit and run']
+  },
+  {
+    id: 'assault',
+    label: 'Assault',
+    keywords: ['assault','attacked','hit me','punched','bleeding']
+  }
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  KB SUGGESTIONS — hardcoded per rule id
+// ════════════════════════════════════════════════════════════════════════════
+const KB_SUGGESTIONS = {
+  no_offer: {
+    action: 'NSF does not have admission offer and therefore will be required to provide additional documents.',
+    dispatch: null,
+    aiNote: 'NSF does not have the official admission offer. Additional documentary requirements apply — refer to the NS deferment SOP for list of accepted alternative documents.',
+    followups: [
+      { label: 'Advise on alternative document requirements', primary: false },
+      { label: 'Refer to NS deferment SOP', primary: false },
+      { label: 'Escalate to NS admin team', primary: true }
+    ],
+    articles: [
+      {
+        title: 'NS Deferment: Documentary Requirements (No Offer Letter)',
+        summary: 'Lists accepted alternative documents when applicant does not hold an official admission offer at time of application.',
+        url: '#'
+      },
+      {
+        title: 'IPA vs Official Offer — NS Deferment Policy',
+        summary: 'Explains the difference between In-Principal Acceptance and an official admission offer, and the processing implications.',
+        url: '#'
+      },
+      {
+        title: 'NS Deferment Application SOP',
+        summary: 'Full step-by-step procedure for processing NS deferment applications including document checklist.',
+        url: '#'
+      }
+    ]
+  },
+  offer: {
+    action: 'Verify whether caller holds an In-Principal Acceptance (IPA) or a full official admission offer letter. Processing timelines and requirements differ.',
+    dispatch: null,
+    aiNote: 'Admission offer or IPA mentioned. Confirm document type — IPA and official offer letters have different NS deferment processing paths.',
+    followups: [
+      { label: 'Confirm document type (IPA vs Official Offer)', primary: true },
+      { label: 'Check deferment eligibility criteria', primary: false },
+      { label: 'Guide caller to NS Portal submission', primary: false }
+    ],
+    articles: [
+      {
+        title: 'NS Deferment: Admission Offer Requirements',
+        summary: 'What constitutes a valid official admission offer for NS deferment purposes and accepted institutions.',
+        url: '#'
+      },
+      {
+        title: 'In-Principal Acceptance (IPA) — NS Processing Guide',
+        summary: 'How to process IPA-based deferment applications and additional steps required.',
+        url: '#'
+      }
+    ]
+  },
+  disruption: {
+    action: 'Log the nature of the disruption. If service-related, escalate to the relevant agency. If public order, dispatch accordingly.',
+    dispatch: 'Log Disruption Incident',
+    aiNote: 'Disruption keyword detected. Determine if this is a public order disruption or service/operational disruption and route accordingly.',
+    followups: [
+      { label: 'Classify disruption type', primary: true },
+      { label: 'Check for related active incidents', primary: false },
+      { label: 'Notify supervisory officer', primary: false }
+    ],
+    articles: [
+      {
+        title: 'SOP: Public Order Disruption Response',
+        summary: 'Procedures for handling reports of public disruption including escalation thresholds.',
+        url: '#'
+      },
+      {
+        title: 'Essential Services Disruption Reporting',
+        summary: 'How to log and route disruption reports affecting essential services (transport, utilities, comms).',
+        url: '#'
+      }
+    ]
+  },
+  fraud: {
+    action: 'Advise caller to file a Police Report at the nearest NPP or via eReport. Instruct caller NOT to transfer funds and to contact their bank immediately.',
+    dispatch: 'Open eReport Portal',
+    aiNote: 'Scam or fraud keyword detected. Remind caller to freeze accounts and do not engage further with scammer.',
+    followups: [
+      { label: 'Direct to Anti-Scam Centre (1800-722-6688)', primary: true },
+      { label: 'Advise on bank account freeze', primary: false },
+      { label: 'Log fraud report', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Scam / Fraud Reports', summary: 'Procedure for taking scam reports and escalating to the Anti-Scam Centre.', url: '#' },
+      { title: 'Common Scam Types 2024', summary: 'Overview of job scams, love scams, phishing and e-commerce fraud with detection tips.', url: '#' }
+    ]
+  },
+  harassment: {
+    action: 'Dispatch the nearest NPP officer. If caller fears immediate harm, escalate to Priority 1 and advise caller to lock their door.',
+    dispatch: 'Dispatch NPP Officer',
+    aiNote: 'Harassment or threat keyword detected. Assess whether immediate dispatch is required.',
+    followups: [
+      { label: 'Assess threat level', primary: true },
+      { label: 'Advise on Protection Order application', primary: false },
+      { label: 'Refer to Community Mediation Centre', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Harassment & Neighbour Disputes', summary: 'Guidelines including Protection Order referrals.', url: '#' },
+      { title: 'Protection Order Application Guide', summary: 'How victims apply for PPO/EPO through Family Justice Courts.', url: '#' }
+    ]
+  },
+  lost_property: {
+    action: 'Log a Lost Property report in COPS. Advise caller to check the Lost and Found portal and visit the nearest NPP with ID.',
+    dispatch: 'Open Lost & Found Portal',
+    aiNote: 'Lost property reported. Check if high-value items (NRIC, cards, passport) require additional advisory.',
+    followups: [
+      { label: 'Check Lost & Found portal', primary: true },
+      { label: 'Advise on card cancellation if wallet lost', primary: false },
+      { label: 'Log formal lost property report', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Lost Property Reporting', summary: 'Procedure for logging lost property and cross-referencing found items database.', url: '#' },
+      { title: 'MRT / Bus Lost Property Contacts', summary: 'SMRT and SBS contacts and procedures for items lost on public transport.', url: '#' }
+    ]
+  },
+  noise: {
+    action: 'Noise disputes between neighbours are primarily handled by HDB/Town Council. If noise persists past 10:30pm an officer can be dispatched.',
+    dispatch: 'Dispatch for Noise Check',
+    aiNote: 'Noise complaint detected. Check time of call — post-10:30pm complaints warrant officer dispatch.',
+    followups: [
+      { label: 'Refer to HDB / Town Council', primary: false },
+      { label: 'Dispatch officer (if after 10:30pm)', primary: true },
+      { label: 'Log noise complaint', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Noise Complaints & Public Nuisance', summary: 'SPF vs HDB/NEA jurisdiction and escalation thresholds.', url: '#' }
+    ]
+  },
+  suspicious: {
+    action: 'Log description of suspicious person/vehicle. Dispatch a patrol car. Advise caller to stay indoors and not confront.',
+    dispatch: 'Dispatch Patrol Car',
+    aiNote: 'Suspicious activity reported. Collect SCONE description: Sex, Clothing, Outstanding features, Name, Exit direction.',
+    followups: [
+      { label: 'Collect SCONE description', primary: true },
+      { label: 'Check for related incidents in area', primary: false },
+      { label: 'Dispatch patrol', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Suspicious Person / Activity Reports', summary: 'SCONE description framework and escalation procedures.', url: '#' }
+    ]
+  },
+  accident: {
+    action: 'Confirm injuries. Ensure SCDF (995) called if injured. Dispatch Traffic Police. Log vehicle details.',
+    dispatch: 'Dispatch Traffic Police',
+    aiNote: 'Road accident reported. Confirm if SCDF has been notified and obtain vehicle registration numbers.',
+    followups: [
+      { label: 'Confirm SCDF notified (995)', primary: true },
+      { label: 'Obtain vehicle details', primary: false },
+      { label: 'Dispatch Traffic Police', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Road Traffic Accident Reporting', summary: 'Vehicle details, injury status, SCDF coordination and GIA report issuance.', url: '#' }
+    ]
+  },
+  assault: {
+    action: 'Confirm safety of caller. If attack ongoing, despatch Priority 1. Confirm SCDF/995 called. Advise to preserve evidence.',
+    dispatch: '🚨 Priority 1 Despatch',
+    aiNote: 'Assault reported. Immediately assess whether attack is ongoing — Priority 1 despatch may be required.',
+    followups: [
+      { label: 'Confirm attack is not ongoing', primary: true },
+      { label: 'Confirm SCDF notified', primary: false },
+      { label: 'Advise on evidence preservation', primary: false }
+    ],
+    articles: [
+      { title: 'SOP: Assault & Voluntarily Causing Hurt', summary: 'Procedures and Penal Code sections 321–323.', url: '#' }
+    ]
+  }
+};
+
+// ── KEYWORD STATE ──────────────────────────────────────────────────────────────
+const kwDetected = new Set();
+const kwShown    = new Set();
+var   txLines    = [];
+
+// ════════════════════════════════════════════════════════════════════════════
+//  CENTRE PANEL STATE MACHINE
+// ════════════════════════════════════════════════════════════════════════════
+function setPanel(state) {
+    const cpb   = document.getElementById('cpb');
+    const idleP = document.getElementById('idle-panel');
+    const incP  = document.getElementById('inc-panel');
+    const txSec = document.getElementById('tx-section');
+
+    cpb.classList.remove('active','ringing');
+    idleP.style.display = 'none';
+    incP.classList.remove('visible');
+    txSec.classList.remove('visible');
+
+    if (state === 'idle') {
+        idleP.style.display = 'flex';
+    } else if (state === 'ringing') {
+        cpb.classList.add('active','ringing');
+        incP.classList.add('visible');
+        document.getElementById('cpb-online-tag').textContent = '● Calling in';
+        waitStart = Date.now();
+        waitTimer = setInterval(() => {
+            const ms=Date.now()-waitStart, m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
+            const el=document.getElementById('inc-wait'); if(el) el.textContent='Waiting '+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+        }, 1000);
+    } else if (state === 'connected') {
+        cpb.classList.add('active');
+        txSec.classList.add('visible');
+        document.getElementById('cpb-online-tag').textContent = '● Online now';
+        if(waitTimer){clearInterval(waitTimer);waitTimer=null;}
+    }
+}
+
+function toggleProfile(){
+    const acc=document.getElementById('cpb-acc'), btn=document.getElementById('btn-vd');
+    const isOpen=acc.classList.contains('open');
+    acc.classList.toggle('open',!isOpen);
+    btn.classList.toggle('open',!isOpen);
+    btn.innerHTML=(!isOpen?'Hide Details':'View Details')+' <i class="chev">▾</i>';
+}
+
+// ── APPSYNC ───────────────────────────────────────────────────────────────────
+function getToken(c){
+    try{
+        const attrs=c.getAttributes();
+        const token=attrs[TOKEN_ATTR]?.value;
+        if(!token){ log('⚠️ Token "'+TOKEN_ATTR+'" not found','error'); }
+        return token||'unknown';
+    }catch(e){return 'unknown';}
+}
+function connectWS(cid,tok){
+    if(ws){ws.close();ws=null;}
+    log('Connecting AppSync…');
+    const hdr={Authorization:cid+"+"+tok,host:APPSYNC_HOST};
+    const url=`${APPSYNC_WS}?header=${btoa(unescape(encodeURIComponent(JSON.stringify(hdr))))}&payload=${btoa('{}')}`;
+    ws=new WebSocket(url,['graphql-ws']);
+    ws.onopen=()=>{log('AppSync open','success');ws.send(JSON.stringify({type:'connection_init'}));};
+    ws.onmessage=(e)=>{
+        const m=JSON.parse(e.data);
+        if(m.type==='connection_ack') subscribe(ws,cid);
+        else if(m.type==='start_ack'){log('Live TX active','success');setTxStatus(true);setAps('🔴 LIVE');}
+        else if(m.type==='data') parseSegments(m);
+    };
+    ws.onerror=()=>{log('AppSync error','error');setAps('Error');};
+    ws.onclose=(e)=>{log('AppSync closed('+e.code+')','warning');setAps('Disconnected');setTxStatus(false);};
+}
+function subscribe(ws2,cid){
+    const auth=(contact?contact.getContactId()+"+"+getToken(contact):cid+"+unknown");
+    ws2.send(JSON.stringify({id:"s"+Date.now(),type:"start",payload:{data:JSON.stringify({query:SUB_QUERY,variables:{name:cid}}),extensions:{authorization:{Authorization:auth,host:APPSYNC_HOST}}}}));
+    log('Subscribed: '+cid,'success');
+}
+function parseSegments(msg){
+    try{
+        const outer=msg.payload?.data?.subscribe2channel; if(!outer)return;
+        const p=typeof outer.data==='string'?JSON.parse(outer.data):outer.data;
+        if(p.EventType!=='SEGMENTS'||!Array.isArray(p.Segments))return;
+        p.Segments.forEach(s=>{
+            const u=s.Utterance||s.Transcript;
+            if(u){const partial=u.PartialResultState==='PARTIAL';addMsg({text:u.Content||u.Transcript||u.content||'',role:u.ParticipantRole||u.ParticipantId||'UNKNOWN',sent:partial?null:(u.Sentiment||u.sentiment||null),partial});}
+            else if(s.Categories){
+                (s.Categories.MatchedCategories||[]).forEach(c=>{
+                    addSysMsg('🏷️ Category: '+c);
+                    if(!kwShown.has('cat_'+c)){kwShown.add('cat_'+c);renderKbSuggestions(c,c,c);}
+                });
+            }
+        });
+    }catch(e){console.error(e);log('Parse error','error');}
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  HIGHLIGHT KEYWORDS IN TRANSCRIPT TEXT
+//  Handles case-insensitive matching; sorts by length desc so long phrases
+//  match before short sub-words
+// ════════════════════════════════════════════════════════════════════════════
+function highlightKw(text) {
+    if (!text) return '';
+    // Collect all keywords, sort longest first to avoid partial clobbering
+    var allKws = [];
+    KW_RULES.forEach(function(rule) {
+        rule.keywords.forEach(function(kw) { allKws.push(kw); });
+    });
+    allKws.sort(function(a,b){ return b.length - a.length; });
+
+    // Escape HTML first
+    var r = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    allKws.forEach(function(kw) {
+        var esc = kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        var re  = new RegExp('(' + esc + ')', 'gi');
+        r = r.replace(re, '<span class="kw-highlight">$1</span>');
+    });
+    return r;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SCAN UTTERANCE FOR KEYWORDS
+// ════════════════════════════════════════════════════════════════════════════
+function scanKw(text) {
+    if (!text) return;
+    var lower = text.toLowerCase();
+
+    // Check longest keywords first (rules already ordered: no_offer before offer)
+    KW_RULES.forEach(function(rule) {
+        rule.keywords.forEach(function(kw) {
+            if (lower.indexOf(kw.toLowerCase()) >= 0 && !kwDetected.has(kw)) {
+                kwDetected.add(kw);
+                addKwTag(kw);
+                if (!kwShown.has(rule.id)) {
+                    kwShown.add(rule.id);
+                    flashKwAlert(rule.label + ' keyword detected: "' + kw + '"');
+                    log('🔍 Keyword [' + rule.label + ']: ' + kw, 'warning');
+                    renderKbSuggestions(rule.id, rule.label, kw);
+                    // Insert AI note into transcript
+                    injectAiNote(rule.id, kw);
+                }
+            }
+        });
+    });
+
+    txLines.push(text);
+    if (txLines.length % 3 === 0) updateAiSummary();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  TRANSCRIPT UI — new reference-style rows
+// ════════════════════════════════════════════════════════════════════════════
+function addMsg({text, role, sent, partial}) {
+    var c = document.getElementById('tx-msgs');
+    var e = document.getElementById('empty-s'); if(e) e.remove();
+
+    var isAg = (role||'').toUpperCase() === 'AGENT';
+    var now  = new Date().toLocaleTimeString('en-SG', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+
+    var row = document.createElement('div');
+    row.className = 'tx-row';
+
+    // Time column
+    var timeCol = document.createElement('div');
+    timeCol.className = 'tx-time';
+    timeCol.innerHTML = '<span>' + now + '</span>';
+
+    // Role column
+    var roleCol = document.createElement('div');
+    roleCol.className = 'tx-role';
+    roleCol.innerHTML = '<span class="' + (isAg ? 'role-agent' : 'role-customer') + '">' + (isAg ? 'Officer' : 'Caller') + '</span>';
+
+    // Bubble column
+    var bubbleCol = document.createElement('div');
+    bubbleCol.className = 'tx-bubble';
+    var bubbleInner = document.createElement('div');
+    bubbleInner.className = 'tx-bubble-inner ' + (isAg ? 'agent-bubble' : 'customer-bubble');
+    bubbleInner.innerHTML = '<span class="bubble-text">' + highlightKw(text) + '</span>';
+    if (partial) { bubbleInner.style.opacity = '0.6'; }
+    bubbleCol.appendChild(bubbleInner);
+
+    // Sentiment column
+    var sentCol = document.createElement('div');
+    sentCol.className = 'tx-sent';
+    if (sent) {
+        var cls  = sent === 'POSITIVE' ? 'sent-positive' : sent === 'NEGATIVE' ? 'sent-negative' : 'sent-neutral';
+        var dcls = sent === 'POSITIVE' ? 'sent-dot-pos'  : sent === 'NEGATIVE' ? 'sent-dot-neg'  : 'sent-dot-neu';
+        var lbl  = sent === 'POSITIVE' ? 'Calm' : sent === 'NEGATIVE' ? 'Upset' : 'Neutral';
+        sentCol.innerHTML = '<span class="sent-badge ' + cls + '"><span class="sent-dot ' + dcls + '"></span>' + lbl + '</span>';
+        updateSent(sent);
+    }
+
+    row.appendChild(timeCol);
+    row.appendChild(roleCol);
+    row.appendChild(bubbleCol);
+    row.appendChild(sentCol);
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+
+    txCount++;
+    document.getElementById('msg-count').textContent = txCount + ' utterances';
+    if (!partial) scanKw(text);
+}
+
+function addSysMsg(t) {
+    var c = document.getElementById('tx-msgs');
+    var e = document.getElementById('empty-s'); if(e) e.remove();
+    var wrap = document.createElement('div');
+    wrap.className = 'tx-ai-note';
+    wrap.innerHTML = '<div class="tx-ai-note-inner">' +
+        '<span class="ai-note-icon">⚠️</span>' +
+        '<span class="ai-note-label">System</span>' +
+        '<span class="ai-note-text">' + t + '</span>' +
+        '</div>';
+    c.appendChild(wrap);
+    c.scrollTop = c.scrollHeight;
+}
+
+// Inject AI NOTE inline into transcript after keyword detected
+function injectAiNote(ruleId, triggeredKw) {
+    var suggestion = KB_SUGGESTIONS[ruleId];
+    if (!suggestion || !suggestion.aiNote) return;
+
+    var c = document.getElementById('tx-msgs');
+    var wrap = document.createElement('div');
+    wrap.className = 'tx-ai-note';
+    wrap.innerHTML = '<div class="tx-ai-note-inner">' +
+        '<span class="ai-note-icon">✦</span>' +
+        '<span class="ai-note-label">AI Note</span>' +
+        '<span class="ai-note-text">' + suggestion.aiNote + '</span>' +
+        '</div>';
+    c.appendChild(wrap);
+
+    // Also inject follow-up suggestion buttons if available
+    if (suggestion.followups && suggestion.followups.length > 0) {
+        var fuWrap = document.createElement('div');
+        fuWrap.className = 'tx-followups';
+        var header = '<div class="tx-followups-header">' +
+            '<span class="fu-icon">✦</span>' +
+            '<span class="fu-label">AI Suggested Follow-ups</span>' +
+            '<span class="fu-note">(Recommendation only — officer discretion applies)</span>' +
+            '</div>';
+        var btns = '<div class="tx-followup-btns">';
+        suggestion.followups.forEach(function(fu) {
+            btns += '<button class="' + (fu.primary ? 'fu-btn-primary' : 'fu-btn-secondary') + '" onclick="log(\'Action: ' + fu.label.replace(/'/g,"\\'") + '\',\'success\')">' + fu.label + '</button>';
+        });
+        btns += '</div>';
+        fuWrap.innerHTML = header + btns;
+        c.appendChild(fuWrap);
+    }
+
+    c.scrollTop = c.scrollHeight;
+}
+
+function clearTx(){document.getElementById('tx-msgs').innerHTML='';txCount=0;sentScores=[];document.getElementById('msg-count').textContent='0 utterances';setSentBar(50,'Neutral');}
+function updateSent(s){var sc=s==='POSITIVE'?80:s==='NEGATIVE'?20:50;sentScores.push(sc);var avg=sentScores.reduce(function(a,b){return a+b},0)/sentScores.length;setSentBar(avg,avg>60?'Positive':avg<40?'Negative':'Neutral');}
+function setSentBar(v,lbl){var f=document.getElementById('sent-fill');var l=document.getElementById('sent-lbl');f.style.width=v+'%';f.style.background=v>60?'#3fb950':v<40?'#f85149':'#d29922';l.textContent=lbl;l.style.color=v>60?'#1a7f37':v<40?'#cf222e':'#9a6700';}
+function setTxStatus(live){var el=document.getElementById('tx-status');el.textContent=live?'🔴 LIVE':'Idle';el.className='txstatus'+(live?' live':'');}
+function setAps(t){var el=document.getElementById('aps-status');el.textContent='AppSync: '+t;el.className=t.includes('LIVE')?'connected':t.toLowerCase().includes('error')?'error':'';}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  RENDER KB SUGGESTION CARD IN AMAZON Q PANEL
+// ════════════════════════════════════════════════════════════════════════════
+function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
+    var qBody = document.getElementById('q-panel-body');
+    if (!qBody) return;
+
+    var suggestion = KB_SUGGESTIONS[ruleId];
+    if (!suggestion) return;
+
+    // Remove previous dynamic card
+    var old = document.getElementById('dynamic-kb-card');
+    if (old) old.remove();
+
+    var articleHtml = (suggestion.articles || []).map(function(a) {
+        return '<a href="' + a.url + '" class="qkbl" target="_blank">↗ ' + a.title + '</a>' +
+               '<p style="font-size:11px;color:#8c959f;margin:2px 0 10px 14px;line-height:1.5">' + a.summary + '</p>';
+    }).join('');
+
+    var dispatchHtml = suggestion.dispatch
+        ? '<button class="qdispatch" onclick="log(\'Dispatch: ' + suggestion.dispatch.replace(/'/g,"\\'") + '\',\'success\')">' + suggestion.dispatch + '</button>'
+        : '';
+
+    var card = document.createElement('div');
+    card.className = 'qcard suggestion-new';
+    card.id = 'dynamic-kb-card';
+    card.innerHTML =
+        '<div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>' +
+        '<p style="font-size:12px;color:#0d1117;line-height:1.6;margin-bottom:6px">' + suggestion.action + '</p>' +
+        dispatchHtml +
+        '<hr style="border:none;border-top:1px solid #e1e4e8;margin:12px 0">' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">' +
+            '<span style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.5px">Triggered by</span>' +
+            '<span class="kw-tag-pill">' + triggeredKw + '</span>' +
+            '<span style="font-size:10px;color:#8c959f">→ ' + ruleLabel + '</span>' +
+        '</div>' +
+        '<div class="qctitle" style="color:#57606a;margin-bottom:6px">📚 Knowledge Base</div>' +
+        articleHtml;
+
+    qBody.insertBefore(card, qBody.firstChild);
+    qBody.scrollTop = 0;
+    log('💡 KB suggestions loaded: ' + ruleLabel, 'success');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function flashKwAlert(msg){var el=document.getElementById('kw-alert');var tx=document.getElementById('kw-alert-text');if(!el)return;tx.textContent=msg;el.style.display='block';setTimeout(function(){el.style.display='none';},5000);}
+function addKwTag(kw){var row=document.getElementById('kw-tags-row');if(!row)return;var t=document.createElement('span');t.className='kw-tag-pill';t.textContent=kw;row.appendChild(t);}
+function updateAiSummary(){
+    var el=document.getElementById('ai-summary');
+    if(!el||txLines.length===0)return;
+    var issues=[];
+    KW_RULES.forEach(function(r){if(kwShown.has(r.id))issues.push(r.label);});
+    var s='Call in progress. '+txLines.length+' utterances. ';
+    if(issues.length>0)s+='Topics: '+issues.join(', ')+'. ';
+    var ph=document.getElementById('caller-number');
+    if(ph&&ph.textContent!=='—')s+='Caller: '+ph.textContent+'.';
+    el.innerHTML=s;
+    var dur=document.getElementById('call-duration'),ff=document.getElementById('ff-dur');
+    if(dur&&ff)ff.value=dur.textContent;
+}
+function resetKwEngine(){
+    kwDetected.clear();kwShown.clear();txLines=[];
+    var r=document.getElementById('kw-tags-row');if(r)r.innerHTML='';
+    var a=document.getElementById('kw-alert');if(a)a.style.display='none';
+    var s=document.getElementById('ai-summary');if(s)s.innerHTML='<span class="ai-idle">Summary will appear as conversation progresses.</span>';
+    var old=document.getElementById('dynamic-kb-card');if(old)old.remove();
+}
+
+// ── AMAZON CONNECT ────────────────────────────────────────────────────────────
+function initConnect(){
+    log('Init Amazon Connect…');
+    try{
+        connect.core.initCCP(document.getElementById('ccp-container'),{
+            ccpUrl, loginPopup:true, loginPopupAutoClose:true,
+            softphone:{allowFramedSoftphone:true},
+            ccpAckTimeout:5000, ccpSynTimeout:3000, ccpLoadTimeout:10000
+        });
+        log('CCP ready','success');
+    }catch(e){log('CCP error: '+e.message,'error');return;}
+
+    connect.agent(a=>{
+        agent=a; updateAgentInfo(a); updateConn(true);
+        const ini=a.getName().charAt(0).toUpperCase();
+        document.getElementById('agent-avatar').textContent=ini;
+        document.getElementById('hdr-av').textContent=ini;
+        a.onStateChange(s=>{updateStatus(s.newState);log('State: '+s.newState);});
+    });
+
+    connect.contact(ct=>{
+        contact=ct;
+        ct.onIncoming(()=>{
+            const ph=ct.getInitialConnection()?.getEndpoint()?.phoneNumber||'Unknown';
+            onIncoming(ct,ph);
+        });
+        try{
+            const st=ct.getStatus().type;
+            if(st===connect.ContactStateType.CONNECTING||st===connect.ContactStateType.INCOMING){
+                const ph=ct.getInitialConnection()?.getEndpoint()?.phoneNumber||'Unknown';
+                onIncoming(ct,ph);
+            }
+        }catch(e){}
+        ct.onAccepted(()=>onAccepted());
+        ct.onConnected(()=>{
+            const tok=getToken(ct);
+            if(tok&&tok!=='unknown'){connectWS(ct.getContactId(),tok);}
+            else{log('⚠️ No auth token — transcript disabled','error');}
+            onConnected();
+            fillCallId(ct.getContactId());
+        });
+        ct.onEnded(()=>{
+            onEnded();
+            if(ws){ws.close();ws=null;}
+            setTxStatus(false);setAps('Ended');
+        });
+        ct.onError(e=>log('Error: '+(e?.message||e),'error'));
+    });
+
+    connect.core.onAuthFail(()=>{log('Auth fail','error');updateConn(false);});
+    try{
+        connect.core.onWebSocketConnectionLost(()=>{log('WS lost','error');updateConn(false);});
+        connect.core.onWebSocketConnectionGained(()=>{log('WS restored','success');updateConn(true);});
+    }catch{}
+}
+
+// ── CALL LIFECYCLE ────────────────────────────────────────────────────────────
+function onIncoming(ct,ph){
+    document.getElementById('caller-number').textContent=ph;
+    document.getElementById('call-status').textContent='Ringing';
+    document.getElementById('call-info').classList.add('active');
+    document.getElementById('no-call-msg').style.display='none';
+    document.getElementById('inc-phone').textContent=ph;
+    document.getElementById('inc-wait').textContent='Waiting 00:00';
+    setPanel('ringing');
+    log('Incoming: '+ph,'success');
+    beep();
+}
+function onAccepted(){document.getElementById('call-status').textContent='Accepted';startTimer();log('Accepted','success');}
+function onConnected(){
+    document.getElementById('call-status').textContent='Connected';
+    clearTx();setPanel('connected');showForm();
+    log('Connected','success');
+}
+function onEnded(){
+    document.getElementById('call-info').classList.remove('active');
+    document.getElementById('no-call-msg').style.display='block';
+    document.getElementById('caller-number').textContent='—';
+    document.getElementById('call-status').textContent='—';
+    document.getElementById('call-duration').textContent='00:00';
+    document.getElementById('dur-mini').textContent='00:00';
+    document.getElementById('cpb-acc').classList.remove('open');
+    const btn=document.getElementById('btn-vd');btn.classList.remove('open');
+    btn.innerHTML='View Details <i class="chev">▾</i>';
+    stopTimer();
+    if(waitTimer){clearInterval(waitTimer);waitTimer=null;}
+    setPanel('idle');hideForm();resetKwEngine();contact=null;
+    log('Call ended','warning');
+}
+
+// ── CALL ACTIONS ──────────────────────────────────────────────────────────────
+function acceptCall(){if(contact){contact.accept();log('Accepting call…');}}
+function rejectCall(){if(contact){contact.getConnections().forEach(c=>c.destroy());log('Call rejected','warning');}}
+function endCall(){if(contact)contact.getConnections().forEach(c=>c.destroy());}
+function holdCall(){
+    if(!contact)return;
+    const cn=contact.getConnections()[0];if(!cn)return;
+    if(cn.isOnHold()){
+        cn.resume();
+        ['btn-hold','btn-hold-sb'].forEach(id=>{var el=document.getElementById(id);if(el)el.innerHTML='⏸ Hold';});
+        log('Resumed','success');
+    }else{
+        cn.hold();
+        ['btn-hold','btn-hold-sb'].forEach(id=>{var el=document.getElementById(id);if(el)el.innerHTML='▶ Resume';});
+        log('On hold','warning');
+    }
+}
+function muteCall(){
+    if(!contact)return;
+    const cn=contact.getConnections()[0];if(!cn)return;
+    if(cn.isMuted()){
+        cn.unmute();
+        ['btn-mute','btn-mute-sb'].forEach(id=>{var el=document.getElementById(id);if(el)el.innerHTML='🔇 Mute';});
+        log('Unmuted','success');
+    }else{
+        cn.mute();
+        ['btn-mute','btn-mute-sb'].forEach(id=>{var el=document.getElementById(id);if(el)el.innerHTML='🔊 Unmute';});
+        log('Muted','warning');
+    }
+}
+function setAgentStatus(s){
+    if(!agent){log('No agent','error');return;}
+    const t=agent.getAgentStates().find(x=>x.name.toLowerCase()===s.toLowerCase());
+    if(t) agent.setState(t,{success:()=>log('Status: '+s,'success'),failure:e=>log('Fail: '+e,'error')});
+    else log('State not found: '+s,'error');
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function updateAgentInfo(a){document.getElementById('agent-name').textContent=a.getName();updateStatus(a.getState().name);}
+function updateStatus(s){var d=document.getElementById('status-dot');document.getElementById('status-label').textContent=s;d.className='sdot';d.classList.add(s==='Available'?'dot-avail':s==='AfterCallWork'?'dot-acw':'dot-unavail');}
+function updateConn(ok){var el=document.getElementById('connection-status');el.textContent=ok?'⬤ Connected':'⬤ Disconnected';el.className=ok?'connected':'disconnected';}
+function log(msg,type='info'){var l=document.getElementById('activity-log');var d=document.createElement('div');d.className='li '+type;d.innerHTML='<span class="ts">'+new Date().toLocaleTimeString()+'</span>'+msg;l.insertBefore(d,l.firstChild);while(l.children.length>60)l.removeChild(l.lastChild);}
+function startTimer(){t0=Date.now();timer=setInterval(()=>{var ms=Date.now()-t0,m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000);var f=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;document.getElementById('call-duration').textContent=f;var dm=document.getElementById('dur-mini');if(dm)dm.textContent=f;},1000);}
+function stopTimer(){if(timer){clearInterval(timer);timer=null;t0=null;}}
+function beep(){try{var ctx=new(window.AudioContext||window.webkitAudioContext)();var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.5);}catch{}}
+
+// ── FORM ──────────────────────────────────────────────────────────────────────
+function showForm(){
+    var fi=document.getElementById('form-idle');if(fi)fi.style.display='none';
+    var fb=document.getElementById('form-body');if(fb){fb.style.display='flex';fb.style.flexDirection='column';}
+    var badge=document.getElementById('form-badge');
+    if(badge){badge.textContent='Live';badge.style.cssText='background:rgba(63,185,80,0.1);color:#1a7f37;border:1px solid rgba(63,185,80,0.3);font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;';}
+    var now=new Date();
+    var dd=document.getElementById('ff-date');if(dd)dd.value=now.toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'});
+    var dt=document.getElementById('ff-time');if(dt)dt.value=now.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
+    var nm=document.getElementById('cpb-name');var fnm=document.getElementById('ff-name');if(nm&&fnm)fnm.value=nm.textContent||'JOHNNY PANG JUN JIE';
+    var nr=document.getElementById('cpb-nric');var fnr=document.getElementById('ff-nric');if(nr&&fnr)fnr.value=(nr.textContent||'').replace('NRIC: ','');
+    var fa=document.getElementById('ff-age');if(fa)fa.value='25';
+    var fg=document.getElementById('ff-gender');if(fg)fg.value='Male';
+    var fp=document.getElementById('ff-phone');if(fp)fp.value='9999 8888';
+    var fadd=document.getElementById('ff-addr');if(fadd)fadd.value='Blk 123 Tanjong Pagar Plaza #12-456, 081123';
+    var an=document.getElementById('agent-name');var fan=document.getElementById('ff-agent');if(an&&fan)fan.value=an.textContent||'';
+}
+function fillCallId(cid){var el=document.getElementById('ff-callid');if(el)el.value=cid||'';}
+function hideForm(){
+    var fi=document.getElementById('form-idle');if(fi)fi.style.display='flex';
+    var fb=document.getElementById('form-body');if(fb)fb.style.display='none';
+    var badge=document.getElementById('form-badge');
+    if(badge){badge.textContent='Waiting for call';badge.style.cssText='background:rgba(139,148,158,0.15);color:#57606a;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;';}
+}
+function clearForm(){
+    ['ff-type','ff-loc','ff-desc','ff-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+    var pr=document.getElementById('ff-priority');if(pr)pr.value='medium';
+    var sum=document.getElementById('ai-summary');if(sum)sum.innerHTML='<span class="ai-idle">Listening...</span>';
+    var row=document.getElementById('kw-tags-row');if(row)row.innerHTML='';
+    kwDetected.clear();kwShown.clear();txLines=[];
+}
+function submitForm(){
+    var t=document.getElementById('ff-type').value;
+    var desc=document.getElementById('ff-desc').value;
+    if(!t){alert('Please select an Incident Type.');return;}
+    if(!desc){alert('Please add a Brief Description.');return;}
+    var btn=document.querySelector('.btn-submit');
+    btn.textContent='Submitted!';btn.style.background='#1a7f37';btn.disabled=true;
+    log('Incident report submitted','success');
+    setTimeout(function(){btn.textContent='✔ Submit Incident Report';btn.style.background='';btn.disabled=false;},3000);
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    setPanel('idle');
+    log('Page loaded');
+    if (ccpUrl.includes('YOUR_INSTANCE')) return;
+    initConnect();
+});
+window.addEventListener('beforeunload', () => { if(ws) ws.close(); });
+</script>
+</body>
+</html>
