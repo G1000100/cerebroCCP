@@ -7,343 +7,388 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
         :root {
-            --bg:#e6edf3; --border:#d0d7de; --accent:#58a6ff;
-            --green:#3fb950; --red:#f85149; --yellow:#d29922;
-            --text:#0d1117; --navy:#001F5F;
+            --bg:#ffffff; --border:#dde1e6; --accent:#58a6ff;
+            --green:#2ea043; --red:#d73a49; --yellow:#d29922;
+            --text:#1c2432; --navy:#001F5F; --sidebar:#ffffff;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'IBM Plex Sans',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+        body { font-family:'IBM Plex Sans',sans-serif; background:#ffffff; color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
 
-        /* ── HEADER ── */
-        .header { background:var(--navy); border-bottom:1px solid #0a3080; padding:0 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; height:54px; gap:14px; }
+        /* ══ HEADER ══════════════════════════════════════════════════ */
+        .header { background:var(--navy); border-bottom:1px solid #0a3080; padding:0 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; height:52px; gap:14px; }
         .hdr-left { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-        .hdr-logo { height:80px; width:auto; object-fit:contain; flex-shrink:0; }
-        .hdr-logo-fallback { width:80px; height:80px; background:linear-gradient(135deg,#c0392b,#7a1212); border-radius:50%; border:2px solid rgba(255,255,255,0.3); display:none; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+        .hdr-logo { height:34px; width:auto; object-fit:contain; flex-shrink:0; }
+        .hdr-logo-fallback { width:34px; height:34px; background:linear-gradient(135deg,#c0392b,#7a1212); border-radius:50%; border:2px solid rgba(255,255,255,0.3); display:none; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
         .hdr-divider { width:1px; height:26px; background:rgba(255,255,255,0.22); flex-shrink:0; }
-        .hdr-title { font-size:14px; font-weight:600; color:#fff; white-space:nowrap; letter-spacing:0.3px; }
-        .hdr-center { flex:1; max-width:460px; position:relative; }
+        .hdr-title { font-size:13.5px; font-weight:600; color:#fff; white-space:nowrap; letter-spacing:0.3px; }
+        .hdr-center { flex:1; max-width:500px; position:relative; }
         .hdr-search { width:100%; padding:7px 12px 7px 34px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; font-size:12.5px; font-family:'IBM Plex Sans',sans-serif; outline:none; transition:all 0.2s; }
         .hdr-search::placeholder { color:rgba(255,255,255,0.45); }
-        .hdr-search:focus { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.38); box-shadow:0 0 0 3px rgba(127,179,255,0.14); }
+        .hdr-search:focus { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.38); }
         .srch-ico { position:absolute; left:9px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.45); font-size:13px; pointer-events:none; }
         .hdr-right { display:flex; align-items:center; gap:2px; flex-shrink:0; }
-        .hic { display:flex; align-items:center; gap:5px; padding:6px 9px; border-radius:6px; cursor:pointer; color:rgba(255,255,255,0.78); font-size:12px; border:none; background:none; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s,color 0.15s; white-space:nowrap; }
+        .hic { display:flex; align-items:center; gap:5px; padding:6px 9px; border-radius:6px; cursor:pointer; color:rgba(255,255,255,0.78); font-size:12px; border:none; background:none; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s; white-space:nowrap; }
         .hic:hover { background:rgba(255,255,255,0.11); color:#fff; }
         .hic svg { width:17px; height:17px; flex-shrink:0; }
         .hic .lbl { font-size:11.5px; font-weight:500; }
         .nb-wrap { position:relative; }
         .nb-dot { position:absolute; top:5px; right:7px; width:6px; height:6px; background:var(--red); border-radius:50%; border:1.5px solid var(--navy); }
-        .hdr-avatar { width:29px; height:29px; border-radius:50%; background:linear-gradient(135deg,#0078d4,#005a9e); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; cursor:pointer; border:2px solid rgba(255,255,255,0.28); transition:border-color 0.15s; }
-        .hdr-avatar:hover { border-color:rgba(255,255,255,0.65); }
+        .hdr-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#0078d4,#005a9e); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; cursor:pointer; border:2px solid rgba(255,255,255,0.28); }
         #connection-status { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:4px 9px; border-radius:4px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.18); color:rgba(255,255,255,0.65); white-space:nowrap; margin-left:4px; }
-        #connection-status.connected { color:var(--green); border-color:var(--green); }
+        #connection-status.connected { color:#3fb950; border-color:#3fb950; }
         #connection-status.disconnected { color:#ff8080; border-color:rgba(248,81,73,0.5); }
 
-        /* ── LAYOUT ── */
-        .workspace { display:grid; grid-template-columns:260px 1fr 340px; flex:1; overflow:hidden; }
+        /* ══ LAYOUT ══════════════════════════════════════════════════ */
+        .workspace { display:grid; grid-template-columns:44px 220px 1fr 300px; flex:1; overflow:hidden; }
 
-        /* ── CENTER SPLIT */
-        .ccp-area { background:#fff; display:grid; grid-template-columns:1fr 1fr; border-right:1px solid var(--border); overflow:hidden; }
-        .center-left  { display:flex; flex-direction:column; overflow:hidden; border-right:2px solid var(--navy); }
-        .center-right { display:flex; flex-direction:column; overflow:hidden; background:#f6f8fa; }
+        /* ══ LEFT NAV ICON RAIL ══════════════════════════════════════ */
+        .left-nav { background:var(--navy); display:flex; flex-direction:column; align-items:center; padding:8px 0; gap:2px; flex-shrink:0; border-right:1px solid rgba(255,255,255,0.08); }
+        .ln-btn { width:36px; height:36px; border:none; background:none; color:rgba(255,255,255,0.4); cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:7px; transition:all 0.15s; flex-shrink:0; }
+        .ln-btn:hover { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.85); }
+        .ln-btn.active { background:rgba(255,255,255,0.13); color:#fff; }
+        .ln-btn svg { width:17px; height:17px; }
+        .ln-spacer { flex:1; }
 
-        /* ── SIDEBAR ── */
-        .sidebar { background:#f6f8fa; border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; }
-        .ss { padding:14px 16px; border-bottom:1px solid var(--border); }
-        .ss h4 { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#57606a; margin-bottom:10px; }
-        .agent-card { display:flex; align-items:center; gap:12px; }
-        .agent-av { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0078d4,#005a9e); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; flex-shrink:0; }
-        .agent-det { flex:1; min-width:0; }
-        .agent-nm { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text); }
-        .asr { display:flex; align-items:center; gap:6px; margin-top:2px; }
-        .sdot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-        .dot-avail { background:var(--green); box-shadow:0 0 6px var(--green); }
-        .dot-unavail { background:var(--red); }
+        /* ══ SIDEBAR ═════════════════════════════════════════════════ */
+        .sidebar { background:#ffffff; border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+
+        /* Sidebar top header */
+        .sb-top { padding:10px 12px 8px; border-bottom:1px solid var(--border); flex-shrink:0; }
+        .sb-top-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .sb-icon-btn { width:28px; height:28px; border:none; background:#f0f2f5; border-radius:5px; color:#57606a; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+        .sb-icon-btn:hover { background:#e8ecf0; }
+        .sb-voice-label { font-size:13px; font-weight:600; color:var(--navy); flex:1; }
+        .sb-search { width:100%; padding:6px 10px 6px 28px; background:#f6f8fa; border:1px solid var(--border); border-radius:5px; color:var(--text); font-size:11.5px; font-family:'IBM Plex Sans',sans-serif; outline:none; }
+        .sb-search::placeholder { color:#8c959f; }
+        .sb-search:focus { border-color:var(--navy); background:#fff; }
+        .sb-search-wrap { position:relative; }
+        .sb-search-ico { position:absolute; left:8px; top:50%; transform:translateY(-50%); color:#8c959f; font-size:12px; pointer-events:none; }
+
+        /* Sidebar section headers */
+        .sb-sec { flex-shrink:0; }
+        .sb-sec-hdr { padding:8px 12px 4px; display:flex; align-items:center; justify-content:space-between; }
+        .sb-sec-title { font-size:11px; font-weight:700; color:#57606a; text-transform:uppercase; letter-spacing:0.8px; display:flex; align-items:center; gap:6px; }
+        .sb-count { font-size:10px; background:#eaeef2; color:#57606a; padding:1px 6px; border-radius:8px; font-weight:600; letter-spacing:0; text-transform:none; }
+        .sb-sec-toggle { font-size:11px; color:#8c959f; cursor:pointer; border:none; background:none; }
+
+        /* Call items */
+        .sb-calls { overflow-y:auto; flex:1; }
+        .sb-calls::-webkit-scrollbar { width:3px; }
+        .sb-calls::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+        .call-item { padding:9px 12px; border-bottom:1px solid #e8ecf0; cursor:pointer; transition:background 0.15s; background:#fff; }
+        .call-item:hover { background:#f0f4f8; }
+        .call-item.active-item { background:#e8f1ff; border-left:2px solid var(--accent); }
+        .call-item-top { display:flex; align-items:center; gap:7px; }
+        .call-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+        .call-dot-green { background:#2ea043; box-shadow:0 0 5px #2ea043; }
+        .call-dot-red { background:#d73a49; box-shadow:0 0 4px rgba(215,58,73,0.5); }
+        .call-dot-yellow { background:#d29922; }
+        .call-name { font-size:12px; font-weight:600; color:#1c2432; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .call-timer { font-size:11px; font-family:'IBM Plex Mono',monospace; color:#57606a; flex-shrink:0; }
+        .call-timer.over { color:#d73a49; font-weight:600; }
+        .call-desc { font-size:11px; color:#57606a; margin-top:3px; padding-left:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .call-ir { font-size:10px; color:#8c959f; margin-top:2px; padding-left:15px; font-family:'IBM Plex Mono',monospace; display:flex; align-items:center; gap:6px; }
+        .sla-badge { font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; background:#d73a49; color:#fff; letter-spacing:0.3px; }
+
+        /* Sidebar divider */
+        .sb-div { height:1px; background:var(--border); margin:0; flex-shrink:0; }
+
+        /* Agent card at bottom */
+        .sb-agent { padding:10px 12px; flex-shrink:0; border-top:1px solid var(--border); }
+        .agent-card { display:flex; align-items:center; gap:9px; }
+        .agent-av { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#0078d4,#005a9e); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#fff; flex-shrink:0; }
+        .agent-nm { font-size:12px; font-weight:600; color:var(--navy); }
+        .asr { display:flex; align-items:center; gap:5px; margin-top:2px; }
+        .sdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .dot-avail { background:#2ea043; box-shadow:0 0 5px #2ea043; }
+        .dot-unavail { background:#d73a49; }
         .dot-acw { background:var(--yellow); }
-        .slbl { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; }
-        .sbtns { display:flex; gap:8px; }
-        .btn { padding:7px 14px; border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; background:#fff; color:var(--text); }
-        .btn:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,0.12); }
-        .btn-g { background:rgba(63,185,80,0.1); border-color:var(--green); color:#1a7f37; }
-        .btn-r { background:rgba(248,81,73,0.1); border-color:var(--red); color:#cf222e; }
-        .btn-y { background:rgba(210,153,34,0.1); border-color:var(--yellow); color:#9a6700; }
-        .btn-b { background:rgba(9,105,218,0.1); border-color:#0969da; color:#0969da; }
-        .btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-        .call-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px; display:none; }
-        .call-card.active { display:block; border-color:var(--green); background:rgba(63,185,80,0.04); }
-        .call-card .fl { margin-bottom:8px; font-size:12px; color:var(--text); }
-        .call-card .fl label { color:#57606a; margin-right:6px; }
-        .call-card .fl span { font-family:'IBM Plex Mono',monospace; }
-        .cbtns { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
-        .cbtns .btn { padding:5px 10px; font-size:11px; }
-        .alog { flex:1; overflow-y:auto; max-height:160px; }
-        .li { padding:5px 8px; border-left:2px solid var(--border); margin-bottom:4px; font-size:11px; font-family:'IBM Plex Mono',monospace; color:#57606a; background:#fff; border-radius:0 4px 4px 0; }
-        .li.success { border-color:var(--green); color:#1a7f37; }
-        .li.error { border-color:var(--red); color:#cf222e; }
-        .li.warning { border-color:var(--yellow); color:#9a6700; }
-        .li .ts { color:#8c959f; margin-right:6px; }
-        .qc { background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px 12px; border-left-width:3px; border-left-style:solid; }
-        .qc .qn { font-size:12px; font-weight:700; color:var(--text); }
-        .qc .qd { font-size:11px; color:#57606a; margin-top:2px; }
-        .qc .qm { font-size:10px; color:#8c959f; margin-top:4px; font-family:'IBM Plex Mono',monospace; }
+        .slbl { font-size:10.5px; color:#57606a; font-family:'IBM Plex Mono',monospace; }
+        .sb-status-btns { display:flex; gap:6px; margin-top:8px; }
+        .sb-sbtn { flex:1; padding:5px 8px; border:none; border-radius:5px; font-size:11px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
+        .sb-sbtn-avail { background:rgba(46,160,67,0.1); color:#1a7f37; border:1px solid rgba(46,160,67,0.3); }
+        .sb-sbtn-avail:hover { background:rgba(46,160,67,0.18); }
+        .sb-sbtn-unavail { background:rgba(215,58,73,0.08); color:#d73a49; border:1px solid rgba(215,58,73,0.25); }
+        .sb-sbtn-unavail:hover { background:rgba(215,58,73,0.15); }
 
-        /* ── CENTER ── */
-        .ccp-hdr { padding:10px 16px; border-bottom:1px solid var(--border); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#57606a; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; background:#f6f8fa; }
+        /* Activity log */
+        .sb-alog { flex-shrink:0; border-top:1px solid var(--border); }
+        .sb-alog-hdr { padding:7px 12px 5px; font-size:10px; font-weight:700; color:#8c959f; text-transform:uppercase; letter-spacing:0.8px; }
+        .alog { max-height:110px; overflow-y:auto; padding:0 8px 8px; }
+        .alog::-webkit-scrollbar { width:3px; }
+        .alog::-webkit-scrollbar-thumb { background:var(--border); }
+        .li { padding:3px 6px; border-left:2px solid var(--border); margin-bottom:3px; font-size:10px; font-family:'IBM Plex Mono',monospace; color:#8c959f; border-radius:0 3px 3px 0; }
+        .li.success { border-color:#2ea043; color:#3fb950; }
+        .li.error { border-color:#d73a49; color:#f85149; }
+        .li.warning { border-color:var(--yellow); color:#e3b341; }
+        .li .ts { color:#c0c7d0; margin-right:5px; }
 
-        /* ── INCOMING CALL PANEL ── */
-        .inc-panel { display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:40px 24px; background:#fff; }
-        .inc-panel.visible { display:flex; }
-        .inc-ring-wrap { position:relative; display:flex; align-items:center; justify-content:center; }
-        .inc-ring { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,#1a7f37,#2ea043); display:flex; align-items:center; justify-content:center; font-size:36px; animation:ringpulse 1.4s ease-in-out infinite; box-shadow:0 4px 24px rgba(63,185,80,0.35); }
-        @keyframes ringpulse {
-            0%   { box-shadow:0 0 0 0 rgba(63,185,80,0.55),0 4px 24px rgba(63,185,80,0.35); }
-            60%  { box-shadow:0 0 0 20px rgba(63,185,80,0),0 4px 24px rgba(63,185,80,0.35); }
-            100% { box-shadow:0 0 0 0 rgba(63,185,80,0),0 4px 24px rgba(63,185,80,0.35); }
-        }
-        .inc-info { text-align:center; }
-        .inc-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#8c959f; margin-bottom:6px; }
-        .inc-phone { font-size:26px; font-weight:700; color:var(--navy); font-family:'IBM Plex Mono',monospace; letter-spacing:1px; }
-        .inc-queue { font-size:12px; color:#57606a; margin-top:4px; }
-        .inc-wait  { font-size:11px; color:#8c959f; margin-top:2px; font-family:'IBM Plex Mono',monospace; }
-        .inc-actions { display:flex; gap:20px; align-items:center; }
-        .inc-btn { width:68px; height:68px; border-radius:50%; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:11px; font-weight:700; font-family:'IBM Plex Sans',sans-serif; transition:transform 0.15s, box-shadow 0.15s; }
-        .inc-btn:hover { transform:scale(1.08); }
-        .inc-accept { background:linear-gradient(135deg,#1a7f37,#2ea043); color:#fff; box-shadow:0 4px 16px rgba(46,160,67,0.45); }
-        .inc-accept:hover { box-shadow:0 6px 24px rgba(46,160,67,0.6); }
-        .inc-reject { background:linear-gradient(135deg,#b91c1c,#dc2626); color:#fff; box-shadow:0 4px 16px rgba(220,38,38,0.4); }
-        .inc-reject:hover { box-shadow:0 6px 24px rgba(220,38,38,0.55); }
-        .inc-btn svg { width:26px; height:26px; }
-        .inc-btn-lbl { font-size:10px; font-weight:700; letter-spacing:0.3px; }
+        /* ══ CENTER AREA ═════════════════════════════════════════════ */
+        .ccp-area { display:grid; grid-template-columns:1fr; overflow:hidden; background:#fff; }
+        .center-left { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); background:#fff; }
+
+        /* Hidden CCP container */
+        #ccp-container { position:fixed; left:-9999px; top:-9999px; width:320px; height:480px; overflow:hidden; pointer-events:none; }
+
+        /* ── STATE: Pre-login ── */
+        .prelogin-panel { display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; }
+        .prelogin-panel.visible { display:flex; }
+        .prelogin-ico { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,rgba(0,31,95,0.08),rgba(0,31,95,0.14)); display:flex; align-items:center; justify-content:center; font-size:32px; margin-bottom:4px; }
+        .prelogin-panel h3 { font-size:16px; font-weight:700; color:var(--navy); }
+        .prelogin-panel p { font-size:12.5px; color:#57606a; line-height:1.7; max-width:280px; }
+        .prelogin-hint { margin-top:8px; font-size:11px; color:#8c959f; background:#f6f8fa; border:1px solid var(--border); border-radius:6px; padding:8px 14px; }
+
+        /* ── STATE: Idle (logged in, no call) ── */
+        .idle-loggedin { display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:40px; text-align:center; }
+        .idle-loggedin.visible { display:flex; }
+        .idle-loggedin-ico { font-size:42px; opacity:0.25; }
+        .idle-loggedin h3 { font-size:14px; font-weight:600; color:var(--navy); }
+        .idle-loggedin p { font-size:12px; color:#8c959f; }
+        .status-dropdown { position:relative; margin-top:16px; }
+        .status-dd-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:20px; border:1.5px solid var(--border); background:#fff; font-size:13px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; cursor:pointer; transition:all 0.15s; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+        .status-dd-btn:hover { box-shadow:0 3px 10px rgba(0,0,0,0.12); border-color:#aab0b8; }
+        .status-dd-btn.avail { border-color:rgba(46,160,67,0.4); color:#1a7f37; }
+        .status-dd-btn.unavail { border-color:rgba(215,58,73,0.4); color:#cf222e; }
+        .status-dd-arrow { font-size:10px; opacity:0.6; transition:transform 0.15s; }
+        .status-dd-btn.open .status-dd-arrow { transform:rotate(180deg); }
+        .status-dd-menu { display:none; position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%); min-width:160px; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:100; overflow:hidden; }
+        .status-dd-menu.open { display:block; animation:dd-pop 0.15s ease; }
+        @keyframes dd-pop { from{opacity:0;transform:translateX(-50%) translateY(-4px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+        .status-dd-item { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; border:none; background:none; font-size:12.5px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; cursor:pointer; transition:background 0.1s; }
+        .status-dd-item:hover { background:#f6f8fa; }
+        .status-dd-item.to-avail { color:#1a7f37; }
+        .status-dd-item.to-unavail { color:#cf222e; }
 
         /* ── CUSTOMER PROFILE BAR ── */
-        .cpb { display:none; background:#fff; border-bottom:2px solid var(--navy); flex-shrink:0; }
+        .cpb { display:none; flex-shrink:0; background:#fff; border-bottom:1px solid var(--border); }
         .cpb.active { display:block; }
-        .cpb.ringing { border-bottom-color:var(--green); }
-        .cpb-summary { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; gap:12px; }
-        .cpb-left { display:flex; align-items:center; gap:11px; min-width:0; }
-        .cpb-av { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--navy),#0a3080); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; border:2px solid rgba(0,31,95,0.15); }
+        .cpb.ringing { border-bottom-color:#2ea043; background:rgba(46,160,67,0.02); }
+        .cpb-summary { display:flex; align-items:center; justify-content:space-between; padding:10px 16px; gap:12px; }
+        .cpb-left { display:flex; align-items:center; gap:11px; min-width:0; flex:1; }
+        .cpb-av { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--navy),#0a3080); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
         .cpb-name { font-size:14px; font-weight:700; color:var(--navy); }
-        .cpb-meta { display:flex; align-items:center; gap:7px; margin-top:4px; flex-wrap:wrap; }
-        .cpb-nric { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; background:#f0f3f6; padding:2px 7px; border-radius:4px; border:1px solid var(--border); }
-        .ptag { font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; text-transform:uppercase; letter-spacing:0.3px; }
-        .ptag-cit { background:rgba(0,31,95,0.08); color:var(--navy); border:1px solid rgba(0,31,95,0.17); }
-        .ptag-onl { background:rgba(63,185,80,0.1); color:#1a7f37; border:1px solid rgba(63,185,80,0.3); }
-        .cpb-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-        .qs-wrap { display:flex; gap:8px; }
-        .qs { text-align:center; padding:4px 12px; background:#f6f8fa; border:1px solid var(--border); border-radius:6px; }
-        .qs-v { font-size:14px; font-weight:700; color:var(--navy); font-family:'IBM Plex Mono',monospace; }
-        .qs-l { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; }
-        .btn-vd { padding:7px 15px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+        .cpb-meta { display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap; }
+        .cpb-nric { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; background:#f0f3f6; padding:1px 6px; border-radius:4px; border:1px solid var(--border); }
+        .cpb-phone { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; }
+        .ptag { font-size:10px; font-weight:600; padding:1px 6px; border-radius:8px; }
+        .ptag-ringing { background:rgba(46,160,67,0.1); color:#1a7f37; border:1px solid rgba(46,160,67,0.3); animation:pulse 1.5s infinite; }
+        .ptag-connected { background:rgba(9,105,218,0.08); color:#0969da; border:1px solid rgba(9,105,218,0.2); }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        .cpb-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .qs-wrap { display:flex; gap:6px; }
+        .qs { text-align:center; padding:4px 10px; background:#f6f8fa; border:1px solid var(--border); border-radius:5px; }
+        .qs-v { font-size:13px; font-weight:700; color:var(--navy); font-family:'IBM Plex Mono',monospace; }
+        .qs-l { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.4px; }
+        .btn-vd { padding:6px 12px; background:var(--navy); color:#fff; border:none; border-radius:5px; font-size:11px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:4px; white-space:nowrap; }
         .btn-vd:hover { background:#0a3080; }
-        .chev { transition:transform 0.25s; display:inline-block; font-style:normal; }
+        .chev { transition:transform 0.25s; display:inline-block; font-style:normal; font-size:10px; }
         .btn-vd.open .chev { transform:rotate(180deg); }
-        .cpb-acc { max-height:0; overflow:hidden; transition:max-height 0.33s ease, opacity 0.25s ease; opacity:0; }
-        .cpb-acc.open { max-height:240px; opacity:1; }
-        .cpb-inner { padding:11px 16px 13px; border-top:1px solid #e8ecf0; background:#fafbfc; }
-        .cpb-inner h5 { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8c959f; margin-bottom:9px; }
-        .pf-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:9px 14px; }
-        .pf { min-width:0; }
+        .cpb-acc { max-height:0; overflow:hidden; transition:max-height 0.33s ease, opacity 0.25s; opacity:0; }
+        .cpb-acc.open { max-height:200px; opacity:1; }
+        .cpb-inner { padding:10px 16px 12px; border-top:1px solid #e8ecf0; background:#ffffff; }
+        .cpb-inner h5 { font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8c959f; margin-bottom:8px; }
+        .pf-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px 12px; }
         .pf label { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:2px; }
-        .pf span { font-size:12px; color:var(--text); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+        .pf span { font-size:11.5px; color:var(--text); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
         .pf.wide { grid-column:span 2; }
         .pf.wide span { white-space:normal; }
         .pf span.mono { font-family:'IBM Plex Mono',monospace; color:var(--navy); }
 
-        /* ── IDLE STATE ── */
-        .idle-panel { display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:#8c959f; padding:40px; text-align:center; }
-        .idle-panel .idle-ico { font-size:44px; opacity:0.3; }
-        .idle-panel p { font-size:13px; line-height:1.7; }
+        /* ── CALL TABS ── */
+        .call-tabs { display:flex; align-items:center; padding:0 16px; border-bottom:1px solid var(--border); background:#fff; flex-shrink:0; gap:0; }
+        .call-tab { padding:10px 14px; font-size:12px; font-weight:600; color:#57606a; cursor:pointer; border:none; background:none; font-family:'IBM Plex Sans',sans-serif; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s; }
+        .call-tab:hover { color:var(--navy); }
+        .call-tab.active { color:var(--navy); border-bottom-color:var(--navy); }
+        .call-tab-spacer { flex:1; }
+        .tx-toggle-group { display:flex; gap:0; border:1px solid var(--border); border-radius:5px; overflow:hidden; margin:8px 0; }
+        .tx-toggle { padding:4px 12px; font-size:11px; font-weight:600; cursor:pointer; border:none; background:#fff; color:#57606a; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
+        .tx-toggle.active { background:var(--navy); color:#fff; }
 
-        .txstatus { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:3px 8px; border-radius:4px; background:#eaeef2; color:#57606a; border:1px solid var(--border); }
-        .txstatus.live { color:var(--green); border-color:var(--green); background:rgba(63,185,80,0.08); animation:pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-
-        /* ════════════════════════════════════════
-           REDESIGNED TRANSCRIPT SECTION
-           Matching the reference UI style
-        ════════════════════════════════════════ */
+        /* ── TRANSCRIPT STATE ── */
         .tx-section { display:none; flex:1; flex-direction:column; overflow:hidden; }
         .tx-section.visible { display:flex; }
-
-        .sentbar { padding:7px 16px; border-bottom:1px solid var(--border); flex-shrink:0; background:#f6f8fa; }
+        .txstatus { font-size:11px; font-family:'IBM Plex Mono',monospace; padding:3px 8px; border-radius:4px; background:#eaeef2; color:#57606a; border:1px solid var(--border); }
+        .txstatus.live { color:#2ea043; border-color:#2ea043; background:rgba(46,160,67,0.08); animation:liveblip 2s infinite; }
+        @keyframes liveblip { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        .sentbar { padding:6px 16px; border-bottom:1px solid var(--border); flex-shrink:0; background:#ffffff; }
         .sentlbls { display:flex; justify-content:space-between; font-size:10px; color:#57606a; margin-bottom:4px; font-family:'IBM Plex Mono',monospace; }
-        .senttrack { height:5px; background:#e1e4e8; border-radius:3px; overflow:hidden; }
-        .sentfill { height:100%; border-radius:3px; transition:width 0.5s, background 0.5s; width:50%; background:var(--yellow); }
-
-        /* Transcript message list */
-        .txmsgs { flex:1; overflow-y:auto; padding:12px 0; display:flex; flex-direction:column; background:#fff; }
+        .senttrack { height:4px; background:#e1e4e8; border-radius:2px; overflow:hidden; }
+        .sentfill { height:100%; border-radius:2px; transition:width 0.5s, background 0.5s; width:50%; background:var(--yellow); }
+        .txmsgs { flex:1; overflow-y:auto; padding:10px 0; display:flex; flex-direction:column; background:#fff; }
         .txmsgs::-webkit-scrollbar{width:4px} .txmsgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-
         .empty-s { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#8c959f; gap:10px; text-align:center; padding:40px; }
-        .empty-s .ico { font-size:32px; opacity:0.5; }
-        .empty-s p { font-size:13px; line-height:1.6; }
+        .empty-s .ico { font-size:30px; opacity:0.4; }
+        .empty-s p { font-size:12.5px; line-height:1.6; }
+        .dbgbar { padding:5px 16px; border-top:1px solid var(--border); background:#ffffff; display:flex; justify-content:space-between; font-size:10px; font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
+        #aps-status{color:#8c959f} #aps-status.connected{color:#2ea043} #aps-status.error{color:var(--red)}
 
-        /* ── New-style transcript row ── */
-        .tx-row { display:flex; gap:0; padding:6px 0; animation:fi 0.3s ease; }
-        @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-
-        .tx-time { width:64px; flex-shrink:0; padding-top:3px; padding-left:12px; }
+        /* ── TRANSCRIPT ROWS (reference style) ── */
+        .tx-row { display:flex; gap:0; padding:5px 0; animation:fi 0.3s ease; }
+        @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+        .tx-time { width:58px; flex-shrink:0; padding-top:3px; padding-left:12px; }
         .tx-time span { font-size:10px; font-family:'IBM Plex Mono',monospace; color:#8c959f; }
-
-        .tx-role { width:68px; flex-shrink:0; padding-top:3px; }
-        .tx-role span { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
+        .tx-role { width:60px; flex-shrink:0; padding-top:3px; }
+        .tx-role span { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
         .tx-role .role-agent { color:#0969da; }
         .tx-role .role-customer { color:#57606a; }
-
         .tx-bubble { flex:1; min-width:0; }
-        .tx-bubble-inner {
-            padding:8px 12px;
-            border-radius:6px;
-            font-size:12.5px;
-            line-height:1.6;
-            border-left:2px solid transparent;
-        }
-        .tx-bubble-inner.agent-bubble {
-            background:rgba(9,105,218,0.05);
-            border-left-color:#0969da;
-        }
-        .tx-bubble-inner.customer-bubble {
-            background:#fff;
-            border-left-color:#d0d7de;
-            border:1px solid #eaecef;
-            border-left:2px solid #d0d7de;
-        }
-        .tx-bubble-inner .speaker-name {
-            font-size:10px;
-            font-weight:600;
-            color:#8c959f;
-            margin-right:6px;
-        }
-        .tx-bubble-inner .bubble-text { color:#0d1117; }
-
-        .tx-sent { width:72px; flex-shrink:0; display:flex; align-items:flex-start; justify-content:flex-end; padding-top:4px; padding-right:12px; }
-        .sent-badge {
-            display:inline-flex; align-items:center; gap:4px;
-            padding:2px 6px; border-radius:4px;
-            font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;
-            white-space:nowrap;
-        }
+        .tx-bubble-inner { padding:7px 11px; border-radius:5px; font-size:12.5px; line-height:1.55; border-left:2px solid transparent; }
+        .tx-bubble-inner.agent-bubble { background:rgba(9,105,218,0.05); border-left-color:#0969da; }
+        .tx-bubble-inner.customer-bubble { background:#fff; border:1px solid #eaecef; border-left:2px solid #d0d7de; }
+        .tx-bubble-inner .bubble-text { color:#1c2432; }
+        .tx-sent { width:64px; flex-shrink:0; display:flex; align-items:flex-start; justify-content:flex-end; padding-top:4px; padding-right:12px; }
+        .sent-badge { display:inline-flex; align-items:center; gap:3px; padding:2px 5px; border-radius:4px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; }
         .sent-positive { background:rgba(63,185,80,0.08); color:#1a7f37; border:1px solid rgba(63,185,80,0.25); }
         .sent-negative { background:rgba(248,81,73,0.08); color:#cf222e; border:1px solid rgba(248,81,73,0.25); }
         .sent-neutral  { background:rgba(139,148,158,0.1); color:#57606a; border:1px solid rgba(139,148,158,0.25); }
         .sent-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-        .sent-dot-pos { background:#3fb950; }
-        .sent-dot-neg { background:#f85149; }
-        .sent-dot-neu { background:#8c959f; }
+        .sent-dot-pos{background:#3fb950} .sent-dot-neg{background:#f85149} .sent-dot-neu{background:#8c959f}
 
-        /* ── AI NOTE inline (violet strip) ── */
-        .tx-ai-note { display:flex; justify-content:center; padding:6px 12px; }
-        .tx-ai-note-inner {
-            display:flex; align-items:flex-start; gap:8px;
-            padding:8px 12px;
-            background:#f5f0ff;
-            border:1px solid #ddd0f8;
-            border-radius:6px;
-            width:100%;
-        }
-        .tx-ai-note-inner .ai-note-icon { font-size:11px; flex-shrink:0; margin-top:1px; }
-        .tx-ai-note-inner .ai-note-label {
-            font-size:10px; font-weight:700; color:#6e40c9;
-            text-transform:uppercase; letter-spacing:0.6px;
-            flex-shrink:0; margin-right:4px;
-        }
-        .tx-ai-note-inner .ai-note-text { font-size:11px; color:#5a3ea1; line-height:1.5; }
+        /* ── AI NOTE inline ── */
+        .tx-ai-note { display:flex; justify-content:center; padding:5px 12px; }
+        .tx-ai-note-inner { display:flex; align-items:flex-start; gap:7px; padding:7px 11px; background:#f5f0ff; border:1px solid #ddd0f8; border-radius:5px; width:100%; }
+        .ai-note-icon { font-size:11px; flex-shrink:0; margin-top:1px; }
+        .ai-note-label { font-size:10px; font-weight:700; color:#6e40c9; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; flex-shrink:0; }
+        .ai-note-text { font-size:11.5px; color:#5a32a3; line-height:1.5; }
+        .tx-followups { padding:4px 12px; }
+        .tx-followups-header { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+        .fu-icon { font-size:10px; color:#6e40c9; }
+        .fu-label { font-size:10px; font-weight:700; color:#6e40c9; text-transform:uppercase; letter-spacing:0.5px; }
+        .fu-note { font-size:10px; color:#8c959f; }
+        .tx-followup-btns { display:flex; flex-wrap:wrap; gap:5px; }
+        .fu-btn-primary { padding:4px 10px; background:var(--navy); color:#fff; border:none; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
+        .fu-btn-secondary { padding:4px 10px; background:#fff; color:#57606a; border:1px solid var(--border); border-radius:4px; font-size:11px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
 
-        /* ── AI Follow-up suggestions strip ── */
-        .tx-followups { padding:8px 12px 4px; }
-        .tx-followups-header { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
-        .tx-followups-header .fu-icon { font-size:11px; color:#8250df; }
-        .tx-followups-header .fu-label { font-size:10px; font-weight:700; color:#6e40c9; }
-        .tx-followups-header .fu-note { font-size:10px; color:#8c959f; font-style:italic; }
-        .tx-followup-btns { display:flex; flex-wrap:wrap; gap:6px; }
-        .fu-btn-primary {
-            padding:5px 12px; font-size:11px; font-weight:600;
-            background:var(--navy); color:#fff;
-            border:none; border-radius:6px; cursor:pointer;
-            font-family:'IBM Plex Sans',sans-serif;
-            transition:background 0.15s;
-        }
-        .fu-btn-primary:hover { background:#0a3080; }
-        .fu-btn-secondary {
-            padding:5px 10px; font-size:11px;
-            background:#fff; color:#0d1117;
-            border:1px solid var(--border); border-radius:6px; cursor:pointer;
-            font-family:'IBM Plex Sans',sans-serif;
-            transition:all 0.15s;
-        }
-        .fu-btn-secondary:hover { border-color:var(--navy); }
+        /* ── KEYWORD HIGHLIGHT ── */
+        .kw-highlight { background:rgba(248,81,73,0.18); border-radius:3px; padding:0 2px; font-weight:700; border-bottom:1px solid rgba(248,81,73,0.4); }
 
-        .dbgbar { padding:6px 16px; border-top:1px solid var(--border); background:#f6f8fa; display:flex; justify-content:space-between; font-size:10px; font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
-        #aps-status{color:#8c959f} #aps-status.connected{color:var(--green)} #aps-status.error{color:var(--red)}
+        /* ── RINGING STATE ── */
+        .inc-panel { display:none; flex:1; flex-direction:column; overflow:hidden; }
+        .inc-panel.visible { display:flex; }
+        .inc-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:30px; }
+        .inc-ring-wrap { display:flex; align-items:center; justify-content:center; }
+        .inc-ring { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#1a7f37,#2ea043); display:flex; align-items:center; justify-content:center; font-size:32px; animation:ringpulse 1.4s ease-in-out infinite; box-shadow:0 4px 20px rgba(46,160,67,0.35); }
+        @keyframes ringpulse { 0%{box-shadow:0 0 0 0 rgba(46,160,67,0.55),0 4px 20px rgba(46,160,67,0.35);} 60%{box-shadow:0 0 0 18px rgba(46,160,67,0),0 4px 20px rgba(46,160,67,0.35);} 100%{box-shadow:0 0 0 0 rgba(46,160,67,0),0 4px 20px rgba(46,160,67,0.35);} }
+        .inc-info { text-align:center; }
+        .inc-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#8c959f; margin-bottom:5px; }
+        .inc-phone { font-size:24px; font-weight:700; color:var(--navy); font-family:'IBM Plex Mono',monospace; }
+        .inc-queue { font-size:12px; color:#57606a; margin-top:3px; }
+        .inc-wait  { font-size:11px; color:#8c959f; margin-top:2px; font-family:'IBM Plex Mono',monospace; }
 
-        /* ── AMAZON Q ── */
-        .qpanel { background:#f6f8fa; display:flex; flex-direction:column; overflow:hidden; border-left:1px solid var(--border); }
-        .qphdr { padding:12px 16px; border-bottom:1px solid var(--border); background:var(--navy); display:flex; align-items:center; justify-content:space-between; }
-        .qphdr h3 { font-size:13px; font-weight:700; color:#7fb3ff; }
-        .qpbdy { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:12px; }
-        .qpbdy::-webkit-scrollbar{width:4px} .qpbdy::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-        .qcard { background:#fff; border:1px solid var(--border); border-radius:8px; padding:14px; }
-        .qctitle { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+        /* Bottom bar for incoming call — matches Image 1 */
+        .inc-bottom-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px; background:#ffffff; display:flex; align-items:center; justify-content:space-between; }
+        .inc-bottom-info { display:flex; align-items:center; gap:8px; }
+        .inc-bottom-dot { width:8px; height:8px; border-radius:50%; background:#2ea043; box-shadow:0 0 6px #2ea043; animation:pulse 1.5s infinite; flex-shrink:0; }
+        .inc-bottom-text { font-size:12px; color:#57606a; font-style:italic; }
+        .inc-bottom-actions { display:flex; gap:8px; }
+        .inc-call-btn { padding:8px 20px; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:6px; transition:all 0.15s; }
+        .inc-call-btn:hover { transform:translateY(-1px); box-shadow:0 3px 10px rgba(0,0,0,0.2); }
+        .btn-decline { background:#d73a49; color:#fff; }
+        .btn-answer  { background:#2ea043; color:#fff; }
+
+        /* ── IN-CALL BOTTOM CONTROLS BAR ── */
+        .call-controls-bar { flex-shrink:0; border-top:1px solid var(--border); padding:8px 16px; background:#ffffff; display:flex; align-items:center; justify-content:space-between; }
+        /* ── RINGING BOTTOM BAR ── */
+        .ring-controls-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px; background:#ffffff; display:flex; align-items:center; justify-content:space-between; display:none; }
+        .ring-controls-bar.visible { display:flex; }
+        .audio-indicator { display:flex; align-items:center; gap:6px; font-size:11px; color:#57606a; }
+        .audio-waves { display:flex; align-items:center; gap:2px; }
+        .audio-waves span { display:block; width:3px; background:#2ea043; border-radius:2px; animation:wave 0.8s ease-in-out infinite; }
+        .audio-waves span:nth-child(1){height:6px;animation-delay:0s}
+        .audio-waves span:nth-child(2){height:10px;animation-delay:0.1s}
+        .audio-waves span:nth-child(3){height:14px;animation-delay:0.2s}
+        .audio-waves span:nth-child(4){height:10px;animation-delay:0.3s}
+        .audio-waves span:nth-child(5){height:6px;animation-delay:0.4s}
+        @keyframes wave{0%,100%{transform:scaleY(0.6)}50%{transform:scaleY(1)}}
+        .call-ctrl-btns { display:flex; gap:6px; align-items:center; }
+        .ctrl-btn { padding:5px 12px; border-radius:5px; border:1px solid var(--border); font-size:11px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; background:#fff; color:#57606a; transition:all 0.15s; display:flex; align-items:center; gap:4px; }
+        .ctrl-btn:hover { background:#f0f3f6; }
+        .ctrl-btn-end { background:#d73a49; color:#fff; border-color:#d73a49; }
+        .ctrl-btn-end:hover { background:#c0313f; }
+        .dur-badge { font-size:11px; font-family:'IBM Plex Mono',monospace; color:#57606a; padding:4px 9px; background:#f0f3f6; border-radius:5px; border:1px solid var(--border); }
+
+        /* ══ RIGHT PANEL ═════════════════════════════════════════════ */
+        .qpanel { background:#fff; display:flex; flex-direction:column; overflow:hidden; border-left:1px solid var(--border); }
+        .rp-section { padding:12px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
+        .rp-section-title { font-size:11px; font-weight:700; color:var(--text); margin-bottom:10px; }
+        .rp-dropdown { width:100%; padding:7px 10px; border:1px solid #4a90d9; border-radius:5px; font-size:12px; font-weight:600; color:#1a5fa8; background:#fff; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a90d9' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; outline:none; }
+        .rp-dropdown:focus { border-color:#0969da; }
+        .sla-bar-wrap { margin-top:8px; }
+        .sla-bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+        .sla-lbl { font-size:11px; font-weight:600; color:var(--text); }
+        .sla-remaining { font-size:12px; font-weight:700; color:#1a7f37; }
+        .sla-track { height:6px; background:#e1e4e8; border-radius:3px; overflow:hidden; }
+        .sla-fill { height:100%; background:#2ea043; border-radius:3px; transition:width 1s linear; }
+        .sla-target { font-size:10px; color:#8c959f; margin-top:4px; }
+        .ca-section { flex:1; padding:12px 14px; display:flex; flex-direction:column; }
+        .ca-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .ca-title { font-size:11px; font-weight:700; color:var(--text); }
+        .ca-close { width:20px; height:20px; border:none; background:none; cursor:pointer; color:#8c959f; font-size:14px; display:flex; align-items:center; justify-content:center; border-radius:3px; }
+        .ca-close:hover { background:#f0f2f5; color:var(--text); }
+        .ca-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; padding:20px; }
+        .ca-icon { width:44px; height:44px; border-radius:50%; border:2px solid #dde1e6; display:flex; align-items:center; justify-content:center; color:#8c959f; }
+        .ca-icon svg { width:20px; height:20px; }
+        .ca-no-call { font-size:13px; font-weight:600; color:var(--text); }
+        .ca-no-call-sub { font-size:11.5px; color:#8c959f; line-height:1.6; }
+        /* Live mode: active call in Connect Assistant */
+        .ca-live-body { flex:1; overflow-y:auto; padding:8px; display:none; flex-direction:column; gap:8px; }
+        .ca-live-body::-webkit-scrollbar{width:3px} .ca-live-body::-webkit-scrollbar-thumb{background:var(--border)}
+        .qcard { background:#fff; border:1px solid var(--border); border-radius:7px; padding:11px 12px; }
+        .qctitle { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:7px; }
         .qcard p { font-size:12px; color:var(--text); line-height:1.6; }
-        .qdispatch { margin-top:10px; width:100%; padding:8px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; transition:background 0.15s; }
+        .qdispatch { margin-top:9px; width:100%; padding:7px; background:var(--navy); color:#fff; border:none; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
         .qdispatch:hover { background:#0a3080; }
-        .qkbl { display:block; font-size:12px; color:#0969da; text-decoration:none; padding:4px 0; }
+        .qkbl { display:block; font-size:12px; color:#0969da; text-decoration:none; padding:3px 0; }
         .qkbl:hover { text-decoration:underline; }
-        .qdnote { margin-top:6px; font-size:10px; color:#8c959f; font-style:italic; }
-        .qaski { width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:12px; outline:none; font-family:'IBM Plex Sans',sans-serif; }
+        .qdnote { margin-top:5px; font-size:10px; color:#8c959f; font-style:italic; }
+        .qaski { width:100%; padding:7px 9px; border:1px solid var(--border); border-radius:5px; font-size:12px; outline:none; font-family:'IBM Plex Sans',sans-serif; }
         .qaski:focus { border-color:var(--navy); }
-        .qpfoot { padding:8px 16px; border-top:1px solid var(--border); background:#fff; font-size:11px; color:#8c959f; font-family:'IBM Plex Mono',monospace; }
-        .sidebar::-webkit-scrollbar{width:4px} .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+        .qpfoot { padding:7px 14px; border-top:1px solid var(--border); background:#ffffff; font-size:10px; color:#8c959f; font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
 
-        /* ── KEYWORD HIGHLIGHT (in transcript bubbles) ── */
-        .kw-highlight {
-            background:rgba(248,81,73,0.12);
-            color:#b91c1c;
-            border-radius:3px;
-            padding:0 3px;
-            font-weight:600;
-        }
+        /* ── AFTER CONTACT WORK BAR ── */
+        .acw-bar { display:none; flex-shrink:0; border-top:2px solid var(--yellow); padding:10px 16px; background:#fffbf0; align-items:center; justify-content:space-between; gap:12px; }
+        .acw-bar.visible { display:flex; }
+        .acw-dot { width:9px; height:9px; border-radius:50%; background:var(--yellow); box-shadow:0 0 6px rgba(210,153,34,0.7); animation:pulse 1.5s infinite; flex-shrink:0; }
+        .acw-info { display:flex; align-items:center; gap:10px; }
+        .acw-label { font-size:12px; font-weight:700; color:#9a6700; }
+        .acw-sub { font-size:11px; color:#8c959f; margin-top:1px; }
+        .close-contact-btn { padding:8px 22px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; white-space:nowrap; flex-shrink:0; }
+        .close-contact-btn:hover { background:#0a3080; box-shadow:0 3px 10px rgba(0,31,95,0.25); }
 
-        /* ── INCIDENT FORM ── */
-        .form-hdr { padding:10px 14px; border-bottom:1px solid var(--border); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#57606a; flex-shrink:0; background:#f6f8fa; display:flex; align-items:center; justify-content:space-between; }
-        .form-hdr .form-badge { font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; text-transform:none; letter-spacing:0; }
-        .form-idle { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:#8c959f; text-align:center; padding:30px; }
-        .form-idle .f-ico { font-size:36px; opacity:0.3; }
-        .form-idle p { font-size:12px; line-height:1.7; }
-        .form-body { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
-        .form-body::-webkit-scrollbar{width:4px} .form-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-        .form-section { background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
-        .form-section-title { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#57606a; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
-        .frow { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
-        .frow.full { grid-template-columns:1fr; }
-        .frow.three { grid-template-columns:1fr 1fr 1fr; }
-        .fld label { font-size:9px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:3px; font-weight:600; }
-        .fld input, .fld select, .fld textarea {
-            width:100%; padding:6px 9px; border:1px solid var(--border); border-radius:5px;
-            font-size:12px; font-family:'IBM Plex Sans',sans-serif; color:var(--text);
-            background:#fff; outline:none; transition:border-color 0.15s;
-        }
-        .fld input:focus, .fld select:focus, .fld textarea:focus { border-color:var(--navy); box-shadow:0 0 0 2px rgba(0,31,95,0.08); }
-        .fld input.auto-filled { background:rgba(0,31,95,0.04); color:var(--navy); font-weight:500; }
-        .fld textarea { resize:vertical; min-height:72px; line-height:1.5; }
-        .ai-summary-box { background:linear-gradient(135deg,rgba(0,31,95,0.04),rgba(88,166,255,0.06)); border:1px solid rgba(0,31,95,0.18); border-radius:6px; padding:10px 12px; font-size:12px; color:#0d1117; line-height:1.6; min-height:60px; }
-        .ai-tag { display:inline-flex; align-items:center; gap:4px; font-size:10px; background:rgba(88,166,255,0.1); color:#0969da; border:1px solid rgba(88,166,255,0.3); border-radius:10px; padding:2px 8px; font-weight:600; margin-bottom:6px; }
-        .ai-idle { color:#8c959f; font-size:12px; font-style:italic; }
-        .form-submit-row { display:flex; gap:8px; margin-top:2px; }
-        .btn-submit { flex:1; padding:9px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s; }
-        .btn-submit:hover { background:#0a3080; }
-        .btn-clear { padding:9px 14px; background:#fff; color:#57606a; border:1px solid var(--border); border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
-        .btn-clear:hover { border-color:#cf222e; color:#cf222e; }
-        .kw-alert { display:none; margin:10px 14px 0; padding:8px 12px; border-radius:6px; background:rgba(248,81,73,0.07); border:1px solid rgba(248,81,73,0.35); font-size:11px; color:#cf222e; font-weight:600; animation:fi 0.3s ease; }
+        /* Utility */
+        .btn { padding:6px 12px; border:1px solid var(--border); border-radius:5px; cursor:pointer; font-size:12px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; background:#fff; color:var(--text); }
+        .btn:hover { transform:translateY(-1px); }
+        .btn-g { background:rgba(46,160,67,0.1); border-color:#2ea043; color:#1a7f37; }
+        .btn-r { background:rgba(215,58,73,0.1); border-color:#d73a49; color:#cf222e; }
+        .btn-y { background:rgba(210,153,34,0.1); border-color:var(--yellow); color:#9a6700; }
+        .btn-b { background:rgba(9,105,218,0.1); border-color:#0969da; color:#0969da; }
 
-        @keyframes suggestion-pop { 0%{transform:scale(0.97);opacity:0} 100%{transform:scale(1);opacity:1} }
-        .suggestion-new { animation:suggestion-pop 0.35s ease forwards; }
-        .kw-tag-pill { display:inline-flex; align-items:center; font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; background:rgba(248,81,73,0.1); color:#cf222e; border:1px solid rgba(248,81,73,0.3); margin:2px; font-family:'IBM Plex Mono',monospace; }
-
+        /* ── OVERVIEW PANEL ── */
+        #tx-view-overview { display:none; flex:1; flex-direction:column; overflow-y:auto; padding:16px 16px 8px; gap:12px; }
+        .ov-two-col { display:grid; grid-template-columns:1fr 260px; gap:12px; }
+        .ov-card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:16px; }
+        .ov-card-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .ov-card-title { font-size:13px; font-weight:700; color:var(--navy); }
+        .ov-card-action { font-size:11px; color:#0969da; cursor:pointer; padding:4px 10px; border:1px solid rgba(9,105,218,0.3); border-radius:5px; background:rgba(9,105,218,0.05); font-weight:600; text-decoration:none; }
+        .ov-grid-2col { display:grid; grid-template-columns:repeat(2,1fr); gap:8px 14px; margin-bottom:14px; }
+        .ov-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px 14px; }
+        .ov-field label { font-size:9.5px; color:#8c959f; text-transform:uppercase; letter-spacing:0.5px; display:block; margin-bottom:3px; }
+        .ov-field span { font-size:12px; color:var(--text); font-weight:500; display:block; }
+        .ov-ai-card { background:#f5f0ff; border:1px solid #ddd0f8; border-radius:8px; padding:14px; }
+        .ov-ai-title { font-size:11px; font-weight:700; color:#6e40c9; margin-bottom:8px; display:flex; align-items:center; gap:5px; }
+        .ov-ai-text { font-size:11.5px; color:#5a32a3; line-height:1.65; }
+        .ov-info-badge { font-size:10px; color:#8c959f; cursor:pointer; background:#f0f3f6; border:1px solid var(--border); padding:1px 6px; border-radius:3px; margin-left:4px; }
+        .ov-tx-table { width:100%; border-collapse:collapse; font-size:12px; }
+        .ov-tx-table th { font-size:10px; font-weight:700; color:#57606a; text-transform:uppercase; letter-spacing:0.5px; padding:7px 10px; border-bottom:2px solid var(--border); text-align:left; }
+        .ov-tx-table td { padding:9px 10px; border-bottom:1px solid #e8ecf0; color:var(--text); }
+        .ov-tx-table tr:last-child td { border-bottom:none; }
+        .ov-tx-table tr:hover td { background:#f6f8fa; }
     </style>
 </head>
 <body>
 
+<!-- ════════════════ HEADER ════════════════ -->
 <div class="header">
     <div class="hdr-left">
         <img src="ministry-of-home-affairs.png" alt="MHA" class="hdr-logo" id="hdr-logo"
@@ -358,26 +403,17 @@
     </div>
     <div class="hdr-right">
         <button class="hic" title="Knowledge Base">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             <span class="lbl">Knowledge base</span>
         </button>
         <div class="nb-wrap">
             <button class="hic" title="Notifications">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             </button>
             <span class="nb-dot"></span>
         </div>
         <button class="hic" title="Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
         <div class="hdr-avatar" id="hdr-av" title="Agent">A</div>
         <div id="connection-status" class="disconnected">⬤ Disconnected</div>
@@ -386,113 +422,218 @@
 
 <div class="workspace">
 
-    <!-- ── LEFT SIDEBAR ── -->
-    <div class="sidebar">
-        <div class="ss">
-            <h4>Agent</h4>
-            <div class="agent-card">
-                <div class="agent-av" id="agent-avatar">?</div>
-                <div class="agent-det">
-                    <div class="agent-nm" id="agent-name">Not Logged In</div>
-                    <div class="asr">
-                        <div class="sdot dot-unavail" id="status-dot"></div>
-                        <div class="slbl" id="status-label">Offline</div>
-                    </div>
-                </div>
-            </div>
+<!-- ════════════════ LEFT NAV RAIL ════════════════ -->
+<div class="left-nav">
+    <button class="ln-btn active" title="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <button class="ln-btn" title="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <button class="ln-btn" title="Messages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </button>
+    <button class="ln-btn" title="Voice Calls" style="color:#fff;background:rgba(255,255,255,0.13);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    </button>
+    <button class="ln-btn" title="Network">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </button>
+    <div class="ln-spacer"></div>
+    <button class="ln-btn" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </button>
+    <button class="ln-btn" title="Profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </button>
+</div>
+
+<!-- ════════════════ LEFT SIDEBAR ════════════════ -->
+<div class="sidebar">
+    <!-- Voice Call header -->
+    <div class="sb-top">
+        <div class="sb-top-row">
+            <button class="sb-icon-btn">☰</button>
+            <span class="sb-voice-label">Voice Call</span>
+            <button class="sb-icon-btn">‹</button>
         </div>
-        <div class="ss">
-            <h4>Status</h4>
-            <div class="sbtns">
-                <button class="btn btn-g" onclick="setAgentStatus('Available')">Available</button>
-                <button class="btn btn-r" onclick="setAgentStatus('Unavailable')">Unavailable</button>
-            </div>
-        </div>
-        <div class="ss">
-            <h4>Active Call</h4>
-            <div id="call-info" class="call-card">
-                <div class="fl"><label>From:</label><span id="caller-number">—</span></div>
-                <div class="fl"><label>Duration:</label><span id="call-duration">00:00</span></div>
-                <div class="fl"><label>Status:</label><span id="call-status">—</span></div>
-                <div class="cbtns">
-                    <button class="btn btn-g" onclick="acceptCall()">✓ Accept</button>
-                    <button class="btn btn-r" onclick="endCall()">✕ End</button>
-                    <button id="btn-hold-sb" class="btn btn-y" onclick="holdCall()">⏸ Hold</button>
-                    <button id="btn-mute-sb" class="btn btn-b" onclick="muteCall()">🔇 Mute</button>
-                </div>
-            </div>
-            <div id="no-call-msg" style="font-size:12px;color:#8c959f">No active call</div>
-        </div>
-        <div class="ss" style="flex:1;display:flex;flex-direction:column">
-            <h4>Customers in Queue</h4>
-            <div style="display:flex;flex-direction:column;gap:8px;overflow-y:auto">
-                <div class="qc" style="border-left-color:#f85149"><div class="qn">Ahmad bin Hassan</div><div class="qd">Lost property – wallet at Orchard MRT</div><div class="qm">IR-2024-71846 · Waiting 04:12</div></div>
-                <div class="qc" style="border-left-color:#d29922"><div class="qn">Lisa Ng Mei Hua</div><div class="qd">Parking dispute – blocked driveway</div><div class="qm">IR-2024-71801 · Waiting 02:45</div></div>
-                <div class="qc" style="border-left-color:#3fb950"><div class="qn">Raj Kumar</div><div class="qd">Suspicious activity – loitering near school</div><div class="qm">IR-2024-71823 · Waiting 01:08</div></div>
-                <div class="qc" style="border-left-color:#3fb950"><div class="qn">Mohammad Faizal</div><div class="qd">Noise complaint – loud music</div><div class="qm">IR-2024-71835 · Waiting 00:33</div></div>
-            </div>
-        </div>
-        <div class="ss" style="display:flex;flex-direction:column;border-bottom:none">
-            <h4>Activity Log</h4>
-            <div class="alog" id="activity-log"><div class="li">System initialized</div></div>
+        <div class="sb-search-wrap">
+            <span class="sb-search-ico">🔍</span>
+            <input type="text" class="sb-search" placeholder="Search names, cases, NRIC…">
         </div>
     </div>
 
-    <!-- ── CENTER ── -->
-    <div class="ccp-area" id="ccp-area">
-    <div class="center-left">
-        <div id="ccp-container" style="position:fixed;left:-9999px;top:-9999px;width:320px;height:480px;overflow:hidden;pointer-events:none;"></div>
+    <!-- In Call section -->
+    <div class="sb-sec">
+        <div class="sb-sec-hdr">
+            <span class="sb-sec-title">In call <span class="sb-count" id="incall-count">0</span></span>
+            <button class="sb-sec-toggle">▾</button>
+        </div>
+        <div id="incall-list"></div>
+    </div>
 
-        <!-- CUSTOMER PROFILE BAR -->
-        <div id="cpb" class="cpb">
-            <div class="cpb-summary">
-                <div class="cpb-left">
-                    <div class="cpb-av" id="cpb-av">JP</div>
-                    <div>
-                        <div class="cpb-name" id="cpb-name">JOHNNY PANG JUN JIE</div>
-                        <div class="cpb-meta">
-                            <span class="cpb-nric" id="cpb-nric">NRIC: T0012345A</span>
-                            <span class="ptag ptag-cit">SG Citizen</span>
-                            <span class="ptag ptag-onl" id="cpb-online-tag">● Calling in</span>
-                        </div>
-                    </div>
+    <div class="sb-div"></div>
+
+    <!-- Call Queue section -->
+    <div class="sb-sec" style="flex:1;display:flex;flex-direction:column;">
+        <div class="sb-sec-hdr">
+            <span class="sb-sec-title">Call queue <span class="sb-count" id="queue-count">4</span></span>
+            <button class="sb-sec-toggle">▾</button>
+        </div>
+        <div class="sb-calls">
+            <div class="call-item" id="queue-item-johnny" style="border-left:2px solid #2ea043;background:rgba(46,160,67,0.03);">
+                <div class="call-item-top">
+                    <div class="call-dot call-dot-green" style="animation:pulse 1.5s infinite;"></div>
+                    <span class="call-name">Johnny Pang</span>
+                    <span class="call-timer" style="color:#2ea043;font-weight:700;font-size:10px;">&#9670; Ringing</span>
                 </div>
-                <div class="cpb-right">
-                    <div class="qs-wrap">
-                        <div class="qs"><div class="qs-v">3</div><div class="qs-l">Past Reports</div></div>
-                        <div class="qs"><div class="qs-v" id="dur-mini">00:00</div><div class="qs-l">Call Time</div></div>
-                    </div>
-                    <button class="btn-vd" id="btn-vd" onclick="toggleProfile()">
-                        View Details <i class="chev">▾</i>
-                    </button>
-                </div>
+                <div class="call-desc">Disruption and Deferment</div>
+                <div class="call-ir">IR-2024-71846</div>
             </div>
-            <div class="cpb-acc" id="cpb-acc">
-                <div class="cpb-inner">
-                    <h5>Personal Information</h5>
-                    <div class="pf-grid">
-                        <div class="pf"><label>Date of Birth</label><span>1 March 2000</span></div>
-                        <div class="pf"><label>Age</label><span>25 yrs old</span></div>
-                        <div class="pf"><label>Gender</label><span>Male</span></div>
-                        <div class="pf"><label>Race</label><span>Chinese</span></div>
-                        <div class="pf"><label>Citizenship</label><span>Singapore Citizen</span></div>
-                        <div class="pf"><label>Marital Status</label><span>Single</span></div>
-                        <div class="pf"><label>Contact Number</label><span class="mono">9999 8888</span></div>
-                        <div class="pf"><label>Religion</label><span>Free Thinker</span></div>
-                        <div class="pf wide"><label>Residential Address</label><span>Blk 123 Tanjong Pagar Plaza #12-456, Postal Code 081123</span></div>
-                    </div>
+            <div class="call-item">
+                <div class="call-item-top">
+                    <div class="call-dot call-dot-green"></div>
+                    <span class="call-name">Sarah Tan Hui Min</span>
+                    <span class="call-timer over">04:10</span>
+                </div>
+                <div class="call-desc">Training &amp; Posting</div>
+                <div class="call-ir">IR-2024-71846</div>
+            </div>
+            <div class="call-item">
+                <div class="call-item-top">
+                    <div class="call-dot call-dot-red"></div>
+                    <span class="call-name">David Lim Wei Jie</span>
+                    <span class="call-timer over">06:47</span>
+                </div>
+                <div class="call-desc">Medical &amp; PES Status</div>
+                <div class="call-ir">IR-2024-71846 <span class="sla-badge">SLA Breach</span></div>
+            </div>
+            <div class="call-item">
+                <div class="call-item-top">
+                    <div class="call-dot call-dot-green"></div>
+                    <span class="call-name">Ahmad bin Hassan</span>
+                    <span class="call-timer">04:12</span>
+                </div>
+                <div class="call-desc">Lost property – wallet at Orchard MRT</div>
+                <div class="call-ir">IR-2024-71901</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <!-- Agent info -->
+    <div class="sb-agent">
+        <div class="agent-card">
+            <div class="agent-av" id="agent-avatar">?</div>
+            <div>
+                <div class="agent-nm" id="agent-name">Not Logged In</div>
+                <div class="asr">
+                    <div class="sdot dot-unavail" id="status-dot"></div>
+                    <div class="slbl" id="status-label">Offline</div>
                 </div>
             </div>
         </div>
-
-        <!-- STATE 1 — IDLE -->
-        <div class="idle-panel" id="idle-panel">
-            <div class="idle-ico">📵</div>
-            <p>No active call<br><span style="font-size:11px;color:#aaa">Waiting for incoming calls…</span></p>
+        <div class="sb-status-btns">
+            <button class="sb-sbtn sb-sbtn-avail" onclick="setAgentStatus('Available')">Available</button>
+            <button class="sb-sbtn sb-sbtn-unavail" onclick="setAgentStatus('Unavailable')">Offline</button>
         </div>
+    </div>
 
-        <!-- STATE 2 — RINGING -->
-        <div class="inc-panel" id="inc-panel">
+    <!-- Activity Log -->
+    <div class="sb-alog">
+        <div class="sb-alog-hdr">Activity Log</div>
+        <div class="alog" id="activity-log"><div class="li">System initialized</div></div>
+    </div>
+</div>
+
+<!-- ════════════════ CENTER ════════════════ -->
+<div class="ccp-area" id="ccp-area">
+<div class="center-left">
+
+    <!-- Hidden CCP iframe container -->
+    <div id="ccp-container"></div>
+
+    <!-- ══ STATE: PRE-LOGIN ══ -->
+    <div class="prelogin-panel" id="prelogin-panel">
+        <div class="prelogin-ico">🔐</div>
+        <h3>Please login to CCP</h3>
+        <p>Connect to Amazon Connect Streams to start handling incoming calls</p>
+        <div class="prelogin-hint">A login popup will appear automatically when the page connects to Amazon Connect</div>
+    </div>
+
+    <!-- ══ STATE: IDLE (logged in) ══ -->
+    <div class="idle-loggedin" id="idle-loggedin">
+        <div class="idle-loggedin-ico">📵</div>
+        <h3>No active call</h3>
+        <p>Waiting for incoming calls…</p>
+        <div class="status-dropdown" id="status-dropdown">
+            <button class="status-dd-btn unavail" id="status-dd-btn" onclick="toggleStatusDD(event)">
+                <span class="sdot" id="idle-sdot" style="width:8px;height:8px;background:#d73a49;border-radius:50%;flex-shrink:0;"></span>
+                <span id="idle-status-text">Offline</span>
+                <span class="status-dd-arrow">&#9660;</span>
+            </button>
+            <div class="status-dd-menu" id="status-dd-menu">
+                <button class="status-dd-item to-avail" id="status-dd-item" onclick="switchAgentStatus()">
+                    <span style="width:8px;height:8px;background:#2ea043;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
+                    Set Available
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CUSTOMER PROFILE BAR (shown on ringing + connected) ══ -->
+    <div id="cpb" class="cpb active ringing">
+        <div class="cpb-summary">
+            <div class="cpb-left">
+                <div class="cpb-av" id="cpb-av">JP</div>
+                <div>
+                    <div class="cpb-name" id="cpb-name">JOHNNY PANG JUN JIE</div>
+                    <div class="cpb-meta">
+                        <span class="cpb-nric" id="cpb-nric">NRIC: T0012345A</span>
+                        <span class="cpb-phone">+65 9123 4567</span>
+                        <span class="ptag ptag-ringing" id="cpb-status-tag">● Ringing</span>
+                        <span style="font-size:11px;color:#57606a;font-family:'IBM Plex Mono',monospace;" id="cpb-ir">IR-2024-71846</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cpb-right">
+                <div class="qs-wrap">
+                    <div class="qs"><div class="qs-v">3</div><div class="qs-l">Past Reports</div></div>
+                    <div class="qs"><div class="qs-v" id="call-duration">00:00</div><div class="qs-l">Call Time</div></div>
+                </div>
+                <button class="btn-vd open" id="btn-vd" onclick="toggleProfile()">
+                    View Details <i class="chev">▾</i>
+                </button>
+            </div>
+        </div>
+        <!-- Expandable accordion -->
+        <div class="cpb-acc open" id="cpb-acc">
+            <div class="cpb-inner">
+                <h5>Serviceman Details</h5>
+                <div class="pf-grid">
+                    <div class="pf"><label>Rank</label><span>Corporal</span></div>
+                    <div class="pf"><label>Division</label><span>Tanglin NPC</span></div>
+                    <div class="pf"><label>Unit</label><span>Central Police Division</span></div>
+                    <div class="pf"><label>ORD</label><span>2 Oct 2026</span></div>
+                    <div class="pf"><label>High Key Count</label><span>Unassigned</span></div>
+                    <div class="pf"><label>Low Key Count</label><span>Unassigned</span></div>
+                    <div class="pf"><label>Last ICT</label><span>Unassigned</span></div>
+                    <div class="pf"><label>Next ICT</label><span>Unassigned</span></div>
+                </div>
+                <div class="pf-grid" style="margin-top:8px">
+                    <div class="pf"><label>Date of Birth</label><span>1 March 2000</span></div>
+                    <div class="pf"><label>Gender</label><span>Male</span></div>
+                    <div class="pf"><label>Contact</label><span class="mono">9999 8888</span></div>
+                    <div class="pf wide"><label>Residential Address</label><span>Blk 123 Tanjong Pagar Plaza #12-456, Postal Code 081123</span></div>
+                </div>
+            </div>
+        </div>
+    </div><!-- /cpb -->
+
+    <!-- ══ STATE: RINGING ══ -->
+    <div class="inc-panel" id="inc-panel">
+        <div class="inc-body">
             <div class="inc-ring-wrap">
                 <div class="inc-ring">📞</div>
             </div>
@@ -502,178 +643,247 @@
                 <div class="inc-queue" id="inc-queue">Queue: General Enquiries</div>
                 <div class="inc-wait" id="inc-wait">Waiting 00:00</div>
             </div>
-            <div class="inc-actions">
-                <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-                    <button class="inc-btn inc-reject" onclick="rejectCall()" title="Reject">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                    </button>
-                    <span class="inc-btn-lbl" style="color:#cf222e">Reject</span>
+        </div>
+        <!-- Answer / Decline bar at bottom (matches Image 1) -->
+        <div class="inc-bottom-bar">
+            <div class="inc-bottom-info">
+                <div class="inc-bottom-dot"></div>
+                <span class="inc-bottom-text" id="inc-bottom-text">Incoming call from Johnny Pang</span>
+            </div>
+            <div class="inc-bottom-actions">
+                <button class="inc-call-btn btn-decline" onclick="rejectCall()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Decline call
+                </button>
+                <button class="inc-call-btn btn-answer" onclick="acceptCall()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Answer call
+                </button>
+            </div>
+        </div>
+    </div><!-- /inc-panel -->
+
+    <!-- ══ STATE: CONNECTED (live transcript) ══ -->
+    <div class="tx-section visible" id="tx-section">
+
+        <!-- Tabs: Call View | Officer Notes -->
+        <div class="call-tabs">
+            <button class="call-tab" id="tab-overview" onclick="switchTab('overview')">Overview</button>
+            <button class="call-tab active" id="tab-callview" onclick="switchTab('callview')">Call View</button>
+            <div class="call-tab-spacer"></div>
+            <div id="callview-controls" style="display:flex;align-items:center;gap:8px;padding:6px 0">
+                <div class="tx-toggle-group">
+                    <button class="tx-toggle active" id="toggle-transcript" onclick="setTxView('transcript')">Transcription</button>
+                    <button class="tx-toggle" id="toggle-notes" onclick="setTxView('notes')">Officer notes</button>
                 </div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-                    <button class="inc-btn inc-accept" onclick="acceptCall()" title="Accept">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                        </svg>
-                    </button>
-                    <span class="inc-btn-lbl" style="color:#1a7f37">Accept</span>
-                </div>
+                <div id="tx-status" class="txstatus">Idle</div>
             </div>
         </div>
 
-        <!-- STATE 3 — CONNECTED (live transcript) -->
-        <div class="tx-section" id="tx-section">
-            <div class="ccp-hdr">
-                <span>Live Transcript</span>
-                <div style="display:flex;align-items:center;gap:8px">
-                    <button id="btn-hold" class="btn btn-y" style="padding:4px 10px;font-size:11px" onclick="holdCall()">⏸ Hold</button>
-                    <button id="btn-mute" class="btn btn-b" style="padding:4px 10px;font-size:11px" onclick="muteCall()">🔇 Mute</button>
-                    <button class="btn btn-r" style="padding:4px 10px;font-size:11px" onclick="endCall()">✕ End Call</button>
-                    <div id="tx-status" class="txstatus">Idle</div>
-                </div>
+        <!-- Sentiment bar -->
+        <div class="sentbar" id="sentbar">
+            <div class="sentlbls">
+                <span>😟 Negative</span>
+                <span id="sent-lbl" style="color:#57606a">Neutral</span>
+                <span>😊 Positive</span>
             </div>
-            <div class="sentbar">
-                <div class="sentlbls">
-                    <span>😟 Negative</span>
-                    <span id="sent-lbl" style="color:#57606a">Neutral</span>
-                    <span>😊 Positive</span>
-                </div>
-                <div class="senttrack"><div class="sentfill" id="sent-fill"></div></div>
-            </div>
+            <div class="senttrack"><div class="sentfill" id="sent-fill"></div></div>
+        </div>
 
-            <!-- Transcript messages -->
+        <!-- Overview panel -->
+        <div id="tx-view-overview">
+            <!-- Row 1: Serviceman info card + AI summary -->
+            <div class="ov-two-col">
+                <div class="ov-card" style="margin-bottom:0">
+                    <div class="ov-card-hdr">
+                        <span class="ov-card-title">Serviceman details</span>
+                        <a class="ov-card-action">View detail</a>
+                    </div>
+                    <div class="ov-grid-2col">
+                        <div class="ov-field"><label>Full name</label><span id="ov-fullname">Johnny Pang Jun Jie</span></div>
+                        <div class="ov-field"><label>Email</label><span id="ov-email">johnny.p@example.com</span></div>
+                        <div class="ov-field"><label>NRIC</label><span id="ov-nric">T0012345A</span></div>
+                        <div class="ov-field"><label>Phone</label><span id="ov-phone">+65 9123 4567</span></div>
+                    </div>
+                    <div class="ov-grid">
+                        <div class="ov-field"><label>Rank</label><span>CORPORAL</span></div>
+                        <div class="ov-field"><label>Division</label><span>Tanglin NPC</span></div>
+                        <div class="ov-field"><label>Unit</label><span>Central Police Division</span></div>
+                        <div class="ov-field"><label>ORD</label><span>2 Oct 2026</span></div>
+                        <div class="ov-field"><label>High Key Count</label><span>Unassigned</span></div>
+                        <div class="ov-field"><label>Low Key Count</label><span>Unassigned</span></div>
+                        <div class="ov-field"><label>Last ICT</label><span>Unassigned</span></div>
+                        <div class="ov-field"><label>Next ICT</label><span>Unassigned</span></div>
+                    </div>
+                </div>
+                <div class="ov-ai-card">
+                    <div class="ov-ai-title">&#10022; Customer Interaction Summary</div>
+                    <div class="ov-ai-text">Repeat reporter — 3 prior complaints against same subject (Blk 412 resident). Last incident 14 days ago involved verbal threats at void deck. Subject has no criminal record. Reporter has 1 dependent minor.</div>
+                </div>
+            </div>
+            <!-- Row 2: Recent transactions -->
+            <div class="ov-card">
+                <div class="ov-card-hdr">
+                    <span class="ov-card-title">Recent transactions <span class="ov-info-badge">Info</span></span>
+                </div>
+                <table class="ov-tx-table">
+                    <thead>
+                        <tr><th>Date</th><th>Time</th><th>Case ID</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>12/01/2026</td><td>12:34</td><td>NS001</td><td>Enquiry about IPPT</td></tr>
+                        <tr><td>15/01/2026</td><td>13:45</td><td>NS002</td><td>Deferment request</td></tr>
+                        <tr><td>31/01/2026</td><td>09:30</td><td>NS003</td><td>Enquiry about IPPT</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transcript view -->
+        <div id="tx-view-transcript" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
             <div class="txmsgs" id="tx-msgs">
                 <div class="empty-s" id="empty-s">
                     <div class="ico">💬</div>
                     <p>Transcript will appear here<br>as the conversation progresses</p>
                 </div>
             </div>
+        </div>
 
-            <div class="dbgbar">
-                <span id="aps-status">AppSync: Not connected</span>
-                <span style="color:#8c959f" id="msg-count">0 utterances</span>
+        <!-- Notes view (hidden by default) -->
+        <div id="tx-view-notes" style="flex:1;display:none;overflow:hidden;flex-direction:column;">
+            <div style="flex:1;padding:14px;">
+                <textarea style="width:100%;height:100%;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12.5px;font-family:'IBM Plex Sans',sans-serif;resize:none;outline:none;" placeholder="Type officer notes here…"></textarea>
             </div>
         </div>
 
-    </div><!-- /center-left -->
+        <!-- Debug bar -->
+        <div class="dbgbar" id="dbgbar">
+            <span id="aps-status">AppSync: Not connected</span>
+            <span style="color:#8c959f" id="msg-count">0 utterances</span>
+        </div>
 
-    <!-- CENTER RIGHT — INCIDENT REPORT FORM -->
-    <div class="center-right" id="center-right">
-        <div class="form-hdr">
-            <span>📋 Incident Report</span>
-            <span id="form-badge" class="form-badge" style="background:rgba(139,148,158,0.15);color:#57606a;">Waiting for call</span>
+        <!-- In-call controls bar at bottom (matches Image 1) -->
+        <div class="call-controls-bar" id="call-controls-bar" style="display:none;">
+            <div class="audio-indicator">
+                <div class="audio-waves">
+                    <span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <span style="margin-left:6px;font-size:11px;color:#57606a">Audio routed to headset</span>
+            </div>
+            <div class="call-ctrl-btns">
+                <span class="dur-badge" id="dur-badge">00:00</span>
+                <button id="btn-hold" class="ctrl-btn" onclick="holdCall()">⏸ Hold</button>
+                <button id="btn-mute" class="ctrl-btn" onclick="muteCall()">🔇 Mute</button>
+                <button class="ctrl-btn ctrl-btn-end" onclick="endCall()">✕ End Call</button>
+            </div>
         </div>
-        <div id="kw-alert" class="kw-alert">🔍 <span id="kw-alert-text">Keyword detected</span></div>
-        <div id="form-idle" class="form-idle">
-            <div class="f-ico">📋</div>
-            <p>Incident report will<br>auto-populate when<br>a call connects</p>
+        <!-- Ringing bottom bar -->
+        <div class="ring-controls-bar visible" id="ring-controls-bar">
+            <div class="inc-bottom-info">
+                <div class="inc-bottom-dot"></div>
+                <span class="inc-bottom-text" id="ring-bottom-text">Incoming call from Johnny Pang</span>
+            </div>
+            <div class="inc-bottom-actions">
+                <button class="inc-call-btn btn-decline" onclick="rejectCall()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Decline call
+                </button>
+                <button class="inc-call-btn btn-answer" onclick="acceptCall()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Answer call
+                </button>
+            </div>
         </div>
-        <div id="form-body" class="form-body" style="display:none">
-            <div class="form-section">
-                <div class="form-section-title">🤖 AI Summary <span style="font-size:9px;font-weight:500;color:#8c959f;text-transform:none;letter-spacing:0;">Auto-generated from transcript</span></div>
-                <div class="ai-tag">✨ Live AI Analysis</div>
-                <div class="ai-summary-box" id="ai-summary"><span class="ai-idle">Listening to call… summary will appear as conversation progresses.</span></div>
-                <div id="kw-tags-row" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;"></div>
-            </div>
-            <div class="form-section">
-                <div class="form-section-title">👤 Reporter Details</div>
-                <div class="frow">
-                    <div class="fld"><label>Full Name</label><input type="text" id="ff-name" class="auto-filled" readonly></div>
-                    <div class="fld"><label>NRIC / FIN</label><input type="text" id="ff-nric" class="auto-filled" readonly></div>
-                </div>
-                <div class="frow three">
-                    <div class="fld"><label>Contact Number</label><input type="text" id="ff-phone" class="auto-filled" readonly></div>
-                    <div class="fld"><label>Age</label><input type="text" id="ff-age" class="auto-filled" readonly></div>
-                    <div class="fld"><label>Gender</label><input type="text" id="ff-gender" class="auto-filled" readonly></div>
-                </div>
-                <div class="frow full">
-                    <div class="fld"><label>Residential Address</label><input type="text" id="ff-addr" class="auto-filled" readonly></div>
+        <!-- After Contact Work bar -->
+        <div class="acw-bar" id="acw-bar">
+            <div class="acw-info">
+                <div class="acw-dot"></div>
+                <div>
+                    <div class="acw-label">After Contact Work</div>
+                    <div class="acw-sub">Review transcript and complete notes before closing</div>
                 </div>
             </div>
-            <div class="form-section">
-                <div class="form-section-title">🚨 Incident Details</div>
-                <div class="frow">
-                    <div class="fld"><label>Incident Type</label>
-                        <select id="ff-type">
-                            <option value="">— Select —</option>
-                            <option>Lost Property</option><option>Theft</option>
-                            <option>Harassment</option><option>Noise Complaint</option>
-                            <option>Suspicious Activity</option><option>Road Accident</option>
-                            <option>Assault</option><option>Fraud / Scam</option><option>Other</option>
-                        </select>
-                    </div>
-                    <div class="fld"><label>Priority</label>
-                        <select id="ff-priority">
-                            <option value="low">Low</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">High</option>
-                            <option value="critical">Critical</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="frow">
-                    <div class="fld"><label>Date</label><input type="text" id="ff-date" class="auto-filled"></div>
-                    <div class="fld"><label>Time Reported</label><input type="text" id="ff-time" class="auto-filled"></div>
-                </div>
-                <div class="frow full">
-                    <div class="fld"><label>Location of Incident</label><input type="text" id="ff-loc" placeholder="e.g. Blk 412 Ang Mo Kio Ave 10"></div>
-                </div>
-                <div class="frow full">
-                    <div class="fld"><label>Brief Description</label><textarea id="ff-desc" placeholder="Describe the incident..."></textarea></div>
-                </div>
+            <button class="close-contact-btn" onclick="closeContact()">&#10003; Close Contact</button>
+        </div>
+    </div><!-- /tx-section -->
+
+</div><!-- /center-left -->
+
+
+</div><!-- /ccp-area -->
+
+<!-- ════════════════ RIGHT PANEL ════════════════ -->
+<div class="qpanel">
+    <!-- Case Classification -->
+    <div class="rp-section">
+        <div class="rp-section-title">Case Classification</div>
+        <select class="rp-dropdown" id="rp-case-class">
+            <option value="disruption" selected>Disruption &amp; Deferment</option>
+            <option value="training">Training &amp; Posting</option>
+            <option value="medical">Medical &amp; PES Status</option>
+            <option value="lost">Lost Property</option>
+            <option value="general">General Enquiry</option>
+            <option value="other">Other</option>
+        </select>
+    </div>
+    <!-- SLA Countdown -->
+    <div class="rp-section">
+        <div class="rp-section-title">SLA Countdown</div>
+        <div class="sla-bar-wrap">
+            <div class="sla-bar-top">
+                <span class="sla-lbl"></span>
+                <span class="sla-remaining" id="sla-remaining-text">12:54 remaining</span>
             </div>
-            <div class="form-section">
-                <div class="form-section-title">📝 Officer Notes</div>
-                <div class="frow full">
-                    <div class="fld"><textarea id="ff-notes" placeholder="Additional observations or follow-up actions…" style="min-height:56px"></textarea></div>
-                </div>
-                <div class="frow three">
-                    <div class="fld"><label>Handled By</label><input type="text" id="ff-agent" class="auto-filled" readonly></div>
-                    <div class="fld"><label>Call ID</label><input type="text" id="ff-callid" class="auto-filled" readonly></div>
-                    <div class="fld"><label>Duration</label><input type="text" id="ff-dur" class="auto-filled" readonly></div>
-                </div>
+            <div class="sla-track">
+                <div class="sla-fill" id="sla-fill" style="width:86%"></div>
             </div>
-            <div class="form-submit-row">
-                <button class="btn-clear" onclick="clearForm()">🗑 Clear</button>
-                <button class="btn-submit" onclick="submitForm()">✔ Submit Incident Report</button>
-            </div>
+            <div class="sla-target">Target: 15 mins response</div>
         </div>
     </div>
-    </div><!-- /ccp-area -->
-
-    <!-- ── RIGHT: AMAZON Q ── -->
-    <div class="qpanel">
-        <div class="qphdr">
-            <h3>🤖 Amazon Q — Connect Assistant</h3>
-            <div class="txstatus live">Live</div>
+    <!-- Connect Assistant -->
+    <div class="ca-section">
+        <div class="ca-hdr">
+            <span class="ca-title">Connect Assistant</span>
+            <button class="ca-close" title="Close">×</button>
         </div>
-        <div class="qpbdy" id="q-panel-body">
+        <!-- No call selected state -->
+        <div class="ca-body" id="ca-no-call" style="display:none;">
+            <div class="ca-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="ca-no-call">No active call selected</div>
+            <div class="ca-no-call-sub">Select a call from the queue to view Connect Assistant insights, suggested responses, and next actions</div>
+        </div>
+        <!-- Live call state (shown when connected) -->
+        <div class="ca-live-body" id="ca-live-body" style="display:flex;">
             <div class="qcard" id="q-default-action">
                 <div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>
                 <p>Waiting for call to connect. Suggestions will appear automatically when keywords are detected in the transcript.</p>
             </div>
             <div class="qcard" id="q-default-kb">
                 <div class="qctitle" style="color:#57606a">📚 Knowledge Base</div>
-                <a href="#" class="qkbl">↗ SOP: Harassment &amp; Neighbour Disputes</a>
-                <a href="#" class="qkbl">↗ Protection Order Application Guide</a>
-                <a href="#" class="qkbl">↗ Dealing with Neighbourhood Disputes: A Guide for Residents</a>
-                <a href="#" class="qkbl">↗ Reviewing local ordinances related to noise and public disturbances</a>
+                <a href="#" class="qkbl">↗ NS Deferment: Documentary Requirements</a>
+                <a href="#" class="qkbl">↗ Disruption &amp; Deferment SOP</a>
+                <a href="#" class="qkbl">↗ IPA vs Official Offer — NS Policy</a>
+                <a href="#" class="qkbl">↗ NS Portal Submission Guide</a>
             </div>
             <div class="qcard">
                 <div class="qctitle" style="color:#57606a">✍️ AI Generated Draft</div>
-                <p>Repeat harassment complaint by Mdm Tan Mei Ling against neighbour at Blk 412 AMK Ave 10. Subject reportedly made verbal threats and kicked reporter's door. Reporter expresses fear for safety.</p>
+                <p id="ai-draft-text">Listening for call details…</p>
                 <div class="qdnote">Review and edit before submission</div>
             </div>
+            <div class="qcard" id="dynamic-kb-card" style="display:none;"></div>
             <div class="qcard">
                 <div class="qctitle" style="color:#57606a">💬 Ask a Question</div>
                 <input type="text" class="qaski" placeholder="Ask a question...">
             </div>
         </div>
-        <div class="qpfoot">Amazon Q · Connect Assistant</div>
     </div>
-
+    <div id="q-panel-body" style="display:none"></div>
+    <div class="qpfoot">Connect Assistant · MHA ICC</div>
 </div>
+
+</div><!-- /workspace -->
 
 <script src="https://unpkg.com/amazon-connect-streams@2/release/connect-streams-min.js"></script>
 <script>
@@ -942,22 +1152,48 @@ var   txLines    = [];
 //  CENTRE PANEL STATE MACHINE
 // ════════════════════════════════════════════════════════════════════════════
 function setPanel(state) {
-    const cpb   = document.getElementById('cpb');
-    const idleP = document.getElementById('idle-panel');
-    const incP  = document.getElementById('inc-panel');
-    const txSec = document.getElementById('tx-section');
+    const cpb       = document.getElementById('cpb');
+    const prelogin  = document.getElementById('prelogin-panel');
+    const idleLogin = document.getElementById('idle-loggedin');
+    const incP      = document.getElementById('inc-panel');
+    const txSec     = document.getElementById('tx-section');
 
+    // Hide all states
+    if(prelogin)  { prelogin.classList.remove('visible');  prelogin.style.display='none'; }
+    if(idleLogin) { idleLogin.classList.remove('visible'); idleLogin.style.display='none'; }
     cpb.classList.remove('active','ringing');
-    idleP.style.display = 'none';
     incP.classList.remove('visible');
     txSec.classList.remove('visible');
+    var acwBar=document.getElementById('acw-bar');
+    if(acwBar) acwBar.classList.remove('visible');
 
-    if (state === 'idle') {
-        idleP.style.display = 'flex';
+    if (state === 'prelogin') {
+        prelogin.style.display = 'flex';
+        prelogin.classList.add('visible');
+    } else if (state === 'idle') {
+        idleLogin.style.display = 'flex';
+        idleLogin.classList.add('visible');
+        // Reset connect assistant
+        var caNoCall = document.getElementById('ca-no-call');
+        var caLive = document.getElementById('ca-live-body');
+        if(caNoCall) caNoCall.style.display='flex';
+        if(caLive) caLive.style.display='none';
     } else if (state === 'ringing') {
         cpb.classList.add('active','ringing');
-        incP.classList.add('visible');
-        document.getElementById('cpb-online-tag').textContent = '● Calling in';
+        // Open the profile accordion to show serviceman details
+        var acc = document.getElementById('cpb-acc');
+        var vdBtn = document.getElementById('btn-vd');
+        if(acc) { acc.classList.add('open'); }
+        if(vdBtn) { vdBtn.classList.add('open'); vdBtn.innerHTML='Hide Details <i class="chev">▾</i>'; }
+        // Show transcript section with ringing bottom bar
+        txSec.classList.add('visible');
+        var callBar = document.getElementById('call-controls-bar');
+        var ringBar = document.getElementById('ring-controls-bar');
+        if(callBar) callBar.style.display='none';
+        if(ringBar) ringBar.classList.add('visible');
+        var stTag = document.getElementById('cpb-status-tag');
+        if(stTag){ stTag.textContent='● Ringing'; stTag.className='ptag ptag-ringing'; }
+        switchTab('overview');
         waitStart = Date.now();
         waitTimer = setInterval(() => {
             const ms=Date.now()-waitStart, m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
@@ -966,8 +1202,85 @@ function setPanel(state) {
     } else if (state === 'connected') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
-        document.getElementById('cpb-online-tag').textContent = '● Online now';
+        // Swap bottom bars
+        var callBar = document.getElementById('call-controls-bar');
+        var ringBar = document.getElementById('ring-controls-bar');
+        if(callBar) callBar.style.display='flex';
+        if(ringBar) ringBar.classList.remove('visible');
+        // Show connect assistant live panel
+        var caNoCall = document.getElementById('ca-no-call');
+        var caLive = document.getElementById('ca-live-body');
+        if(caNoCall) caNoCall.style.display='none';
+        if(caLive) caLive.style.display='flex';
+        if(caLive) caLive.style.flexDirection='column';
+        var stTag = document.getElementById('cpb-status-tag');
+        if(stTag){ stTag.textContent='● Connected'; stTag.className='ptag ptag-connected'; }
+        switchTab('callview');
         if(waitTimer){clearInterval(waitTimer);waitTimer=null;}
+    } else if (state === 'acw') {
+        cpb.classList.add('active');
+        txSec.classList.add('visible');
+        // Hide all call bars, show ACW bar
+        var callBar = document.getElementById('call-controls-bar');
+        var ringBar = document.getElementById('ring-controls-bar');
+        var acwBar2 = document.getElementById('acw-bar');
+        if(callBar) callBar.style.display='none';
+        if(ringBar) ringBar.classList.remove('visible');
+        if(acwBar2) acwBar2.classList.add('visible');
+        // Update status tag
+        var stTag = document.getElementById('cpb-status-tag');
+        if(stTag){ stTag.textContent='● After Call Work'; stTag.className='ptag'; stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;'; }
+    }
+}
+
+// Tab switching
+function switchTab(tab) {
+    document.querySelectorAll('.call-tab').forEach(t => t.classList.remove('active'));
+    var el = document.getElementById('tab-' + tab);
+    if(el) el.classList.add('active');
+
+    var ovView  = document.getElementById('tx-view-overview');
+    var txView  = document.getElementById('tx-view-transcript');
+    var ntView  = document.getElementById('tx-view-notes');
+    var sentBar = document.getElementById('sentbar');
+    var dbgBar  = document.getElementById('dbgbar');
+    var ctrlDiv = document.getElementById('callview-controls');
+
+    if (tab === 'overview') {
+        if(ovView)  { ovView.style.display='flex';  ovView.style.flexDirection='column'; }
+        if(txView)  txView.style.display='none';
+        if(ntView)  ntView.style.display='none';
+        if(sentBar) sentBar.style.display='none';
+        if(dbgBar)  dbgBar.style.display='none';
+        if(ctrlDiv) ctrlDiv.style.display='none';
+    } else {
+        if(ovView)  ovView.style.display='none';
+        if(sentBar) sentBar.style.display='block';
+        if(dbgBar)  dbgBar.style.display='flex';
+        if(ctrlDiv) ctrlDiv.style.display='flex';
+        // Restore the correct transcript/notes pane
+        var isTx = document.getElementById('toggle-transcript') && document.getElementById('toggle-transcript').classList.contains('active');
+        if(txView)  { txView.style.display  = isTx ? 'flex' : 'none'; if(isTx) txView.style.flexDirection='column'; }
+        if(ntView)  { ntView.style.display   = isTx ? 'none' : 'flex'; if(!isTx) ntView.style.flexDirection='column'; }
+    }
+}
+
+// Transcript view toggle (Transcription vs Officer Notes)
+function setTxView(view) {
+    var txView    = document.getElementById('tx-view-transcript');
+    var notesView = document.getElementById('tx-view-notes');
+    var tBtn = document.getElementById('toggle-transcript');
+    var nBtn = document.getElementById('toggle-notes');
+    if (view === 'transcript') {
+        if(txView)    { txView.style.display='flex'; txView.style.flexDirection='column'; }
+        if(notesView) notesView.style.display='none';
+        if(tBtn) tBtn.classList.add('active');
+        if(nBtn) nBtn.classList.remove('active');
+    } else {
+        if(txView)    txView.style.display='none';
+        if(notesView) { notesView.style.display='flex'; notesView.style.flexDirection='column'; }
+        if(tBtn) tBtn.classList.remove('active');
+        if(nBtn) nBtn.classList.add('active');
     }
 }
 
@@ -1196,7 +1509,7 @@ function setAps(t){var el=document.getElementById('aps-status');el.textContent='
 //  RENDER KB SUGGESTION CARD IN AMAZON Q PANEL
 // ════════════════════════════════════════════════════════════════════════════
 function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
-    var qBody = document.getElementById('q-panel-body');
+    var qBody = document.getElementById('ca-live-body');
     if (!qBody) return;
 
     var suggestion = KB_SUGGESTIONS[ruleId];
@@ -1274,6 +1587,7 @@ function initConnect(){
 
     connect.agent(a=>{
         agent=a; updateAgentInfo(a); updateConn(true);
+        setPanel('idle');  // agent logged in — show idle with status buttons
         const ini=a.getName().charAt(0).toUpperCase();
         document.getElementById('agent-avatar').textContent=ini;
         document.getElementById('hdr-av').textContent=ini;
@@ -1318,41 +1632,108 @@ function initConnect(){
 
 // ── CALL LIFECYCLE ────────────────────────────────────────────────────────────
 function onIncoming(ct,ph){
-    document.getElementById('caller-number').textContent=ph;
-    document.getElementById('call-status').textContent='Ringing';
-    document.getElementById('call-info').classList.add('active');
-    document.getElementById('no-call-msg').style.display='none';
+    var _cn=document.getElementById('caller-number'); if(_cn) _cn.textContent=ph;
+    var _cs=document.getElementById('call-status'); if(_cs) _cs.textContent='Ringing';
+    var _ci=document.getElementById('call-info'); if(_ci) _ci.classList.add('active');
+    var _nm=document.getElementById('no-call-msg'); if(_nm) _nm.style.display='none';
     document.getElementById('inc-phone').textContent=ph;
     document.getElementById('inc-wait').textContent='Waiting 00:00';
+    var btx=document.getElementById('ring-bottom-text');
+    if(btx)btx.textContent='Incoming call from '+ph;
+    var btx2=document.getElementById('inc-bottom-text');if(btx2)btx2.textContent='Incoming call from '+ph;
     setPanel('ringing');
     log('Incoming: '+ph,'success');
     beep();
 }
-function onAccepted(){document.getElementById('call-status').textContent='Accepted';startTimer();log('Accepted','success');}
+function onAccepted(){var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Accepted';startTimer();log('Accepted','success');}
 function onConnected(){
-    document.getElementById('call-status').textContent='Connected';
+    var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
     clearTx();setPanel('connected');showForm();
+    // Move Johnny Pang from queue to In Call
+    var qItem=document.getElementById('queue-item-johnny');
+    var incallList=document.getElementById('incall-list');
+    if(qItem && incallList){
+        // Reset ringing styles
+        qItem.removeAttribute('style');
+        qItem.className='call-item active-item';
+        var dot=qItem.querySelector('.call-dot');
+        if(dot) dot.removeAttribute('style');
+        var timer=qItem.querySelector('.call-timer');
+        if(timer){timer.removeAttribute('style');timer.id='dur-mini';timer.textContent='00:00';}
+        incallList.appendChild(qItem);
+        // Update counts
+        var ic=document.getElementById('incall-count');if(ic) ic.textContent='1';
+        var qc=document.getElementById('queue-count');if(qc) qc.textContent=String(Math.max(0,parseInt(qc.textContent||'1')-1));
+    }
     log('Connected','success');
 }
 function onEnded(){
-    document.getElementById('call-info').classList.remove('active');
-    document.getElementById('no-call-msg').style.display='block';
-    document.getElementById('caller-number').textContent='—';
-    document.getElementById('call-status').textContent='—';
+    var _ci=document.getElementById('call-info');if(_ci)_ci.classList.remove('active');
+    var _nm=document.getElementById('no-call-msg');if(_nm)_nm.style.display='block';
+    var _cn=document.getElementById('caller-number');if(_cn)_cn.textContent='—';
+    var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='—';
     document.getElementById('call-duration').textContent='00:00';
-    document.getElementById('dur-mini').textContent='00:00';
+    var _dm=document.getElementById('dur-mini');if(_dm)_dm.textContent='00:00';
     document.getElementById('cpb-acc').classList.remove('open');
     const btn=document.getElementById('btn-vd');btn.classList.remove('open');
     btn.innerHTML='View Details <i class="chev">▾</i>';
     stopTimer();
     if(waitTimer){clearInterval(waitTimer);waitTimer=null;}
-    setPanel('idle');hideForm();resetKwEngine();contact=null;
-    log('Call ended','warning');
+    // Remove from In Call sidebar
+    var qItem=document.getElementById('queue-item-johnny');
+    if(qItem){qItem.remove();}
+    var ic=document.getElementById('incall-count');if(ic) ic.textContent='0';
+    var dm=document.getElementById('dur-mini');if(dm)dm.textContent='00:00';
+    // Enter After Contact Work — keep transcript visible
+    setPanel('acw');
+    log('Call ended — After Contact Work','warning');
 }
 
 // ── CALL ACTIONS ──────────────────────────────────────────────────────────────
-function acceptCall(){if(contact){contact.accept();log('Accepting call…');}}
-function rejectCall(){if(contact){contact.getConnections().forEach(c=>c.destroy());log('Call rejected','warning');}}
+function closeContact(){
+    clearTx();
+    resetKwEngine();
+    hideForm();
+    // Reset CPB accordion
+    var acc=document.getElementById('cpb-acc');var vdBtn=document.getElementById('btn-vd');
+    if(acc){acc.classList.remove('open');}
+    if(vdBtn){vdBtn.classList.remove('open');vdBtn.innerHTML='View Details <i class="chev">▾</i>';}
+    setPanel('idle');
+    contact=null;
+    log('Contact closed','success');
+}
+function acceptCall(){
+    if(contact){ contact.accept(); log('Accepting call…'); }
+    else {
+        // Demo mode: simulate the full accept → connected flow
+        if(waitTimer){ clearInterval(waitTimer); waitTimer=null; }
+        log('Call accepted (demo)','success');
+        startTimer();
+        // Move Johnny Pang card to In Call (same logic as onConnected)
+        var qItem=document.getElementById('queue-item-johnny');
+        var incallList=document.getElementById('incall-list');
+        if(qItem && incallList){
+            qItem.removeAttribute('style');
+            qItem.className='call-item active-item';
+            var dot=qItem.querySelector('.call-dot');if(dot)dot.removeAttribute('style');
+            var timerEl=qItem.querySelector('.call-timer');
+            if(timerEl){timerEl.removeAttribute('style');timerEl.id='dur-mini';timerEl.textContent='00:00';}
+            incallList.appendChild(qItem);
+            var ic=document.getElementById('incall-count');if(ic)ic.textContent='1';
+            var qc=document.getElementById('queue-count');if(qc)qc.textContent=String(Math.max(0,parseInt(qc.textContent||'1')-1));
+        }
+        setPanel('connected');
+    }
+}
+function rejectCall(){
+    if(contact){ contact.getConnections().forEach(c=>c.destroy()); log('Call rejected','warning'); }
+    else {
+        // Demo mode
+        if(waitTimer){ clearInterval(waitTimer); waitTimer=null; }
+        setPanel('idle');
+        log('Call rejected (demo)','warning');
+    }
+}
 function endCall(){if(contact)contact.getConnections().forEach(c=>c.destroy());}
 function holdCall(){
     if(!contact)return;
@@ -1382,17 +1763,60 @@ function muteCall(){
 }
 function setAgentStatus(s){
     if(!agent){log('No agent','error');return;}
-    const t=agent.getAgentStates().find(x=>x.name.toLowerCase()===s.toLowerCase());
-    if(t) agent.setState(t,{success:()=>log('Status: '+s,'success'),failure:e=>log('Fail: '+e,'error')});
-    else log('State not found: '+s,'error');
+    // Try exact match first, then try Offline/Unavailable aliases
+    let t=agent.getAgentStates().find(x=>x.name.toLowerCase()===s.toLowerCase());
+    if(!t && s==='Unavailable') t=agent.getAgentStates().find(x=>x.name.toLowerCase()==='offline');
+    if(!t && s==='Offline') t=agent.getAgentStates().find(x=>x.name.toLowerCase()==='unavailable');
+    if(t) agent.setState(t,{success:()=>{log('Status: '+s,'success');},failure:e=>log('Fail: '+e,'error')});
+    else log('State not found: '+s+'. Available: '+agent.getAgentStates().map(x=>x.name).join(', '),'error');
 }
+function toggleStatusDD(e){
+    e.stopPropagation();
+    var btn=document.getElementById('status-dd-btn');
+    var menu=document.getElementById('status-dd-menu');
+    var isOpen=menu.classList.contains('open');
+    if(isOpen){menu.classList.remove('open');btn.classList.remove('open');}
+    else{menu.classList.add('open');btn.classList.add('open');}
+}
+function switchAgentStatus(){
+    var txt=document.getElementById('idle-status-text').textContent.trim();
+    var next=(txt==='Available')?'Unavailable':'Available';
+    setAgentStatus(next);
+    document.getElementById('status-dd-menu').classList.remove('open');
+    document.getElementById('status-dd-btn').classList.remove('open');
+}
+document.addEventListener('click',function(){
+    var menu=document.getElementById('status-dd-menu');
+    var btn=document.getElementById('status-dd-btn');
+    if(menu){menu.classList.remove('open');}
+    if(btn){btn.classList.remove('open');}
+});
 
 // ── UI HELPERS ────────────────────────────────────────────────────────────────
 function updateAgentInfo(a){document.getElementById('agent-name').textContent=a.getName();updateStatus(a.getState().name);}
-function updateStatus(s){var d=document.getElementById('status-dot');document.getElementById('status-label').textContent=s;d.className='sdot';d.classList.add(s==='Available'?'dot-avail':s==='AfterCallWork'?'dot-acw':'dot-unavail');}
+function updateStatus(s){
+    var d=document.getElementById('status-dot');
+    document.getElementById('status-label').textContent=s;
+    d.className='sdot';
+    d.classList.add(s==='Available'?'dot-avail':s==='AfterCallWork'?'dot-acw':'dot-unavail');
+    // Update center dropdown
+    var isAvail=(s==='Available');
+    var isTrueOffline=(s==='Unavailable'||s==='Offline');
+    var idleTxt=document.getElementById('idle-status-text');
+    var idleDot=document.getElementById('idle-sdot');
+    var ddBtn=document.getElementById('status-dd-btn');
+    var ddItem=document.getElementById('status-dd-item');
+    if(idleTxt) idleTxt.textContent=s;
+    if(idleDot) idleDot.style.background=isAvail?'#2ea043':s==='AfterCallWork'?'#e6a817':'#d73a49';
+    if(ddBtn){ddBtn.classList.remove('avail','unavail');ddBtn.classList.add(isAvail?'avail':'unavail');}
+    if(ddItem){
+        if(isAvail){ddItem.className='status-dd-item to-unavail';ddItem.innerHTML='<span style="width:8px;height:8px;background:#d73a49;border-radius:50%;display:inline-block;flex-shrink:0;"></span> Set Offline';}
+        else{ddItem.className='status-dd-item to-avail';ddItem.innerHTML='<span style="width:8px;height:8px;background:#2ea043;border-radius:50%;display:inline-block;flex-shrink:0;"></span> Set Available';}
+    }
+}
 function updateConn(ok){var el=document.getElementById('connection-status');el.textContent=ok?'⬤ Connected':'⬤ Disconnected';el.className=ok?'connected':'disconnected';}
 function log(msg,type='info'){var l=document.getElementById('activity-log');var d=document.createElement('div');d.className='li '+type;d.innerHTML='<span class="ts">'+new Date().toLocaleTimeString()+'</span>'+msg;l.insertBefore(d,l.firstChild);while(l.children.length>60)l.removeChild(l.lastChild);}
-function startTimer(){t0=Date.now();timer=setInterval(()=>{var ms=Date.now()-t0,m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000);var f=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;document.getElementById('call-duration').textContent=f;var dm=document.getElementById('dur-mini');if(dm)dm.textContent=f;},1000);}
+function startTimer(){t0=Date.now();timer=setInterval(()=>{var ms=Date.now()-t0,m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000);var f=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;document.getElementById('call-duration').textContent=f;var dm=document.getElementById('dur-mini');if(dm)dm.textContent=f;var db=document.getElementById('dur-badge');if(db)db.textContent=f;var ff=document.getElementById('ff-dur');if(ff)ff.value=f;},1000);}
 function stopTimer(){if(timer){clearInterval(timer);timer=null;t0=null;}}
 function beep(){try{var ctx=new(window.AudioContext||window.webkitAudioContext)();var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.5);}catch{}}
 
@@ -1440,8 +1864,23 @@ function submitForm(){
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
-    setPanel('idle');
     log('Page loaded');
+    // Show ringing demo state immediately so the UI is usable without a live Connect session
+    setPanel('ringing');
+    // SLA countdown timer
+    var slaTotal = 15 * 60; // 15 mins
+    var slaLeft = 12 * 60 + 54; // start at 12:54
+    var slaTimer = setInterval(function(){
+        slaLeft--;
+        if(slaLeft < 0) slaLeft = 0;
+        var m = Math.floor(slaLeft/60), s = slaLeft % 60;
+        var txt = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+        var el = document.getElementById('sla-remaining-text');
+        var fill = document.getElementById('sla-fill');
+        if(el) el.textContent = txt + ' remaining';
+        if(fill) fill.style.width = Math.max(0, (slaLeft/slaTotal)*100) + '%';
+        if(slaLeft <= 0) clearInterval(slaTimer);
+    }, 1000);
     if (ccpUrl.includes('YOUR_INSTANCE')) return;
     initConnect();
 });
