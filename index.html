@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPF Intelligent Contact Centre</title>
+    <title>MHA Intelligent Contact Centre</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
         :root {
@@ -67,8 +67,8 @@
         /* Sidebar section headers */
         .sb-sec { flex-shrink:0; }
         .sb-sec-hdr { padding:8px 12px 4px; display:flex; align-items:center; justify-content:space-between; }
-        .sb-sec-title { font-size:11px; font-weight:700; color:#57606a; text-transform:uppercase; letter-spacing:0.8px; display:flex; align-items:center; gap:6px; }
-        .sb-count { font-size:10px; background:#eaeef2; color:#57606a; padding:1px 6px; border-radius:8px; font-weight:600; letter-spacing:0; text-transform:none; }
+        .sb-sec-title { font-size:14px; font-weight:700; color:#001f5f; text-transform:none; letter-spacing:0; display:flex; align-items:center; gap:6px; }
+        .sb-count { font-size:11px; background:transparent; color:#57606a; padding:0; border-radius:0; font-weight:400; letter-spacing:0; text-transform:none; }
         .sb-sec-toggle { font-size:11px; color:#8c959f; cursor:pointer; border:none; background:none; }
 
         /* Call items */
@@ -112,6 +112,23 @@
         .sb-sbtn-unavail { background:rgba(215,58,73,0.08); color:#d73a49; border:1px solid rgba(215,58,73,0.25); }
         .sb-sbtn-unavail:hover { background:rgba(215,58,73,0.15); }
 
+        /* Status bar at top of sidebar */
+        .sb-status-bar { padding:6px 12px 8px; border-bottom:1px solid var(--border); display:flex; gap:6px; flex-shrink:0; }
+        .sb-status-bar .sb-sbtn { flex:1; padding:5px 6px; font-size:11px; }
+
+        /* Agent status dropdown */
+        .agent-status-dd { position:relative; }
+        .agent-status-dd-btn { display:flex; align-items:center; gap:4px; cursor:pointer; padding:2px 5px 2px 3px; border-radius:4px; background:none; border:none; font-family:'IBM Plex Mono',monospace; line-height:1; }
+        .agent-status-dd-btn:hover { background:#f0f2f5; }
+        .agent-status-dd-arrow { font-size:8px; opacity:0.45; margin-left:1px; }
+        .agent-status-dd-menu { display:none; position:absolute; top:calc(100% + 4px); left:0; min-width:140px; background:#fff; border:1px solid var(--border); border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.14); z-index:200; overflow:hidden; }
+        .agent-status-dd-menu.open { display:block; }
+
+        /* Agent login button */
+        .sb-login-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:calc(100% - 24px); margin:0 12px; padding:10px 16px; background:linear-gradient(135deg,#001f5f,#003399); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .sb-login-btn:hover { background:linear-gradient(135deg,#003399,#0055cc); box-shadow:0 2px 8px rgba(0,31,95,0.3); }
+        .sb-login-btn svg { flex-shrink:0; }
+
         /* Activity log */
         .sb-alog { flex-shrink:0; border-top:1px solid var(--border); }
         .sb-alog-hdr { padding:7px 12px 5px; font-size:10px; font-weight:700; color:#8c959f; text-transform:uppercase; letter-spacing:0.8px; }
@@ -125,11 +142,12 @@
         .li .ts { color:#c0c7d0; margin-right:5px; }
 
         /* ══ CENTER AREA ═════════════════════════════════════════════ */
-        .ccp-area { display:grid; grid-template-columns:1fr; overflow:hidden; background:#fff; }
-        .center-left { display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); background:#fff; }
+        .ccp-area { display:flex; overflow:hidden; background:#fff; }
+        .center-left { flex:1; display:flex; flex-direction:column; overflow:hidden; border-right:1px solid var(--border); background:#fff; min-width:0; }
 
-        /* Hidden CCP container */
-        #ccp-container { position:fixed; left:-9999px; top:-9999px; width:320px; height:480px; overflow:hidden; pointer-events:none; }
+        /* Hidden CCP container — must NOT use pointer-events:none or extreme offscreen positioning
+           as Chrome blocks microphone/WebRTC access in such iframes */
+        #ccp-container { position:fixed; right:0; bottom:0; width:1px; height:1px; opacity:0; overflow:hidden; }
 
         /* ── STATE: Pre-login ── */
         .prelogin-panel { display:none; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:40px; text-align:center; }
@@ -145,17 +163,7 @@
         .idle-loggedin-ico { font-size:42px; opacity:0.25; }
         .idle-loggedin h3 { font-size:14px; font-weight:600; color:var(--navy); }
         .idle-loggedin p { font-size:12px; color:#8c959f; }
-        .status-dropdown { position:relative; margin-top:16px; }
-        .status-dd-btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:20px; border:1.5px solid var(--border); background:#fff; font-size:13px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; cursor:pointer; transition:all 0.15s; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
-        .status-dd-btn:hover { box-shadow:0 3px 10px rgba(0,0,0,0.12); border-color:#aab0b8; }
-        .status-dd-btn.avail { border-color:rgba(46,160,67,0.4); color:#1a7f37; }
-        .status-dd-btn.unavail { border-color:rgba(215,58,73,0.4); color:#cf222e; }
-        .status-dd-arrow { font-size:10px; opacity:0.6; transition:transform 0.15s; }
-        .status-dd-btn.open .status-dd-arrow { transform:rotate(180deg); }
-        .status-dd-menu { display:none; position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%); min-width:160px; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:100; overflow:hidden; }
-        .status-dd-menu.open { display:block; animation:dd-pop 0.15s ease; }
-        @keyframes dd-pop { from{opacity:0;transform:translateX(-50%) translateY(-4px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-        .status-dd-item { display:flex; align-items:center; gap:8px; width:100%; padding:10px 16px; border:none; background:none; font-size:12.5px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; cursor:pointer; transition:background 0.1s; }
+        .status-dd-item { display:flex; align-items:center; gap:8px; width:100%; padding:9px 14px; border:none; background:none; font-size:12px; font-weight:600; font-family:'IBM Plex Sans',sans-serif; cursor:pointer; transition:background 0.1s; }
         .status-dd-item:hover { background:#f6f8fa; }
         .status-dd-item.to-avail { color:#1a7f37; }
         .status-dd-item.to-unavail { color:#cf222e; }
@@ -224,7 +232,7 @@
         #aps-status{color:#8c959f} #aps-status.connected{color:#2ea043} #aps-status.error{color:var(--red)}
 
         /* ── TRANSCRIPT ROWS (reference style) ── */
-        .tx-row { display:flex; gap:0; padding:5px 0; animation:fi 0.3s ease; }
+        .tx-row { display:flex; gap:6px; padding:5px 0; animation:fi 0.3s ease; }
         @keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
         .tx-time { width:58px; flex-shrink:0; padding-top:3px; padding-left:12px; }
         .tx-time span { font-size:10px; font-family:'IBM Plex Mono',monospace; color:#8c959f; }
@@ -246,11 +254,11 @@
         .sent-dot-pos{background:#3fb950} .sent-dot-neg{background:#f85149} .sent-dot-neu{background:#8c959f}
 
         /* ── AI NOTE inline ── */
-        .tx-ai-note { display:flex; justify-content:center; padding:5px 12px; }
-        .tx-ai-note-inner { display:flex; align-items:flex-start; gap:7px; padding:7px 11px; background:#f5f0ff; border:1px solid #ddd0f8; border-radius:5px; width:100%; }
-        .ai-note-icon { font-size:11px; flex-shrink:0; margin-top:1px; }
-        .ai-note-label { font-size:10px; font-weight:700; color:#6e40c9; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap; flex-shrink:0; }
-        .ai-note-text { font-size:11.5px; color:#5a32a3; line-height:1.5; }
+        .tx-ai-note { display:flex; justify-content:center; padding:6px 12px; }
+        .tx-ai-note-inner { display:flex; align-items:flex-start; gap:7px; padding:8px 12px; background:rgba(255,180,0,0.08); border:1px solid rgba(255,180,0,0.25); border-radius:6px; width:100%; }
+        .ai-note-icon { font-size:12px; flex-shrink:0; margin-top:0px; }
+        .ai-note-label { font-size:10.5px; font-weight:700; color:#b37400; letter-spacing:0.3px; white-space:nowrap; flex-shrink:0; }
+        .ai-note-text { font-size:11.5px; color:#7a5000; line-height:1.5; }
         .tx-followups { padding:4px 12px; }
         .tx-followups-header { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
         .fu-icon { font-size:10px; color:#6e40c9; }
@@ -339,12 +347,45 @@
         .qcard p { font-size:12px; color:var(--text); line-height:1.6; }
         .qdispatch { margin-top:9px; width:100%; padding:7px; background:var(--navy); color:#fff; border:none; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
         .qdispatch:hover { background:#0a3080; }
+        .consent-create-btn { width:100%; padding:9px 16px; background:#0078d4; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
+        .consent-create-btn:hover { background:#005a9e; }
+        .consent-btn-done { background:#e8ecf0; color:#57606a; cursor:default; font-weight:500; }
+        .consent-btn-done:hover { background:#e8ecf0; }
+
+        /* Green status note in transcript */
+        .tx-green-note { display:flex; justify-content:center; padding:6px 12px; }
+        .tx-green-note-inner { display:flex; align-items:center; gap:7px; padding:6px 14px; background:rgba(46,160,67,0.08); border:1px solid rgba(46,160,67,0.25); border-radius:16px; }
+        .green-note-icon { font-size:12px; flex-shrink:0; }
+        .green-note-text { font-size:12px; color:#1a7f37; font-weight:600; }
+        /* Side panel green note */
+        .ltx-green-note { display:flex; justify-content:center; padding:4px 10px; }
+        .ltx-green-note-inner { display:flex; align-items:center; gap:5px; padding:4px 10px; background:rgba(46,160,67,0.08); border:1px solid rgba(46,160,67,0.25); border-radius:12px; }
+        .ltx-green-note-inner .green-note-icon { font-size:10px; }
+        .ltx-green-note-inner .green-note-text { font-size:10px; color:#1a7f37; font-weight:600; }
         .qkbl { display:block; font-size:12px; color:#0969da; text-decoration:none; padding:3px 0; }
         .qkbl:hover { text-decoration:underline; }
         .qdnote { margin-top:5px; font-size:10px; color:#8c959f; font-style:italic; }
         .qaski { width:100%; padding:7px 9px; border:1px solid var(--border); border-radius:5px; font-size:12px; outline:none; font-family:'IBM Plex Sans',sans-serif; }
         .qaski:focus { border-color:var(--navy); }
         .qpfoot { padding:7px 14px; border-top:1px solid var(--border); background:#ffffff; font-size:10px; color:#8c959f; font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
+
+        /* ── POST-CALL AI SUMMARY PANEL (between center and right) ── */
+        .postcall-panel { display:none; overflow-y:auto; padding:14px; flex-direction:column; gap:12px; border-left:1px solid var(--border); background:#fff; width:250px; flex-shrink:0; }
+        .postcall-panel.visible { display:flex; }
+        .postcall-draft-card { background:#f0ecf9; border:1px solid #d8d0e8; border-radius:8px; padding:14px; }
+        .postcall-draft-title { font-size:12px; font-weight:700; color:#7c3aed; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .postcall-draft-body { font-size:12px; color:#24292f; line-height:1.7; }
+        .postcall-draft-body p { margin:0 0 8px 0; }
+        .postcall-draft-actions { display:flex; align-items:center; gap:8px; margin-top:10px; padding-top:8px; border-top:1px solid #dde4f0; }
+        .postcall-draft-actions button { background:none; border:none; cursor:pointer; color:#57606a; font-size:14px; padding:4px 6px; border-radius:4px; }
+        .postcall-draft-actions button:hover { background:#e8ecf0; color:#24292f; }
+        .postcall-draft-note { font-size:10px; color:#8c959f; font-style:italic; margin-top:4px; }
+        .postcall-btn-group { display:flex; flex-direction:column; gap:8px; margin-top:4px; }
+        .postcall-btn { width:100%; padding:10px 16px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:6px; }
+        .postcall-btn-primary { background:#0969da; color:#fff; border:none; }
+        .postcall-btn-primary:hover { background:#0757b5; }
+        .postcall-btn-outline { background:#fff; color:#24292f; border:1px solid var(--border); }
+        .postcall-btn-outline:hover { background:#f6f8fa; border-color:#0969da; color:#0969da; }
 
         /* ── AFTER CONTACT WORK BAR ── */
         .acw-bar { display:none; flex-shrink:0; border-top:2px solid var(--yellow); padding:10px 16px; background:#fffbf0; align-items:center; justify-content:space-between; gap:12px; }
@@ -384,6 +425,71 @@
         .ov-tx-table td { padding:9px 10px; border-bottom:1px solid #e8ecf0; color:var(--text); }
         .ov-tx-table tr:last-child td { border-bottom:none; }
         .ov-tx-table tr:hover td { background:#f6f8fa; }
+
+        /* ── MORE ACTIONS PANEL ── */
+        .ma-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .ma-card { display:flex; align-items:center; gap:14px; padding:18px 16px; background:#fff; border:1px solid #e0e4e8; border-radius:12px; cursor:pointer; transition:all 0.15s; }
+        .ma-card:hover { border-color:#b0b8c4; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .ma-icon { width:40px; height:40px; border-radius:10px; background:#e8f0fe; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .ma-label { font-size:13.5px; font-weight:700; color:#0a2540; display:block; }
+        .ma-desc { font-size:11px; color:#8c959f; display:block; margin-top:2px; }
+
+        /* ── FORM TAB + SPLIT VIEW ── */
+        .form-split { display:flex; flex:1; overflow:hidden; min-height:0; }
+        .form-panel { flex:1; display:flex; flex-direction:column; overflow:hidden; background:#f8f9fb; min-height:0; }
+        .form-panel-scroll { flex:1; overflow-y:auto; padding:20px 24px; min-height:0; }
+        .form-call-bar { flex-shrink:0; border-top:1px solid var(--border); padding:8px 16px; background:#fff; display:flex; align-items:center; justify-content:space-between; }
+        .form-panel-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+        .form-panel-title { font-size:17px; font-weight:700; color:#1c2432; }
+        .form-draft-badge { font-size:11px; font-weight:600; color:#fff; background:#1a7f37; padding:3px 12px; border-radius:12px; }
+        .form-panel-sub { font-size:12.5px; color:#57606a; margin-bottom:20px; }
+        .form-section { background:#fff; border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:16px; }
+        .form-section-title { font-size:14px; font-weight:700; color:#1c2432; margin-bottom:16px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:14px; }
+        .form-field label { display:block; font-size:11px; font-weight:600; color:#57606a; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.3px; }
+        .form-field input, .form-field select { width:100%; padding:9px 12px; border:1px solid #d0d7de; border-radius:6px; font-size:13px; font-family:'IBM Plex Sans',sans-serif; color:#1c2432; background:#fff; outline:none; box-sizing:border-box; }
+        .form-field input:focus, .form-field select:focus { border-color:var(--navy); box-shadow:0 0 0 2px rgba(0,31,95,0.1); }
+        .form-field input::placeholder, .form-field select::placeholder { color:#8c959f; }
+        .form-check { display:flex; align-items:flex-start; gap:8px; margin-bottom:14px; }
+        .form-check input[type=checkbox] { width:16px; height:16px; margin-top:2px; accent-color:var(--navy); }
+        .form-check-text { font-size:12.5px; color:#1c2432; font-weight:600; }
+        .form-check-sub { font-size:11px; color:#8c959f; margin-top:1px; }
+        .form-actions { display:flex; justify-content:flex-end; gap:12px; padding:16px 0 4px; }
+        .form-btn-draft { padding:9px 22px; border:none; background:none; color:var(--navy); font-size:13px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
+        .form-btn-draft:hover { text-decoration:underline; }
+        .form-btn-submit { padding:9px 28px; background:var(--navy); color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
+        .form-btn-submit:hover { background:#0a3080; }
+
+        .live-tx-side { width:280px; flex-shrink:0; border-left:1px solid var(--border); display:flex; flex-direction:column; background:#fff; min-height:0; }
+        .live-tx-hdr { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:#1b2537; color:#fff; flex-shrink:0; }
+        .live-tx-hdr-title { font-size:12px; font-weight:700; }
+        .live-tx-hdr-actions { display:flex; align-items:center; gap:6px; }
+        .live-tx-hdr-btn { background:none; border:none; color:#fff; cursor:pointer; font-size:13px; padding:2px; opacity:0.8; }
+        .live-tx-hdr-btn:hover { opacity:1; }
+        .live-tx-msgs { flex:1; overflow-y:auto; padding:4px 0; min-height:0; scrollbar-width:thin; scrollbar-color:#c1c7cd transparent; background:#fff; }
+        .live-tx-msgs::-webkit-scrollbar { width:4px; }
+        .live-tx-msgs::-webkit-scrollbar-track { background:transparent; }
+        .live-tx-msgs::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+        .ltx-row { display:flex; flex-direction:column; padding:4px 8px; }
+        .ltx-msg-line { display:flex; align-items:flex-start; gap:4px; }
+        .ltx-role { flex-shrink:0; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; padding-top:2px; }
+        .ltx-role.officer { color:#0969da; }
+        .ltx-role.caller { color:#57606a; }
+        .ltx-text-wrap { flex:1; min-width:0; }
+        .ltx-bubble { padding:5px 8px; border-radius:4px; font-size:11px; line-height:1.45; border-left:2px solid transparent; word-wrap:break-word; }
+        .ltx-bubble.ltx-agent { background:rgba(9,105,218,0.05); border-left-color:#0969da; }
+        .ltx-bubble.ltx-customer { background:#fff; border:1px solid #eaecef; border-left:2px solid #d0d7de; }
+        .ltx-time { font-size:8px; color:#8c959f; font-family:'IBM Plex Mono',monospace; padding-left:2px; margin-top:2px; }
+        .ltx-ai-note { padding:4px 10px; }
+        .ltx-ai-note-inner { display:flex; align-items:flex-start; gap:5px; padding:6px 8px; background:rgba(255,180,0,0.08); border:1px solid rgba(255,180,0,0.25); border-radius:5px; }
+        .ltx-ai-note-inner .ai-note-icon { font-size:10px; flex-shrink:0; }
+        .ltx-ai-note-inner .ai-note-label { font-size:8.5px; font-weight:700; color:#b37400; text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; flex-shrink:0; }
+        .ltx-ai-note-inner .ai-note-text { font-size:10px; color:#7a5000; line-height:1.4; }
+        .ltx-action-badge { display:flex; justify-content:center; padding:8px 16px; }
+        .ltx-action-badge button { padding:7px 18px; background:#f6f8fa; border:1px solid var(--border); border-radius:6px; font-size:11.5px; color:#57606a; font-weight:600; cursor:default; font-family:'IBM Plex Sans',sans-serif; }
+
+        .call-tab .tab-close { margin-left:6px; font-size:13px; font-weight:400; color:#8c959f; cursor:pointer; }
+        .call-tab .tab-close:hover { color:#d73a49; }
     </style>
 </head>
 <body>
@@ -395,7 +501,7 @@
              onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
         <div class="hdr-logo-fallback" id="logo-fb">🛡️</div>
         <div class="hdr-divider"></div>
-        <div class="hdr-title">SPF Intelligent Contact Centre</div>
+        <div class="hdr-title">MHA Intelligent Contact Centre</div>
     </div>
     <div class="hdr-center">
         <span class="srch-ico">🔍</span>
@@ -415,7 +521,7 @@
         <button class="hic" title="Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
-        <div class="hdr-avatar" id="hdr-av" title="Agent">A</div>
+        <div class="hdr-avatar" id="hdr-av" title="Agent">PN</div>
         <div id="connection-status" class="disconnected">⬤ Disconnected</div>
     </div>
 </div>
@@ -453,35 +559,63 @@
     <!-- Voice Call header -->
     <div class="sb-top">
         <div class="sb-top-row">
-            <button class="sb-icon-btn">☰</button>
             <span class="sb-voice-label">Voice Call</span>
-            <button class="sb-icon-btn">‹</button>
         </div>
-        <div class="sb-search-wrap">
-            <span class="sb-search-ico">🔍</span>
-            <input type="text" class="sb-search" placeholder="Search names, cases, NRIC…">
+    </div>
+
+    <!-- Agent login button — shown before CCP login -->
+    <div class="sb-agent" id="sb-login-area" style="border-top:none; border-bottom:1px solid var(--border); padding:12px 0;">
+        <button class="sb-login-btn" onclick="loginCCP()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Login to CCP
+        </button>
+    </div>
+
+    <!-- Agent card — shown after CCP login -->
+    <div class="sb-agent" id="sb-agent-card" style="border-top:none; border-bottom:1px solid var(--border); display:none;">
+        <div class="agent-card">
+            <div class="agent-av" id="agent-avatar" style="background:linear-gradient(135deg,#6b7280,#4b5563);font-size:11px;">
+                <img src="agent-avatar.png" alt="PN" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.textContent='PN';">
+            </div>
+            <div>
+                <div class="agent-nm" id="agent-name">Agent</div>
+                <div class="asr agent-status-dd" id="agent-status-dd">
+                    <button class="agent-status-dd-btn" onclick="toggleAgentStatusDD(event)" title="Change status">
+                        <div class="sdot dot-avail" id="status-dot"></div>
+                        <div class="slbl" id="status-label">Available</div>
+                        <span class="agent-status-dd-arrow">&#9660;</span>
+                    </button>
+                    <div class="agent-status-dd-menu" id="agent-status-dd-menu">
+                        <button class="status-dd-item to-avail" onclick="setAgentStatus('Available');closeAgentStatusDD()">
+                            <span style="width:7px;height:7px;background:#2ea043;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
+                            Available
+                        </button>
+                        <button class="status-dd-item to-unavail" onclick="setAgentStatus('Unavailable');closeAgentStatusDD()">
+                            <span style="width:7px;height:7px;background:#d73a49;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
+                            Offline
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- In Call section -->
     <div class="sb-sec">
         <div class="sb-sec-hdr">
-            <span class="sb-sec-title">In call <span class="sb-count" id="incall-count">0</span></span>
-            <button class="sb-sec-toggle">▾</button>
+            <span class="sb-sec-title">In call <span class="sb-count" id="incall-count">(0)</span></span>
+
         </div>
         <div id="incall-list"></div>
     </div>
 
-    <div class="sb-div"></div>
-
     <!-- Call Queue section -->
-    <div class="sb-sec" style="flex:1;display:flex;flex-direction:column;">
+    <div class="sb-sec" id="queue-section" style="flex:1;display:flex;flex-direction:column;">
         <div class="sb-sec-hdr">
-            <span class="sb-sec-title">Call queue <span class="sb-count" id="queue-count">4</span></span>
-            <button class="sb-sec-toggle">▾</button>
+            <span class="sb-sec-title">Call queue <span class="sb-count" id="queue-count">(3)</span></span>
         </div>
         <div class="sb-calls">
-            <div class="call-item" id="queue-item-johnny" style="border-left:2px solid #2ea043;background:rgba(46,160,67,0.03);">
+            <div class="call-item" id="queue-item-johnny" style="display:none;border-left:2px solid #2ea043;background:rgba(46,160,67,0.03);cursor:pointer;" onclick="selectQueueCall()">
                 <div class="call-item-top">
                     <div class="call-dot call-dot-green" style="animation:pulse 1.5s infinite;"></div>
                     <span class="call-name">Johnny Pang</span>
@@ -520,26 +654,6 @@
         </div>
     </div>
 
-    <div class="sb-div"></div>
-
-    <!-- Agent info -->
-    <div class="sb-agent">
-        <div class="agent-card">
-            <div class="agent-av" id="agent-avatar">?</div>
-            <div>
-                <div class="agent-nm" id="agent-name">Not Logged In</div>
-                <div class="asr">
-                    <div class="sdot dot-unavail" id="status-dot"></div>
-                    <div class="slbl" id="status-label">Offline</div>
-                </div>
-            </div>
-        </div>
-        <div class="sb-status-btns">
-            <button class="sb-sbtn sb-sbtn-avail" onclick="setAgentStatus('Available')">Available</button>
-            <button class="sb-sbtn sb-sbtn-unavail" onclick="setAgentStatus('Unavailable')">Offline</button>
-        </div>
-    </div>
-
     <!-- Activity Log -->
     <div class="sb-alog">
         <div class="sb-alog-hdr">Activity Log</div>
@@ -567,41 +681,31 @@
         <div class="idle-loggedin-ico">📵</div>
         <h3>No active call</h3>
         <p>Waiting for incoming calls…</p>
-        <div class="status-dropdown" id="status-dropdown">
-            <button class="status-dd-btn unavail" id="status-dd-btn" onclick="toggleStatusDD(event)">
-                <span class="sdot" id="idle-sdot" style="width:8px;height:8px;background:#d73a49;border-radius:50%;flex-shrink:0;"></span>
-                <span id="idle-status-text">Offline</span>
-                <span class="status-dd-arrow">&#9660;</span>
-            </button>
-            <div class="status-dd-menu" id="status-dd-menu">
-                <button class="status-dd-item to-avail" id="status-dd-item" onclick="switchAgentStatus()">
-                    <span style="width:8px;height:8px;background:#2ea043;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
-                    Set Available
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- ══ CUSTOMER PROFILE BAR (shown on ringing + connected) ══ -->
-    <div id="cpb" class="cpb active ringing">
+    <div id="cpb" class="cpb">
         <div class="cpb-summary">
             <div class="cpb-left">
                 <div class="cpb-av" id="cpb-av">JP</div>
                 <div>
-                    <div class="cpb-name" id="cpb-name">JOHNNY PANG JUN JIE</div>
+                    <div style="display:flex;align-items:baseline;gap:8px;">
+                        <div class="cpb-name" id="cpb-name">Johnny Pang</div>
+                        <span class="cpb-nric" id="cpb-nric" style="background:none;border:none;padding:0;font-size:12px;color:#57606a;">(T0012345A)</span>
+                    </div>
                     <div class="cpb-meta">
-                        <span class="cpb-nric" id="cpb-nric">NRIC: T0012345A</span>
-                        <span class="cpb-phone">+65 9123 4567</span>
                         <span class="ptag ptag-ringing" id="cpb-status-tag">● Ringing</span>
+                        <span style="font-size:11px;color:#8c959f;">|</span>
                         <span style="font-size:11px;color:#57606a;font-family:'IBM Plex Mono',monospace;" id="cpb-ir">IR-2024-71846</span>
+                        <span style="font-size:11px;color:#8c959f;">|</span>
+                        <span class="cpb-phone" style="font-size:11px;color:#57606a;font-family:'IBM Plex Mono',monospace;">+65 9123 4567</span>
+                        <span style="font-size:11px;color:#8c959f;">|</span>
+                        <span id="cpb-email" style="font-size:11px;color:#57606a;">johnny.p@example.com</span>
                     </div>
                 </div>
             </div>
             <div class="cpb-right">
-                <div class="qs-wrap">
-                    <div class="qs"><div class="qs-v">3</div><div class="qs-l">Past Reports</div></div>
-                    <div class="qs"><div class="qs-v" id="call-duration">00:00</div><div class="qs-l">Call Time</div></div>
-                </div>
+                <span id="call-duration" style="display:none;">00:00</span>
                 <button class="btn-vd open" id="btn-vd" onclick="toggleProfile()">
                     View Details <i class="chev">▾</i>
                 </button>
@@ -612,20 +716,14 @@
             <div class="cpb-inner">
                 <h5>Serviceman Details</h5>
                 <div class="pf-grid">
-                    <div class="pf"><label>Rank</label><span>Corporal</span></div>
-                    <div class="pf"><label>Division</label><span>Tanglin NPC</span></div>
-                    <div class="pf"><label>Unit</label><span>Central Police Division</span></div>
-                    <div class="pf"><label>ORD</label><span>2 Oct 2026</span></div>
-                    <div class="pf"><label>High Key Count</label><span>Unassigned</span></div>
-                    <div class="pf"><label>Low Key Count</label><span>Unassigned</span></div>
-                    <div class="pf"><label>Last ICT</label><span>Unassigned</span></div>
-                    <div class="pf"><label>Next ICT</label><span>Unassigned</span></div>
-                </div>
-                <div class="pf-grid" style="margin-top:8px">
-                    <div class="pf"><label>Date of Birth</label><span>1 March 2000</span></div>
-                    <div class="pf"><label>Gender</label><span>Male</span></div>
-                    <div class="pf"><label>Contact</label><span class="mono">9999 8888</span></div>
-                    <div class="pf wide"><label>Residential Address</label><span>Blk 123 Tanjong Pagar Plaza #12-456, Postal Code 081123</span></div>
+                    <div class="pf"><label>Rank</label><span id="pf-rank">Corporal</span></div>
+                    <div class="pf"><label>Division</label><span id="pf-division">Tanglin NPC</span></div>
+                    <div class="pf"><label>Unit</label><span id="pf-unit">Central Police Division</span></div>
+                    <div class="pf"><label>ORD</label><span id="pf-ord">2 Oct 2026</span></div>
+                    <div class="pf"><label>High Key Count</label><span id="pf-hkc">Unassigned</span></div>
+                    <div class="pf"><label>Low Key Count</label><span id="pf-lkc">Unassigned</span></div>
+                    <div class="pf"><label>Last ICT</label><span id="pf-last-ict">Unassigned</span></div>
+                    <div class="pf"><label>Next ICT</label><span id="pf-next-ict">Unassigned</span></div>
                 </div>
             </div>
         </div>
@@ -664,12 +762,13 @@
     </div><!-- /inc-panel -->
 
     <!-- ══ STATE: CONNECTED (live transcript) ══ -->
-    <div class="tx-section visible" id="tx-section">
+    <div class="tx-section" id="tx-section">
 
         <!-- Tabs: Call View | Officer Notes -->
         <div class="call-tabs">
             <button class="call-tab" id="tab-overview" onclick="switchTab('overview')">Overview</button>
             <button class="call-tab active" id="tab-callview" onclick="switchTab('callview')">Call View</button>
+            <button class="call-tab" id="tab-moreactions" onclick="switchTab('moreactions')">More Actions</button>
             <div class="call-tab-spacer"></div>
             <div id="callview-controls" style="display:flex;align-items:center;gap:8px;padding:6px 0">
                 <div class="tx-toggle-group">
@@ -705,20 +804,26 @@
                         <div class="ov-field"><label>NRIC</label><span id="ov-nric">T0012345A</span></div>
                         <div class="ov-field"><label>Phone</label><span id="ov-phone">+65 9123 4567</span></div>
                     </div>
-                    <div class="ov-grid">
-                        <div class="ov-field"><label>Rank</label><span>CORPORAL</span></div>
-                        <div class="ov-field"><label>Division</label><span>Tanglin NPC</span></div>
-                        <div class="ov-field"><label>Unit</label><span>Central Police Division</span></div>
-                        <div class="ov-field"><label>ORD</label><span>2 Oct 2026</span></div>
-                        <div class="ov-field"><label>High Key Count</label><span>Unassigned</span></div>
-                        <div class="ov-field"><label>Low Key Count</label><span>Unassigned</span></div>
-                        <div class="ov-field"><label>Last ICT</label><span>Unassigned</span></div>
-                        <div class="ov-field"><label>Next ICT</label><span>Unassigned</span></div>
+                    <div class="ov-grid" style="grid-template-columns:repeat(2,1fr);">
+                        <div class="ov-field"><label>Unit</label><span id="ov-unit">Central Police Division</span></div>
+                        <div class="ov-field"><label>ORD</label><span id="ov-ord">2 Oct 2026</span></div>
                     </div>
                 </div>
                 <div class="ov-ai-card">
                     <div class="ov-ai-title">&#10022; Customer Interaction Summary</div>
                     <div class="ov-ai-text">Repeat reporter — 3 prior complaints against same subject (Blk 412 resident). Last incident 14 days ago involved verbal threats at void deck. Subject has no criminal record. Reporter has 1 dependent minor.</div>
+                </div>
+            </div>
+            <!-- Call tree summary -->
+            <div class="ov-card">
+                <div class="ov-card-hdr">
+                    <span class="ov-card-title">Call tree summary</span>
+                </div>
+                <div class="ov-grid">
+                    <div class="ov-field"><label>Level 1 - Main Category</label><span>NS Administrative Matters</span></div>
+                    <div class="ov-field"><label>Level 2 - Subcategory</label><span>Disruption &amp; Deferment</span></div>
+                    <div class="ov-field"><label>Level 3 - Request Type</label><span>Apply for disruption</span></div>
+                    <div class="ov-field"><label>Singpass Authentication</label><span>Verified</span></div>
                 </div>
             </div>
             <!-- Row 2: Recent transactions -->
@@ -736,6 +841,118 @@
                         <tr><td>31/01/2026</td><td>09:30</td><td>NS003</td><td>Enquiry about IPPT</td></tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- More Actions view -->
+        <div id="tx-view-moreactions" style="display:none;flex:1;flex-direction:column;overflow-y:auto;padding:16px 16px 8px;gap:20px;">
+
+            <!-- Service Request Forms -->
+            <div>
+                <h3 style="font-size:16px;font-weight:700;color:#1c2432;margin:0 0 14px 0;">Service Request Forms</h3>
+                <div class="ma-grid">
+                    <div class="ma-card" onclick="openFormTab('Disruption Application Form (Edu)')"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Disruption Application Form</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Medical Certificate Notification Form</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Certificate of Service Replacement Form</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Make-Up Pay Claim Appeal/Adjustment Form</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Request for PES Review Form</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">SPF 11B Replacement Form</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">SCDF 11B Replacement Form</span></div>
+                </div>
+            </div>
+
+            <!-- Training & Posting -->
+            <div>
+                <h3 style="font-size:16px;font-weight:700;color:#1c2432;margin:0 0 14px 0;">Training &amp; Posting</h3>
+                <div class="ma-grid">
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Lorem Ipsum</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Lorem Ipsum</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Lorem Ipsum</span></div>
+                    <div class="ma-card"><div class="ma-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div><span class="ma-label">Lorem Ipsum</span></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Form view (split: form left + live transcript right) -->
+        <div id="tx-view-form" class="form-split" style="display:none;">
+            <!-- Left: Form -->
+            <div class="form-panel">
+                <div class="form-panel-scroll">
+                    <div class="form-panel-hdr">
+                        <span class="form-panel-title" id="form-view-title">Disruption Application Form</span>
+                        <span class="form-draft-badge" id="form-draft-badge" style="display:none;">Draft saved</span>
+                    </div>
+                    <div class="form-panel-sub">Application for Disruption from Full-Time National Service / ICT</div>
+
+                    <!-- Personal details -->
+                    <div class="form-section">
+                        <div class="form-section-title">Personal details</div>
+                        <div class="form-row">
+                            <div class="form-field"><label>NRIC</label><input type="text" id="df-nric" placeholder="NRIC"></div>
+                            <div class="form-field"><label>Full name</label><input type="text" id="df-name" placeholder="Full name"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field"><label>Email</label><input type="email" id="df-email" placeholder="Email"></div>
+                            <div class="form-field"><label>Mobile number</label><input type="text" id="df-phone" placeholder="Mobile number"></div>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="df-contact-pref" checked>
+                            <div>
+                                <div class="form-check-text">Is this your preferred contact number?</div>
+                                <div class="form-check-sub">We will use this number for SMS notifications regarding your application status.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Education details -->
+                    <div class="form-section">
+                        <div class="form-section-title">Education details</div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Name of University</label>
+                                <select id="df-uni">
+                                    <option value="">Select university</option>
+                                    <option value="NUS">National University of Singapore</option>
+                                    <option value="NTU">Nanyang Technological University</option>
+                                    <option value="SMU">Singapore Management University</option>
+                                    <option value="SUTD">Singapore University of Technology and Design</option>
+                                    <option value="SIT">Singapore Institute of Technology</option>
+                                    <option value="SUSS">Singapore University of Social Sciences</option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label>Course / Programme Name</label>
+                                <select id="df-course"><option value="">Course / Programme</option></select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field"><label>Mode of Study</label><input type="text" id="df-mode" placeholder="Mode of Study"></div>
+                            <div class="form-field"><label>Course Start Date</label><input type="text" id="df-start" placeholder="Start date"></div>
+                        </div>
+                        <div class="form-row" style="grid-template-columns:1fr;">
+                            <div class="form-field"><label>Course End Date</label><input type="text" id="df-end" placeholder="End date" style="max-width:calc(50% - 8px);"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="form-btn-draft" onclick="saveDraft()">Save draft</button>
+                        <button class="form-btn-submit" onclick="submitDisruptionForm()">Submit</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right: Live Transcription sidebar -->
+            <div class="live-tx-side">
+                <div class="live-tx-hdr">
+                    <span class="live-tx-hdr-title">Live Transcription</span>
+                    <div class="live-tx-hdr-actions">
+                        <button class="live-tx-hdr-btn" title="Expand" onclick="switchTab('callview')">⛶</button>
+                        <button class="live-tx-hdr-btn" title="Close" onclick="closeFormTab()">&#10005;</button>
+                    </div>
+                </div>
+                <div class="live-tx-msgs" id="live-tx-msgs"></div>
             </div>
         </div>
 
@@ -778,7 +995,7 @@
             </div>
         </div>
         <!-- Ringing bottom bar -->
-        <div class="ring-controls-bar visible" id="ring-controls-bar">
+        <div class="ring-controls-bar" id="ring-controls-bar">
             <div class="inc-bottom-info">
                 <div class="inc-bottom-dot"></div>
                 <span class="inc-bottom-text" id="ring-bottom-text">Incoming call from Johnny Pang</span>
@@ -809,6 +1026,26 @@
 
 </div><!-- /center-left -->
 
+<!-- POST-CALL AI SUMMARY (inside ccp-area, beside center-left) -->
+<div class="postcall-panel" id="postcall-panel">
+    <div class="postcall-draft-card">
+        <div class="postcall-draft-title">✨ AI-Generated Draft</div>
+        <div class="postcall-draft-body" id="postcall-draft-body">
+            <p>Caller reports receiving in-principle acceptance to NUS and requesting disruption but has not yet received the official admission letter.</p>
+            <p>Officer created the disruption application with caller's consent and saved it as a draft. Caller advised to request the certifying admission document from the Office of Admissions and upload it via the emailed link within 10 working days for processing. Case marked pending documentation and noted for the processing officer.</p>
+        </div>
+        <div class="postcall-draft-actions">
+            <button title="Edit" onclick="editPostcallDraft()">✏️</button>
+            <button title="Copy" onclick="copyPostcallDraft()">📋</button>
+        </div>
+        <div class="postcall-draft-note">Review and edit before submission</div>
+    </div>
+    <div class="postcall-btn-group">
+        <button class="postcall-btn postcall-btn-primary" onclick="logReportToSR()">📁 Log Report into SR Repository</button>
+        <button class="postcall-btn postcall-btn-outline" onclick="escalateCase()">⚠️ Escalate Case</button>
+        <button class="postcall-btn postcall-btn-outline" onclick="closeCaseACW()">⊙ Close Case</button>
+    </div>
+</div>
 
 </div><!-- /ccp-area -->
 
@@ -893,10 +1130,105 @@ const APPSYNC_WS  = "wss://oya5jdgo4nauphhubeisoaqre4.appsync-realtime-api.us-we
 const APPSYNC_HOST = "oya5jdgo4nauphhubeisoaqre4.appsync-api.us-west-2.amazonaws.com";
 const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2channel(name:$name){name data}}";
 const TOKEN_ATTR  = "token";
+const PROFILE_API = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/profile";
 
 // ── GLOBAL STATE ──────────────────────────────────────────────────────────────
 let agent=null, contact=null, timer=null, t0=null, ws=null, txCount=0, sentScores=[];
+let wasConnected=false;
 let waitTimer=null, waitStart=null;
+
+// ── FETCH USER PROFILE FROM API ──────────────────────────────────────────────
+function clearProfile() {
+    var ids = ['cpb-name','cpb-av','cpb-nric','cpb-ir','cpb-email',
+               'pf-rank','pf-division','pf-unit','pf-ord','pf-hkc','pf-lkc','pf-last-ict','pf-next-ict',
+               'ov-fullname','ov-email','ov-nric','ov-phone','ov-unit','ov-ord'];
+    ids.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = '-';
+    });
+    var cpbPhone = document.querySelector('.cpb-phone');
+    if (cpbPhone) cpbPhone.textContent = '-';
+}
+
+function fetchUserProfile(nric) {
+    clearProfile();
+    if (!nric) return;
+    fetch(PROFILE_API + '?nric=' + encodeURIComponent(nric))
+        .then(function(res) {
+            if (!res.ok) throw new Error('Profile API returned ' + res.status);
+            return res.json();
+        })
+        .then(function(u) {
+            populateProfile(u);
+            log('Profile loaded for ' + (u.name || nric), 'success');
+        })
+        .catch(function(err) {
+            log('Profile fetch error: ' + err.message, 'error');
+        });
+}
+
+function populateProfile(u) {
+    // Helper: return value or "-"
+    function v(val) { return val || '-'; }
+
+    // Short display name (first + last name only)
+    var parts = (u.name || '').split(' ');
+    var shortName = parts.length >= 2 ? parts[0] + ' ' + parts[1] : u.name || '-';
+    // Title-case the short name
+    shortName = shortName.replace(/\w\S*/g, function(t) {
+        return t.charAt(0).toUpperCase() + t.substr(1).toLowerCase();
+    });
+    // Full name in title case
+    var fullName = (u.name || '-').replace(/\w\S*/g, function(t) {
+        return t.charAt(0).toUpperCase() + t.substr(1).toLowerCase();
+    });
+
+    // ── Customer Profile Bar (top bar) ──
+    var cpbName = document.getElementById('cpb-name');
+    if (cpbName) cpbName.textContent = shortName;
+    var cpbAv = document.getElementById('cpb-av');
+    if (cpbAv) cpbAv.textContent = v(u.initials);
+    var cpbNric = document.getElementById('cpb-nric');
+    if (cpbNric) cpbNric.textContent = '(' + v(u.nric) + ')';
+    var cpbPhone = document.querySelector('.cpb-phone');
+    if (cpbPhone) cpbPhone.textContent = v(u.phone);
+    var cpbIr = document.getElementById('cpb-ir');
+    if (cpbIr) cpbIr.textContent = v(u.ir);
+    var cpbEmail = document.getElementById('cpb-email');
+    if (cpbEmail) cpbEmail.textContent = v(u.email);
+
+    // ── Profile accordion (expandable card) ──
+    var pfRank = document.getElementById('pf-rank');
+    if (pfRank) pfRank.textContent = v(u.rank);
+    var pfDiv = document.getElementById('pf-division');
+    if (pfDiv) pfDiv.textContent = v(u.division);
+    var pfUnit = document.getElementById('pf-unit');
+    if (pfUnit) pfUnit.textContent = v(u.unit);
+    var pfOrd = document.getElementById('pf-ord');
+    if (pfOrd) pfOrd.textContent = v(u.ord);
+    var pfHkc = document.getElementById('pf-hkc');
+    if (pfHkc) pfHkc.textContent = v(u.high_key_count);
+    var pfLkc = document.getElementById('pf-lkc');
+    if (pfLkc) pfLkc.textContent = v(u.low_key_count);
+    var pfLastIct = document.getElementById('pf-last-ict');
+    if (pfLastIct) pfLastIct.textContent = v(u.last_ict);
+    var pfNextIct = document.getElementById('pf-next-ict');
+    if (pfNextIct) pfNextIct.textContent = v(u.next_ict);
+
+    // ── Overview tab ──
+    var ovName = document.getElementById('ov-fullname');
+    if (ovName) ovName.textContent = fullName;
+    var ovEmail = document.getElementById('ov-email');
+    if (ovEmail) ovEmail.textContent = v(u.email);
+    var ovNric = document.getElementById('ov-nric');
+    if (ovNric) ovNric.textContent = v(u.nric);
+    var ovPhone = document.getElementById('ov-phone');
+    if (ovPhone) ovPhone.textContent = v(u.phone);
+    var ovUnit = document.getElementById('ov-unit');
+    if (ovUnit) ovUnit.textContent = v(u.unit);
+    var ovOrd = document.getElementById('ov-ord');
+    if (ovOrd) ovOrd.textContent = v(u.ord);
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 //  KEYWORD RULES — sorted longest-first so multi-word phrases match before
@@ -979,7 +1311,7 @@ const KB_SUGGESTIONS = {
   no_offer: {
     action: 'NSF does not have admission offer and therefore will be required to provide additional documents.',
     dispatch: null,
-    aiNote: 'NSF does not have the official admission offer. Additional documentary requirements apply — refer to the NS deferment SOP for list of accepted alternative documents.',
+    aiNote: 'NSF does not have admission offer and therefore will be required to provide certifying letter from the institution',
     followups: [
       { label: 'Advise on alternative document requirements', primary: false },
       { label: 'Refer to NS deferment SOP', primary: false },
@@ -1028,7 +1360,7 @@ const KB_SUGGESTIONS = {
   disruption: {
     action: 'Log the nature of the disruption. If service-related, escalate to the relevant agency. If public order, dispatch accordingly.',
     dispatch: 'Log Disruption Incident',
-    aiNote: 'Disruption keyword detected. Determine if this is a public order disruption or service/operational disruption and route accordingly.',
+    aiNote: 'NSF\'s ORD is less than 4 months, NSF is eligible for disruption. Check for further eligibility.',
     followups: [
       { label: 'Classify disruption type', primary: true },
       { label: 'Check for related active incidents', primary: false },
@@ -1147,6 +1479,8 @@ const KB_SUGGESTIONS = {
 const kwDetected = new Set();
 const kwShown    = new Set();
 var   txLines    = [];
+var   consentAsked = false;   // tracks if agent asked "consent to proceed"
+var   consentShown = false;   // prevents duplicate consent suggestion
 
 // ════════════════════════════════════════════════════════════════════════════
 //  CENTRE PANEL STATE MACHINE
@@ -1166,6 +1500,17 @@ function setPanel(state) {
     txSec.classList.remove('visible');
     var acwBar=document.getElementById('acw-bar');
     if(acwBar) acwBar.classList.remove('visible');
+    // Hide postcall panel
+    var postcallP=document.getElementById('postcall-panel');
+    if(postcallP) postcallP.classList.remove('visible');
+    // Restore call-controls-bar to original state if it was changed to "Call ended"
+    var callBarReset=document.getElementById('call-controls-bar');
+    if(callBarReset && callBarReset.querySelector('[disabled]')) {
+        callBarReset.style.display='none';
+        callBarReset.style.borderTop='';
+        callBarReset.style.background='';
+        callBarReset.innerHTML='<div class="audio-indicator"><div class="audio-waves"><span></span><span></span><span></span><span></span><span></span></div><span style="margin-left:6px;font-size:11px;color:#57606a">Audio routed to headset</span></div><div class="call-ctrl-btns"><span class="dur-badge" id="dur-badge">00:00</span><button id="btn-hold" class="ctrl-btn" onclick="holdCall()">⏸ Hold</button><button id="btn-mute" class="ctrl-btn" onclick="muteCall()">🔇 Mute</button><button class="ctrl-btn ctrl-btn-end" onclick="endCall()">✕ End Call</button></div>';
+    }
 
     if (state === 'prelogin') {
         prelogin.style.display = 'flex';
@@ -1194,11 +1539,6 @@ function setPanel(state) {
         var stTag = document.getElementById('cpb-status-tag');
         if(stTag){ stTag.textContent='● Ringing'; stTag.className='ptag ptag-ringing'; }
         switchTab('overview');
-        waitStart = Date.now();
-        waitTimer = setInterval(() => {
-            const ms=Date.now()-waitStart, m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
-            const el=document.getElementById('inc-wait'); if(el) el.textContent='Waiting '+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-        }, 1000);
     } else if (state === 'connected') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
@@ -1220,16 +1560,24 @@ function setPanel(state) {
     } else if (state === 'acw') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
-        // Hide all call bars, show ACW bar
-        var callBar = document.getElementById('call-controls-bar');
+        // Hide ring bar
         var ringBar = document.getElementById('ring-controls-bar');
-        var acwBar2 = document.getElementById('acw-bar');
-        if(callBar) callBar.style.display='none';
         if(ringBar) ringBar.classList.remove('visible');
-        if(acwBar2) acwBar2.classList.add('visible');
+        // Transform call bar to "Call ended" grey state
+        var callBar = document.getElementById('call-controls-bar');
+        if(callBar) {
+            callBar.style.display='flex';
+            callBar.style.borderTop='1px solid #d0d7de';
+            callBar.style.background='#f6f8fa';
+            var finalDur = document.getElementById('dur-badge') ? document.getElementById('dur-badge').textContent : '00:00';
+            callBar.innerHTML='<div class="audio-indicator" style="gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8c959f" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span style="font-size:11px;color:#57606a;font-weight:600">' + finalDur + '</span></div><div class="call-ctrl-btns"><button class="ctrl-btn" style="background:#e8ecf0;color:#8c959f;border-color:#d0d7de;cursor:default;gap:4px" disabled><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8c959f" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Call ended</button></div>';
+        }
         // Update status tag
         var stTag = document.getElementById('cpb-status-tag');
         if(stTag){ stTag.textContent='● After Call Work'; stTag.className='ptag'; stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;'; }
+        // Show post-call AI summary panel (between center and right)
+        var postcallPanel = document.getElementById('postcall-panel');
+        if(postcallPanel) postcallPanel.classList.add('visible');
     }
 }
 
@@ -1242,27 +1590,282 @@ function switchTab(tab) {
     var ovView  = document.getElementById('tx-view-overview');
     var txView  = document.getElementById('tx-view-transcript');
     var ntView  = document.getElementById('tx-view-notes');
+    var maView  = document.getElementById('tx-view-moreactions');
+    var fmView  = document.getElementById('tx-view-form');
     var sentBar = document.getElementById('sentbar');
     var dbgBar  = document.getElementById('dbgbar');
     var ctrlDiv = document.getElementById('callview-controls');
 
+    // Hide all panels first
+    if(ovView)  ovView.style.display='none';
+    if(txView)  txView.style.display='none';
+    if(ntView)  ntView.style.display='none';
+    if(maView)  maView.style.display='none';
+    if(fmView)  fmView.style.display='none';
+    if(sentBar) sentBar.style.display='none';
+    if(dbgBar)  dbgBar.style.display='none';
+    if(ctrlDiv) ctrlDiv.style.display='none';
+
+    // Main bottom bars
+    var callBar = document.getElementById('call-controls-bar');
+    var acwBar  = document.getElementById('acw-bar');
+
     if (tab === 'overview') {
-        if(ovView)  { ovView.style.display='flex';  ovView.style.flexDirection='column'; }
-        if(txView)  txView.style.display='none';
-        if(ntView)  ntView.style.display='none';
-        if(sentBar) sentBar.style.display='none';
-        if(dbgBar)  dbgBar.style.display='none';
-        if(ctrlDiv) ctrlDiv.style.display='none';
+        if(ovView) { ovView.style.display='flex'; ovView.style.flexDirection='column'; }
+    } else if (tab === 'moreactions') {
+        if(maView) { maView.style.display='flex'; maView.style.flexDirection='column'; }
+    } else if (tab === 'formview') {
+        if(fmView) { fmView.style.display='flex'; }
     } else {
-        if(ovView)  ovView.style.display='none';
+        // Call View — show bottom bars again
         if(sentBar) sentBar.style.display='block';
         if(dbgBar)  dbgBar.style.display='flex';
         if(ctrlDiv) ctrlDiv.style.display='flex';
-        // Restore the correct transcript/notes pane
         var isTx = document.getElementById('toggle-transcript') && document.getElementById('toggle-transcript').classList.contains('active');
-        if(txView)  { txView.style.display  = isTx ? 'flex' : 'none'; if(isTx) txView.style.flexDirection='column'; }
-        if(ntView)  { ntView.style.display   = isTx ? 'none' : 'flex'; if(!isTx) ntView.style.flexDirection='column'; }
+        if(txView) { txView.style.display = isTx ? 'flex' : 'none'; if(isTx) txView.style.flexDirection='column'; }
+        if(ntView) { ntView.style.display = isTx ? 'none' : 'flex'; if(!isTx) ntView.style.flexDirection='column'; }
     }
+}
+
+// ── FORM TAB — open a form from More Actions in a split view ─────────────
+var formTabOpen = false;
+
+function openFormTab(formName) {
+    formTabOpen = true;
+    // Add the form tab button if it doesn't exist
+    var existing = document.getElementById('tab-formview');
+    if (!existing) {
+        var tabBar = document.querySelector('.call-tabs');
+        var spacer = tabBar.querySelector('.call-tab-spacer');
+        var btn = document.createElement('button');
+        btn.className = 'call-tab';
+        btn.id = 'tab-formview';
+        btn.innerHTML = formName + ' <span class="tab-close" onclick="event.stopPropagation();closeFormTab();">&times;</span>';
+        btn.onclick = function(){ switchTab('formview'); };
+        tabBar.insertBefore(btn, spacer);
+    } else {
+        existing.innerHTML = formName + ' <span class="tab-close" onclick="event.stopPropagation();closeFormTab();">&times;</span>';
+        existing.onclick = function(){ switchTab('formview'); };
+    }
+
+    // Pre-fill form fields from the profile bar data
+    var nric = document.getElementById('cpb-nric');
+    var dfNric = document.getElementById('df-nric');
+    if(dfNric) dfNric.value = nric ? nric.textContent.replace(/[()]/g,'') : '';
+
+    var cpbName = document.getElementById('cpb-name');
+    var dfName = document.getElementById('df-name');
+    if(dfName && cpbName) {
+        // Use full name from overview if available
+        var ovName = document.getElementById('ov-fullname');
+        dfName.value = ovName ? ovName.textContent : cpbName.textContent;
+    }
+
+    var cpbEmail = document.getElementById('cpb-email');
+    var dfEmail = document.getElementById('df-email');
+    if(dfEmail) dfEmail.value = cpbEmail ? cpbEmail.textContent : '';
+
+    var cpbPhone = document.querySelector('.cpb-phone');
+    var dfPhone = document.getElementById('df-phone');
+    if(dfPhone) dfPhone.value = cpbPhone ? cpbPhone.textContent : '';
+
+    // Set form title
+    var fTitle = document.getElementById('form-view-title');
+    if(fTitle) fTitle.textContent = formName;
+
+    // Mirror existing transcript messages to live-tx sidebar
+    syncTranscriptToSide();
+
+    // Switch to the form tab
+    switchTab('formview');
+    log('Opened form: ' + formName, 'success');
+}
+
+function closeFormTab() {
+    formTabOpen = false;
+    var tab = document.getElementById('tab-formview');
+    if(tab) tab.remove();
+    // Clear the live-tx sidebar
+    var ltx = document.getElementById('live-tx-msgs');
+    if(ltx) ltx.innerHTML = '';
+    // Switch back to call view
+    switchTab('callview');
+    log('Form tab closed', 'warning');
+}
+
+function syncTranscriptToSide() {
+    var ltx = document.getElementById('live-tx-msgs');
+    if(!ltx) return;
+    ltx.innerHTML = '';
+    // Copy all children from main transcript (messages + AI notes)
+    var children = document.querySelectorAll('#tx-msgs > *');
+    children.forEach(function(child) {
+        if (child.classList.contains('tx-row')) {
+            var roleEl = child.querySelector('.tx-role span');
+            var textEl = child.querySelector('.bubble-text');
+            var timeEl = child.querySelector('.tx-time span');
+            if(!textEl || !textEl.textContent.trim()) return;
+            var isAgent = roleEl && roleEl.classList.contains('role-agent');
+            var div = document.createElement('div');
+            div.className = 'ltx-row';
+            div.innerHTML = '<div class="ltx-msg-line">' +
+                '<div class="ltx-role ' + (isAgent ? 'officer' : 'caller') + '">' + (isAgent ? 'OFFICER' : 'CALLER') + '</div>' +
+                '<div class="ltx-text-wrap"><div class="ltx-bubble ' + (isAgent ? 'ltx-agent' : 'ltx-customer') + '">' + textEl.textContent + '</div></div>' +
+                '</div>' +
+                '<div class="ltx-time">' + (timeEl ? timeEl.textContent : '') + '</div>';
+            ltx.appendChild(div);
+        } else if (child.classList.contains('tx-ai-note')) {
+            var noteText = child.querySelector('.ai-note-text');
+            if (noteText) {
+                var sideNote = document.createElement('div');
+                sideNote.className = 'ltx-ai-note';
+                sideNote.innerHTML = '<div class="ltx-ai-note-inner">' +
+                    '<span class="ai-note-icon">⚠️</span>' +
+                    '<span class="ai-note-label">AI Note:</span>' +
+                    '<span class="ai-note-text">' + noteText.textContent + '</span>' +
+                    '</div>';
+                ltx.appendChild(sideNote);
+            }
+        } else if (child.classList.contains('tx-green-note')) {
+            var greenText = child.querySelector('.green-note-text');
+            if (greenText) {
+                var sideGreen = document.createElement('div');
+                sideGreen.className = 'ltx-green-note';
+                sideGreen.innerHTML = '<div class="ltx-green-note-inner">' +
+                    '<span class="green-note-icon">✅</span>' +
+                    '<span class="green-note-text">' + greenText.textContent + '</span>' +
+                    '</div>';
+                ltx.appendChild(sideGreen);
+            }
+        }
+    });
+    ltx.scrollTop = ltx.scrollHeight;
+}
+
+function addMsgToSide(text, role) {
+    if(!formTabOpen) return;
+    var ltx = document.getElementById('live-tx-msgs');
+    if(!ltx) return;
+    var isAgent = (role||'').toUpperCase() === 'AGENT';
+    var now = new Date().toLocaleTimeString('en-SG', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+    var div = document.createElement('div');
+    div.className = 'ltx-row';
+    div.innerHTML = '<div class="ltx-msg-line">' +
+        '<div class="ltx-role ' + (isAgent ? 'officer' : 'caller') + '">' + (isAgent ? 'OFFICER' : 'CALLER') + '</div>' +
+        '<div class="ltx-text-wrap"><div class="ltx-bubble ' + (isAgent ? 'ltx-agent' : 'ltx-customer') + '">' + text + '</div></div>' +
+        '</div>' +
+        '<div class="ltx-time">' + now + '</div>';
+    ltx.appendChild(div);
+    ltx.scrollTop = ltx.scrollHeight;
+}
+
+function saveDraft() {
+    var badge = document.getElementById('form-draft-badge');
+    if(badge) { badge.style.display='inline-block'; }
+    log('Form draft saved', 'success');
+}
+
+function submitDisruptionForm() {
+    var nric = (document.getElementById('df-nric').value || '').trim();
+    var fullName = (document.getElementById('df-name').value || '').trim();
+    var email = (document.getElementById('df-email').value || '').trim();
+    var phone = (document.getElementById('df-phone').value || '').trim();
+    var uniSelect = document.getElementById('df-uni');
+    var uniName = uniSelect ? uniSelect.options[uniSelect.selectedIndex].text : '';
+    if(uniName === 'Select university') uniName = '';
+    var courseSelect = document.getElementById('df-course');
+    var courseName = courseSelect ? courseSelect.options[courseSelect.selectedIndex].text : '';
+    if(courseName === 'Course / Programme') courseName = '';
+    var mode = (document.getElementById('df-mode').value || '').trim();
+    var startDate = (document.getElementById('df-start').value || '').trim();
+    var endDate = (document.getElementById('df-end').value || '').trim();
+
+    if(!nric){ alert('Please fill in NRIC.'); return; }
+    if(!fullName){ alert('Please fill in Full Name.'); return; }
+
+    var btn = document.querySelector('.form-btn-submit');
+    btn.textContent = 'Submitting...'; btn.disabled = true;
+    log('Submitting Disruption Application to Jira...', 'info');
+
+    // Immediately: green note, grey out button, close form
+    injectGreenNote('Created disruption application on behalf of caller');
+    var consentBtn = document.getElementById('consent-create-btn');
+    if (consentBtn) {
+        consentBtn.textContent = '\ud83d\udccb Application created';
+        consentBtn.disabled = true;
+        consentBtn.classList.add('consent-btn-done');
+    }
+    setTimeout(function(){ closeFormTab(); switchTab('callview'); btn.textContent = 'Submit'; btn.style.background = ''; btn.disabled = false; }, 1200);
+
+    var payload = {"fields": {
+        "issuetype": {"id": "10001"},
+        "priority": {"id": "3"},
+        "project": {"id": "10000"},
+        "summary": "Application for Disruption of Police National Service for University Studies",
+        "customfield_10114": "https://form.gov.sg/example",
+        "customfield_10115": "example1234567890code",
+        "customfield_10116": new Date().toISOString(),
+        "customfield_10117": nric,
+        "customfield_10118": fullName,
+        "customfield_10119": email,
+        "customfield_10120": phone,
+        "customfield_10121": "Singapore Police Force (SPF)",
+        "customfield_10122": "Central Police Division – Tanglin NPC",
+        "customfield_10123": "Frontline Patrol Officer (PNSF)",
+        "customfield_10124": "PN12345A",
+        "customfield_10125": "2024-10-03",
+        "customfield_10126": "2026-10-02",
+        "customfield_10127": "SSgt Lim Jun Hao",
+        "customfield_10153": {"value": "Yes", "id": "10034"},
+        "customfield_10129": uniName,
+        "customfield_10130": "Singapore",
+        "customfield_10132": "Bachelor's Degree",
+        "customfield_10133": mode || "Full-time",
+        "customfield_10134": startDate || "",
+        "customfield_10135": endDate || "",
+        "customfield_10136": {"value": "Yes", "id": "10022"},
+        "customfield_10152": {"value": "No", "id": "10033"},
+        "customfield_10138": startDate || "",
+        "customfield_10139": endDate || "",
+        "customfield_10140": 46,
+        "description": {
+            "type": "doc", "version": 1,
+            "content": [{"type": "paragraph", "content": [
+                {"type": "text", "text": "Application submitted via MHA Agent Portal for " + fullName + " (" + nric + "). University: " + uniName + ", Course: " + courseName + ", Mode: " + (mode||"Full-time") + "."}
+            ]}]
+        },
+        "customfield_10142": "", "customfield_10143": "", "customfield_10144": "", "customfield_10145": "", "customfield_10146": "",
+        "customfield_10148": [{"value": "Yes", "id": "10028"}],
+        "customfield_10149": [{"value": "Yes", "id": "10029"}],
+        "customfield_10151": [{"value": "Yes", "id": "10031"}]
+    }};
+
+    fetch('https://api.atlassian.com/ex/jira/dbf75f9a-8fd3-44d0-87e8-f83617b5f5de/rest/api/3/issue', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': ''
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(function(res) {
+        return res.json().then(function(data) { return {status: res.status, ok: res.ok, data: data}; });
+    })
+    .then(function(result) {
+        if(result.ok) {
+            var issueKey = result.data.key || result.data.id || 'Unknown';
+            log('Jira ticket created: ' + issueKey + ' (Status: ' + result.status + ')', 'success');
+        } else {
+            var errMsg = result.data.errorMessages ? result.data.errorMessages.join(', ') : JSON.stringify(result.data.errors || result.data);
+            log('Jira API error (' + result.status + '): ' + errMsg, 'error');
+            btn.textContent = 'Submit'; btn.disabled = false;
+        }
+    })
+    .catch(function(err) {
+        log('Jira API request failed: ' + err.message, 'error');
+        btn.textContent = 'Submit'; btn.disabled = false;
+    });
 }
 
 // Transcript view toggle (Transcription vs Officer Notes)
@@ -1398,6 +2001,7 @@ function scanKw(text) {
 //  TRANSCRIPT UI — new reference-style rows
 // ════════════════════════════════════════════════════════════════════════════
 function addMsg({text, role, sent, partial}) {
+    if (!text || !text.trim()) return;
     var c = document.getElementById('tx-msgs');
     var e = document.getElementById('empty-s'); if(e) e.remove();
 
@@ -1447,6 +2051,24 @@ function addMsg({text, role, sent, partial}) {
     txCount++;
     document.getElementById('msg-count').textContent = txCount + ' utterances';
     if (!partial) scanKw(text);
+
+    // ── Consent-to-proceed detection (two-phase) ──
+    if (!partial && !consentShown) {
+        var lower = (text || '').toLowerCase();
+        var isAgent = (role||'').toUpperCase() === 'AGENT';
+        // Phase 1: Agent asks for consent
+        if (isAgent && (lower.indexOf('consent to proceed') >= 0 || lower.indexOf('official consent') >= 0)) {
+            consentAsked = true;
+        }
+        // Phase 2: Caller confirms with "yes"
+        if (!isAgent && consentAsked && (lower.indexOf('yes') >= 0)) {
+            consentShown = true;
+            showCreateApplicationSuggestion();
+        }
+    }
+
+    // Mirror to form side panel if open
+    if (!partial) addMsgToSide(text, role);
 }
 
 function addSysMsg(t) {
@@ -1472,8 +2094,8 @@ function injectAiNote(ruleId, triggeredKw) {
     var wrap = document.createElement('div');
     wrap.className = 'tx-ai-note';
     wrap.innerHTML = '<div class="tx-ai-note-inner">' +
-        '<span class="ai-note-icon">✦</span>' +
-        '<span class="ai-note-label">AI Note</span>' +
+        '<span class="ai-note-icon">⚠️</span>' +
+        '<span class="ai-note-label">AI Note:</span>' +
         '<span class="ai-note-text">' + suggestion.aiNote + '</span>' +
         '</div>';
     c.appendChild(wrap);
@@ -1497,6 +2119,22 @@ function injectAiNote(ruleId, triggeredKw) {
     }
 
     c.scrollTop = c.scrollHeight;
+
+    // Mirror AI note to side panel if form is open
+    if (formTabOpen) {
+        var ltx = document.getElementById('live-tx-msgs');
+        if (ltx) {
+            var sideNote = document.createElement('div');
+            sideNote.className = 'ltx-ai-note';
+            sideNote.innerHTML = '<div class="ltx-ai-note-inner">' +
+                '<span class="ai-note-icon">⚠️</span>' +
+                '<span class="ai-note-label">AI Note:</span>' +
+                '<span class="ai-note-text">' + suggestion.aiNote + '</span>' +
+                '</div>';
+            ltx.appendChild(sideNote);
+            ltx.scrollTop = ltx.scrollHeight;
+        }
+    }
 }
 
 function clearTx(){document.getElementById('tx-msgs').innerHTML='';txCount=0;sentScores=[];document.getElementById('msg-count').textContent='0 utterances';setSentBar(50,'Neutral');}
@@ -1549,6 +2187,72 @@ function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
     log('💡 KB suggestions loaded: ' + ruleLabel, 'success');
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  CONSENT → CREATE APPLICATION SUGGESTION CARD
+// ════════════════════════════════════════════════════════════════════════════
+function showCreateApplicationSuggestion() {
+    var qBody = document.getElementById('ca-live-body');
+    if (!qBody) return;
+
+    // Update the default action card with the consent suggestion
+    var defaultCard = document.getElementById('q-default-action');
+    if (defaultCard) defaultCard.style.display = 'none';
+
+    // Remove any previous consent card
+    var prev = document.getElementById('consent-action-card');
+    if (prev) prev.remove();
+
+    var card = document.createElement('div');
+    card.className = 'qcard suggestion-new';
+    card.id = 'consent-action-card';
+    card.innerHTML =
+        '<div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>' +
+        '<div style="margin-top:6px">' +
+            '<p style="font-size:12px;color:#0d1117;line-height:1.6;margin-bottom:8px"><strong>Suggested Next Action:</strong><br>' +
+            'Create a disruption application on behalf of the caller and obtain their consent to proceed.</p>' +
+            '<p style="font-size:12px;color:#0d1117;line-height:1.6;margin-bottom:12px">' +
+            'Inform the caller that the certifying letter from the university must be submitted afterward to support the application.</p>' +
+        '</div>' +
+        '<button class="consent-create-btn" id="consent-create-btn" onclick="onCreateApplication()">Create application</button>';
+
+    qBody.insertBefore(card, qBody.firstChild);
+    qBody.scrollTop = 0;
+    log('⚡ Consent received — Create Application suggestion shown', 'success');
+}
+
+function onCreateApplication() {
+    // Just open the form — green note + grey-out happen on Submit
+    openFormTab('Disruption Application Form');
+    switchTab('formview');
+}
+
+function injectGreenNote(text) {
+    // Main transcript
+    var c = document.getElementById('tx-msgs');
+    if (c) {
+        var wrap = document.createElement('div');
+        wrap.className = 'tx-green-note';
+        wrap.innerHTML = '<div class="tx-green-note-inner">' +
+            '<span class="green-note-icon">✅</span>' +
+            '<span class="green-note-text">' + text + '</span>' +
+            '</div>';
+        c.appendChild(wrap);
+        c.scrollTop = c.scrollHeight;
+    }
+    // Side panel
+    var ltx = document.getElementById('live-tx-msgs');
+    if (ltx) {
+        var side = document.createElement('div');
+        side.className = 'ltx-green-note';
+        side.innerHTML = '<div class="ltx-green-note-inner">' +
+            '<span class="green-note-icon">✅</span>' +
+            '<span class="green-note-text">' + text + '</span>' +
+            '</div>';
+        ltx.appendChild(side);
+        ltx.scrollTop = ltx.scrollHeight;
+    }
+}
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function flashKwAlert(msg){var el=document.getElementById('kw-alert');var tx=document.getElementById('kw-alert-text');if(!el)return;tx.textContent=msg;el.style.display='block';setTimeout(function(){el.style.display='none';},5000);}
 function addKwTag(kw){var row=document.getElementById('kw-tags-row');if(!row)return;var t=document.createElement('span');t.className='kw-tag-pill';t.textContent=kw;row.appendChild(t);}
@@ -1567,10 +2271,27 @@ function updateAiSummary(){
 }
 function resetKwEngine(){
     kwDetected.clear();kwShown.clear();txLines=[];
+    consentAsked=false;consentShown=false;
     var r=document.getElementById('kw-tags-row');if(r)r.innerHTML='';
     var a=document.getElementById('kw-alert');if(a)a.style.display='none';
     var s=document.getElementById('ai-summary');if(s)s.innerHTML='<span class="ai-idle">Summary will appear as conversation progresses.</span>';
     var old=document.getElementById('dynamic-kb-card');if(old)old.remove();
+    var cc=document.getElementById('consent-action-card');if(cc)cc.remove();
+    var da=document.getElementById('q-default-action');if(da)da.style.display='';
+}
+
+// ── AGENT LOGIN ──────────────────────────────────────────────────────────────
+function loginCCP(){
+    log('Agent login initiated…');
+    window.open(ccpUrl, 'CCPLogin', 'width=400,height=600');
+    initConnect();
+}
+
+function showAgentCard(){
+    var loginArea = document.getElementById('sb-login-area');
+    var agentCard = document.getElementById('sb-agent-card');
+    if(loginArea) loginArea.style.display = 'none';
+    if(agentCard) agentCard.style.display = '';
 }
 
 // ── AMAZON CONNECT ────────────────────────────────────────────────────────────
@@ -1587,7 +2308,8 @@ function initConnect(){
 
     connect.agent(a=>{
         agent=a; updateAgentInfo(a); updateConn(true);
-        setPanel('idle');  // agent logged in — show idle with status buttons
+        showAgentCard();  // hide login btn, show agent name+status
+        setPanel('idle');  // agent logged in
         const ini=a.getName().charAt(0).toUpperCase();
         document.getElementById('agent-avatar').textContent=ini;
         document.getElementById('hdr-av').textContent=ini;
@@ -1607,20 +2329,26 @@ function initConnect(){
                 onIncoming(ct,ph);
             }
         }catch(e){}
-        ct.onAccepted(()=>onAccepted());
+        ct.onAccepted(()=>{ log('CCP: call accepted','success'); onAccepted(); });
         ct.onConnected(()=>{
-            const tok=getToken(ct);
-            if(tok&&tok!=='unknown'){connectWS(ct.getContactId(),tok);}
-            else{log('⚠️ No auth token — transcript disabled','error');}
-            onConnected();
-            fillCallId(ct.getContactId());
+            try {
+                const tok=getToken(ct);
+                if(tok&&tok!=='unknown'){connectWS(ct.getContactId(),tok);}
+                else{log('⚠️ No auth token — transcript disabled','error');}
+                onConnected();
+                fillCallId(ct.getContactId());
+            } catch(e){ log('onConnected error: '+e.message,'error'); }
         });
         ct.onEnded(()=>{
+            try {
+                const st=ct.getStatus();
+                log('CCP: call ended — state: '+(st?.type||'?')+' / reason: '+(st?.reason||'none'),'warning');
+            } catch(e){}
             onEnded();
             if(ws){ws.close();ws=null;}
             setTxStatus(false);setAps('Ended');
         });
-        ct.onError(e=>log('Error: '+(e?.message||e),'error'));
+        ct.onError(e=>log('CCP contact error: '+(e?.message||JSON.stringify(e)||'unknown'),'error'));
     });
 
     connect.core.onAuthFail(()=>{log('Auth fail','error');updateConn(false);});
@@ -1630,8 +2358,20 @@ function initConnect(){
     }catch{}
 }
 
+// ── QUEUE ITEM CLICK — agent selects a ringing call from sidebar ─────────────
+function selectQueueCall(){
+    // Fetch profile and show center panel with overview + accept/decline
+    fetchUserProfile('T0012345A');
+    setPanel('ringing');
+    log('Agent selected ringing call','success');
+    // Highlight the queue item as selected
+    var qItem=document.getElementById('queue-item-johnny');
+    if(qItem) qItem.classList.add('active-item');
+}
+
 // ── CALL LIFECYCLE ────────────────────────────────────────────────────────────
 function onIncoming(ct,ph){
+    wasConnected=false;
     var _cn=document.getElementById('caller-number'); if(_cn) _cn.textContent=ph;
     var _cs=document.getElementById('call-status'); if(_cs) _cs.textContent='Ringing';
     var _ci=document.getElementById('call-info'); if(_ci) _ci.classList.add('active');
@@ -1641,12 +2381,27 @@ function onIncoming(ct,ph){
     var btx=document.getElementById('ring-bottom-text');
     if(btx)btx.textContent='Incoming call from '+ph;
     var btx2=document.getElementById('inc-bottom-text');if(btx2)btx2.textContent='Incoming call from '+ph;
-    setPanel('ringing');
+
+    // Show Johnny Pang in queue sidebar with Ringing status
+    var qItem=document.getElementById('queue-item-johnny');
+    if(qItem){ qItem.style.display=''; }
+    var qc=document.getElementById('queue-count');
+    if(qc){ var n=parseInt(qc.textContent.replace(/[()]/g,''))||3; qc.textContent='('+(n+1)+')'; }
+
+    // Start wait timer
+    waitStart = Date.now();
+    waitTimer = setInterval(() => {
+        const ms=Date.now()-waitStart, m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
+        const el=document.getElementById('inc-wait'); if(el) el.textContent='Waiting '+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    }, 1000);
+
+    // Stay on idle — agent must click queue item to see details
     log('Incoming: '+ph,'success');
     beep();
 }
 function onAccepted(){var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Accepted';startTimer();log('Accepted','success');}
 function onConnected(){
+    wasConnected=true;
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
     clearTx();setPanel('connected');showForm();
     // Move Johnny Pang from queue to In Call
@@ -1662,8 +2417,8 @@ function onConnected(){
         if(timer){timer.removeAttribute('style');timer.id='dur-mini';timer.textContent='00:00';}
         incallList.appendChild(qItem);
         // Update counts
-        var ic=document.getElementById('incall-count');if(ic) ic.textContent='1';
-        var qc=document.getElementById('queue-count');if(qc) qc.textContent=String(Math.max(0,parseInt(qc.textContent||'1')-1));
+        var ic=document.getElementById('incall-count');if(ic) ic.textContent='(1)';
+        var qc=document.getElementById('queue-count');if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
     }
     log('Connected','success');
 }
@@ -1679,17 +2434,99 @@ function onEnded(){
     btn.innerHTML='View Details <i class="chev">▾</i>';
     stopTimer();
     if(waitTimer){clearInterval(waitTimer);waitTimer=null;}
-    // Remove from In Call sidebar
+
+    // Reset Johnny Pang queue item — hide and move back to queue list
     var qItem=document.getElementById('queue-item-johnny');
-    if(qItem){qItem.remove();}
-    var ic=document.getElementById('incall-count');if(ic) ic.textContent='0';
-    var dm=document.getElementById('dur-mini');if(dm)dm.textContent='00:00';
-    // Enter After Contact Work — keep transcript visible
-    setPanel('acw');
-    log('Call ended — After Contact Work','warning');
+    if(qItem){
+        // Reset to original ringing styles and hide
+        qItem.style.display='none';
+        qItem.style.borderLeft='2px solid #2ea043';
+        qItem.style.background='rgba(46,160,67,0.03)';
+        qItem.style.cursor='pointer';
+        qItem.className='call-item';
+        var dot=qItem.querySelector('.call-dot');
+        if(dot){dot.className='call-dot call-dot-green';dot.style.animation='pulse 1.5s infinite';}
+        var timerEl=qItem.querySelector('.call-timer');
+        if(timerEl){timerEl.style.color='#2ea043';timerEl.style.fontWeight='700';timerEl.style.fontSize='10px';timerEl.id='';timerEl.innerHTML='&#9670; Ringing';}
+        // Move back to queue list if it was moved to incall
+        var queueList=document.querySelector('#queue-section .sb-calls');
+        if(queueList && qItem.parentElement!==queueList){
+            queueList.prepend(qItem);
+        }
+    }
+    var ic=document.getElementById('incall-count');if(ic) ic.textContent='(0)';
+
+    if(wasConnected){
+        // Inject "Call has ended" pill into transcript
+        var txMsgs=document.getElementById('tx-msgs');
+        if(txMsgs){
+            var endPill=document.createElement('div');
+            endPill.style.cssText='display:flex;justify-content:center;padding:8px 12px;';
+            endPill.innerHTML='<div style="display:flex;align-items:center;gap:6px;padding:5px 14px;background:#f0f3f6;border:1px solid #d0d7de;border-radius:16px;font-size:11px;color:#57606a;font-weight:600;">⏱ Call has ended</div>';
+            txMsgs.appendChild(endPill);
+            txMsgs.scrollTop=txMsgs.scrollHeight;
+        }
+        // Call was answered and completed — show After Contact Work
+        setPanel('acw');
+        log('Call ended — After Contact Work','warning');
+    } else {
+        // Call was missed/timed out — go back to idle, no ACW needed
+        setPanel('idle');
+        contact=null;
+        log('Call missed — returning to idle','warning');
+    }
+    wasConnected=false;
 }
 
 // ── CALL ACTIONS ──────────────────────────────────────────────────────────────
+// ── POST-CALL PANEL ACTIONS ───────────────────────────────────────────────────
+function logReportToSR() {
+    log('Logging report into SR Repository…', 'info');
+    alert('Report logged into SR Repository.');
+}
+function escalateCase() {
+    log('Escalating case…', 'warning');
+    alert('Case has been escalated.');
+}
+function closeCaseACW() {
+    log('Closing case — clearing contact and setting Available…', 'success');
+    closeContact();
+    // Set agent to Available state via CCP
+    if (agent) {
+        var avail = agent.getAgentStates().filter(function(s){ return s.name === 'Available'; })[0];
+        if (avail) {
+            agent.setState(avail, {
+                success: function(){ log('Agent set to Available', 'success'); },
+                failure: function(e){ log('Failed to set Available: ' + (e && e.message || e), 'error'); }
+            });
+        }
+    }
+}
+function editPostcallDraft() {
+    var body = document.getElementById('postcall-draft-body');
+    if (!body) return;
+    if (body.contentEditable === 'true') {
+        body.contentEditable = 'false';
+        body.style.outline = '';
+        body.style.background = '';
+        log('Draft editing finished', 'success');
+    } else {
+        body.contentEditable = 'true';
+        body.style.outline = '2px solid #0969da';
+        body.style.background = '#fff';
+        body.focus();
+        log('Editing AI draft…', 'info');
+    }
+}
+function copyPostcallDraft() {
+    var body = document.getElementById('postcall-draft-body');
+    if (!body) return;
+    var text = body.innerText || body.textContent;
+    navigator.clipboard.writeText(text).then(function(){
+        log('Draft copied to clipboard', 'success');
+    }).catch(function(){ log('Copy failed', 'error'); });
+}
+
 function closeContact(){
     clearTx();
     resetKwEngine();
@@ -1700,41 +2537,32 @@ function closeContact(){
     if(vdBtn){vdBtn.classList.remove('open');vdBtn.innerHTML='View Details <i class="chev">▾</i>';}
     setPanel('idle');
     contact=null;
+    wasConnected=false;
     log('Contact closed','success');
 }
 function acceptCall(){
-    if(contact){ contact.accept(); log('Accepting call…'); }
-    else {
-        // Demo mode: simulate the full accept → connected flow
-        if(waitTimer){ clearInterval(waitTimer); waitTimer=null; }
-        log('Call accepted (demo)','success');
-        startTimer();
-        // Move Johnny Pang card to In Call (same logic as onConnected)
-        var qItem=document.getElementById('queue-item-johnny');
-        var incallList=document.getElementById('incall-list');
-        if(qItem && incallList){
-            qItem.removeAttribute('style');
-            qItem.className='call-item active-item';
-            var dot=qItem.querySelector('.call-dot');if(dot)dot.removeAttribute('style');
-            var timerEl=qItem.querySelector('.call-timer');
-            if(timerEl){timerEl.removeAttribute('style');timerEl.id='dur-mini';timerEl.textContent='00:00';}
-            incallList.appendChild(qItem);
-            var ic=document.getElementById('incall-count');if(ic)ic.textContent='1';
-            var qc=document.getElementById('queue-count');if(qc)qc.textContent=String(Math.max(0,parseInt(qc.textContent||'1')-1));
-        }
-        setPanel('connected');
+    if(contact){
+        log('Accepting call…');
+        contact.accept({
+            success: () => log('CCP acknowledged accept','success'),
+            failure: (err) => log('Accept failed: '+(err?.message||err||'CCP error'),'error')
+        });
     }
 }
 function rejectCall(){
     if(contact){ contact.getConnections().forEach(c=>c.destroy()); log('Call rejected','warning'); }
-    else {
-        // Demo mode
-        if(waitTimer){ clearInterval(waitTimer); waitTimer=null; }
-        setPanel('idle');
-        log('Call rejected (demo)','warning');
+}
+function endCall(){
+    if(!contact){log('No active contact to end','warning');return;}
+    try{
+        var agentConn=contact.getAgentConnection();
+        if(agentConn){agentConn.destroy();log('Ending call…','warning');}
+        else{contact.getConnections().forEach(function(c){c.destroy();});log('Ending call (fallback)…','warning');}
+    }catch(e){
+        contact.getConnections().forEach(function(c){try{c.destroy();}catch(ex){}});
+        log('Ending call (catch): '+e.message,'warning');
     }
 }
-function endCall(){if(contact)contact.getConnections().forEach(c=>c.destroy());}
 function holdCall(){
     if(!contact)return;
     const cn=contact.getConnections()[0];if(!cn)return;
@@ -1770,26 +2598,17 @@ function setAgentStatus(s){
     if(t) agent.setState(t,{success:()=>{log('Status: '+s,'success');},failure:e=>log('Fail: '+e,'error')});
     else log('State not found: '+s+'. Available: '+agent.getAgentStates().map(x=>x.name).join(', '),'error');
 }
-function toggleStatusDD(e){
+function toggleAgentStatusDD(e){
     e.stopPropagation();
-    var btn=document.getElementById('status-dd-btn');
-    var menu=document.getElementById('status-dd-menu');
-    var isOpen=menu.classList.contains('open');
-    if(isOpen){menu.classList.remove('open');btn.classList.remove('open');}
-    else{menu.classList.add('open');btn.classList.add('open');}
+    var menu=document.getElementById('agent-status-dd-menu');
+    if(menu) menu.classList.toggle('open');
 }
-function switchAgentStatus(){
-    var txt=document.getElementById('idle-status-text').textContent.trim();
-    var next=(txt==='Available')?'Unavailable':'Available';
-    setAgentStatus(next);
-    document.getElementById('status-dd-menu').classList.remove('open');
-    document.getElementById('status-dd-btn').classList.remove('open');
+function closeAgentStatusDD(){
+    var menu=document.getElementById('agent-status-dd-menu');
+    if(menu) menu.classList.remove('open');
 }
 document.addEventListener('click',function(){
-    var menu=document.getElementById('status-dd-menu');
-    var btn=document.getElementById('status-dd-btn');
-    if(menu){menu.classList.remove('open');}
-    if(btn){btn.classList.remove('open');}
+    closeAgentStatusDD();
 });
 
 // ── UI HELPERS ────────────────────────────────────────────────────────────────
@@ -1802,17 +2621,6 @@ function updateStatus(s){
     // Update center dropdown
     var isAvail=(s==='Available');
     var isTrueOffline=(s==='Unavailable'||s==='Offline');
-    var idleTxt=document.getElementById('idle-status-text');
-    var idleDot=document.getElementById('idle-sdot');
-    var ddBtn=document.getElementById('status-dd-btn');
-    var ddItem=document.getElementById('status-dd-item');
-    if(idleTxt) idleTxt.textContent=s;
-    if(idleDot) idleDot.style.background=isAvail?'#2ea043':s==='AfterCallWork'?'#e6a817':'#d73a49';
-    if(ddBtn){ddBtn.classList.remove('avail','unavail');ddBtn.classList.add(isAvail?'avail':'unavail');}
-    if(ddItem){
-        if(isAvail){ddItem.className='status-dd-item to-unavail';ddItem.innerHTML='<span style="width:8px;height:8px;background:#d73a49;border-radius:50%;display:inline-block;flex-shrink:0;"></span> Set Offline';}
-        else{ddItem.className='status-dd-item to-avail';ddItem.innerHTML='<span style="width:8px;height:8px;background:#2ea043;border-radius:50%;display:inline-block;flex-shrink:0;"></span> Set Available';}
-    }
 }
 function updateConn(ok){var el=document.getElementById('connection-status');el.textContent=ok?'⬤ Connected':'⬤ Disconnected';el.className=ok?'connected':'disconnected';}
 function log(msg,type='info'){var l=document.getElementById('activity-log');var d=document.createElement('div');d.className='li '+type;d.innerHTML='<span class="ts">'+new Date().toLocaleTimeString()+'</span>'+msg;l.insertBefore(d,l.firstChild);while(l.children.length>60)l.removeChild(l.lastChild);}
@@ -1830,7 +2638,7 @@ function showForm(){
     var dd=document.getElementById('ff-date');if(dd)dd.value=now.toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'});
     var dt=document.getElementById('ff-time');if(dt)dt.value=now.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});
     var nm=document.getElementById('cpb-name');var fnm=document.getElementById('ff-name');if(nm&&fnm)fnm.value=nm.textContent||'JOHNNY PANG JUN JIE';
-    var nr=document.getElementById('cpb-nric');var fnr=document.getElementById('ff-nric');if(nr&&fnr)fnr.value=(nr.textContent||'').replace('NRIC: ','');
+    var nr=document.getElementById('cpb-nric');var fnr=document.getElementById('ff-nric');if(nr&&fnr)fnr.value=(nr.textContent||'').replace(/[()]/g,'');
     var fa=document.getElementById('ff-age');if(fa)fa.value='25';
     var fg=document.getElementById('ff-gender');if(fg)fg.value='Male';
     var fp=document.getElementById('ff-phone');if(fp)fp.value='9999 8888';
@@ -1865,8 +2673,7 @@ function submitForm(){
 // ── BOOT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
     log('Page loaded');
-    // Show ringing demo state immediately so the UI is usable without a live Connect session
-    setPanel('ringing');
+    setPanel('prelogin');
     // SLA countdown timer
     var slaTotal = 15 * 60; // 15 mins
     var slaLeft = 12 * 60 + 54; // start at 12:54
@@ -1881,8 +2688,10 @@ window.addEventListener('load', () => {
         if(fill) fill.style.width = Math.max(0, (slaLeft/slaTotal)*100) + '%';
         if(slaLeft <= 0) clearInterval(slaTimer);
     }, 1000);
-    if (ccpUrl.includes('YOUR_INSTANCE')) return;
-    initConnect();
+    // CCP login is now triggered by the sidebar "Login to CCP" button
+    // initConnect() is called from loginCCP()
+
+    // Profile fetch happens when agent clicks a queue item (selectQueueCall)
 });
 window.addEventListener('beforeunload', () => { if(ws) ws.close(); });
 </script>
