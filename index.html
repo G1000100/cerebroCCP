@@ -255,10 +255,12 @@
 
         /* ── AI NOTE inline ── */
         .tx-ai-note { display:flex; justify-content:center; padding:6px 12px; }
-        .tx-ai-note-inner { display:flex; align-items:flex-start; gap:7px; padding:8px 12px; background:rgba(255,180,0,0.08); border:1px solid rgba(255,180,0,0.25); border-radius:6px; width:100%; }
+        .tx-ai-note-inner { display:flex; align-items:flex-start; gap:7px; padding:8px 12px; background:rgba(128,0,128,0.08); border:1px solid rgba(128,0,128,0.25); border-radius:6px; width:100%; }
         .ai-note-icon { font-size:12px; flex-shrink:0; margin-top:0px; }
-        .ai-note-label { font-size:10.5px; font-weight:700; color:#b37400; letter-spacing:0.3px; white-space:nowrap; flex-shrink:0; }
-        .ai-note-text { font-size:11.5px; color:#7a5000; line-height:1.5; }
+        .ai-note-label { font-size:10.5px; font-weight:700; color:#6a0dad; letter-spacing:0.3px; white-space:nowrap; flex-shrink:0; }
+        .ai-note-text { font-size:11.5px; color:#4a0e6b; line-height:1.5; }
+        .ai-note-text ul { margin:4px 0 0 0; padding-left:16px; }
+        .ai-note-text li { font-size:11px; color:#4a0e6b; line-height:1.6; }
         .tx-followups { padding:4px 12px; }
         .tx-followups-header { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
         .fu-icon { font-size:10px; color:#6e40c9; }
@@ -481,10 +483,10 @@
         .ltx-bubble.ltx-customer { background:#fff; border:1px solid #eaecef; border-left:2px solid #d0d7de; }
         .ltx-time { font-size:8px; color:#8c959f; font-family:'IBM Plex Mono',monospace; padding-left:2px; margin-top:2px; }
         .ltx-ai-note { padding:4px 10px; }
-        .ltx-ai-note-inner { display:flex; align-items:flex-start; gap:5px; padding:6px 8px; background:rgba(255,180,0,0.08); border:1px solid rgba(255,180,0,0.25); border-radius:5px; }
+        .ltx-ai-note-inner { display:flex; align-items:flex-start; gap:5px; padding:6px 8px; background:rgba(128,0,128,0.08); border:1px solid rgba(128,0,128,0.25); border-radius:5px; }
         .ltx-ai-note-inner .ai-note-icon { font-size:10px; flex-shrink:0; }
-        .ltx-ai-note-inner .ai-note-label { font-size:8.5px; font-weight:700; color:#b37400; text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; flex-shrink:0; }
-        .ltx-ai-note-inner .ai-note-text { font-size:10px; color:#7a5000; line-height:1.4; }
+        .ltx-ai-note-inner .ai-note-label { font-size:8.5px; font-weight:700; color:#6a0dad; text-transform:uppercase; letter-spacing:0.4px; white-space:nowrap; flex-shrink:0; }
+        .ltx-ai-note-inner .ai-note-text { font-size:10px; color:#4a0e6b; line-height:1.4; }
         .ltx-action-badge { display:flex; justify-content:center; padding:8px 16px; }
         .ltx-action-badge button { padding:7px 18px; background:#f6f8fa; border:1px solid var(--border); border-radius:6px; font-size:11.5px; color:#57606a; font-weight:600; cursor:default; font-family:'IBM Plex Sans',sans-serif; }
 
@@ -497,7 +499,7 @@
 <!-- ════════════════ HEADER ════════════════ -->
 <div class="header">
     <div class="hdr-left">
-        <img src="ministry-of-home-affairs.png" alt="MHA" class="hdr-logo" id="hdr-logo"
+        <img src="MHALogo.png" alt="MHA" class="hdr-logo" id="hdr-logo"
              onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
         <div class="hdr-logo-fallback" id="logo-fb">🛡️</div>
         <div class="hdr-divider"></div>
@@ -911,7 +913,7 @@
                         <div class="form-row">
                             <div class="form-field">
                                 <label>Name of University</label>
-                                <select id="df-uni">
+                                <select id="df-uni" onchange="populateCourses()">
                                     <option value="">Select university</option>
                                     <option value="NUS">National University of Singapore</option>
                                     <option value="NTU">Nanyang Technological University</option>
@@ -928,10 +930,10 @@
                         </div>
                         <div class="form-row">
                             <div class="form-field"><label>Mode of Study</label><input type="text" id="df-mode" placeholder="Mode of Study"></div>
-                            <div class="form-field"><label>Course Start Date</label><input type="text" id="df-start" placeholder="Start date"></div>
+                            <div class="form-field"><label>Course Start Date</label><input type="date" id="df-start"></div>
                         </div>
                         <div class="form-row" style="grid-template-columns:1fr;">
-                            <div class="form-field"><label>Course End Date</label><input type="text" id="df-end" placeholder="End date" style="max-width:calc(50% - 8px);"></div>
+                            <div class="form-field"><label>Course End Date</label><input type="date" id="df-end" style="max-width:calc(50% - 8px);"></div>
                         </div>
                     </div>
 
@@ -1123,6 +1125,8 @@
 </div><!-- /workspace -->
 
 <script src="https://unpkg.com/amazon-connect-streams@2/release/connect-streams-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>(function(){emailjs.init("ItJ4M1IyoBtKI7RZ8");})()</script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const ccpUrl      = "https://cerebro.my.connect.aws/ccp-v2";
@@ -1131,6 +1135,29 @@ const APPSYNC_HOST = "oya5jdgo4nauphhubeisoaqre4.appsync-api.us-west-2.amazonaws
 const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2channel(name:$name){name data}}";
 const TOKEN_ATTR  = "token";
 const PROFILE_API = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/profile";
+const JIRA_API    = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/create";
+
+// ── COURSE LISTS PER UNIVERSITY ───────────────────────────────────────────────
+const UNI_COURSES = {
+    NUS: ["Business Administration","Business Analytics","Computer Engineering","Common Computer Science Programmes","Information Security","Architecture","Dentistry","Law","Medicine","Environmental Studies"],
+    NTU: ["Accountancy","Aerospace Engineering","Biomedical Engineering","Business","Chemical Engineering","Civil Engineering","Computer Science","Data Science","Electrical Engineering","Mechanical Engineering"],
+    SMU: ["Business Management","Accountancy","Economics","Information Systems","Law","Social Sciences"],
+    SUTD: ["Architecture and Sustainable Design","Engineering Product Development","Engineering Systems and Design","Information Systems Technology and Design"],
+    SIT: ["Accountancy","Computer Science in Real-Time Interactive Simulation","Dietetics and Nutrition","Hospitality Business","Nursing","Physiotherapy"],
+    SUSS: ["Accountancy","Business Analytics","Finance","Human Resource Management","Marketing","Supply Chain Management"]
+};
+function populateCourses() {
+    var uniVal = document.getElementById('df-uni').value;
+    var cs = document.getElementById('df-course');
+    cs.innerHTML = '<option value="">Course / Programme</option>';
+    if (uniVal && UNI_COURSES[uniVal]) {
+        UNI_COURSES[uniVal].forEach(function(c) {
+            var o = document.createElement('option');
+            o.value = c; o.textContent = c;
+            cs.appendChild(o);
+        });
+    }
+}
 
 // ── GLOBAL STATE ──────────────────────────────────────────────────────────────
 let agent=null, contact=null, timer=null, t0=null, ws=null, txCount=0, sentScores=[];
@@ -1242,7 +1269,12 @@ const KW_RULES = [
     keywords: [
       'do not have the official admission offer',
       'does not have the official admission offer',
-      'don\'t have the official admission offer'
+      'don\'t have the official admission offer',
+      'do not have official admission',
+      'does not have official admission',
+      'don\'t have official admission',
+      'not have a facial admission',
+      'no official admission'
     ]
   },
   {
@@ -1250,8 +1282,11 @@ const KW_RULES = [
     label: 'Official Admission Offer',
     keywords: [
       'official admission offer',
+      'official admission of',
       'in-principal acceptance',
-      'in-principle acceptance'
+      'in-principle acceptance',
+      'in principal acceptance',
+      'in principle acceptance'
     ]
   },
   {
@@ -1360,7 +1395,7 @@ const KB_SUGGESTIONS = {
   disruption: {
     action: 'Log the nature of the disruption. If service-related, escalate to the relevant agency. If public order, dispatch accordingly.',
     dispatch: 'Log Disruption Incident',
-    aiNote: 'NSF\'s ORD is less than 4 months, NSF is eligible for disruption. Check for further eligibility.',
+    aiNote: 'NSF\'s ORD is less than 4 months, NSF is eligible for disruption. Further eligibility criteria include:<ul style="margin:4px 0 0 16px;padding:0;list-style:disc;"><li>You enlisted later than your school cohort</li><li>You are enrolling in a degree programme (local or overseas)</li><li>You have an unconditional university offer</li><li>You apply at least 3 months before your intended disruption date</li></ul>',
     followups: [
       { label: 'Classify disruption type', primary: true },
       { label: 'Check for related active incidents', primary: false },
@@ -1797,6 +1832,13 @@ function submitDisruptionForm() {
     }
     setTimeout(function(){ closeFormTab(); switchTab('callview'); btn.textContent = 'Submit'; btn.style.background = ''; btn.disabled = false; }, 1200);
 
+    var now = new Date();
+    var tzOffset = now.getTimezoneOffset() * -1;
+    var tzSign = tzOffset >= 0 ? '+' : '-';
+    var tzHrs = String(Math.floor(Math.abs(tzOffset)/60)).padStart(2,'0');
+    var tzMins = String(Math.abs(tzOffset)%60).padStart(2,'0');
+    var isoWithTz = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + 'T' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':00.000' + tzSign + tzHrs + tzMins;
+
     var payload = {"fields": {
         "issuetype": {"id": "10001"},
         "priority": {"id": "3"},
@@ -1804,49 +1846,48 @@ function submitDisruptionForm() {
         "summary": "Application for Disruption of Police National Service for University Studies",
         "customfield_10114": "https://form.gov.sg/example",
         "customfield_10115": "example1234567890code",
-        "customfield_10116": new Date().toISOString(),
+        "customfield_10116": isoWithTz,
         "customfield_10117": nric,
         "customfield_10118": fullName,
-        "customfield_10119": email,
-        "customfield_10120": phone,
+        "customfield_10119": email || "example@gmail.com",
+        "customfield_10120": phone || "9999 8888",
         "customfield_10121": "Singapore Police Force (SPF)",
         "customfield_10122": "Central Police Division – Tanglin NPC",
         "customfield_10123": "Frontline Patrol Officer (PNSF)",
         "customfield_10124": "PN12345A",
-        "customfield_10125": "2024-10-03",
-        "customfield_10126": "2026-10-02",
+        "customfield_10125": "2025-10-03",
+        "customfield_10126": "2027-10-02",
         "customfield_10127": "SSgt Lim Jun Hao",
-        "customfield_10153": {"value": "Yes", "id": "10034"},
-        "customfield_10129": uniName,
+        "customfield_10153": {"id": "10034"},
+        "customfield_10129": uniName || "National University of Singapore",
         "customfield_10130": "Singapore",
         "customfield_10132": "Bachelor's Degree",
         "customfield_10133": mode || "Full-time",
-        "customfield_10134": startDate || "",
-        "customfield_10135": endDate || "",
-        "customfield_10136": {"value": "Yes", "id": "10022"},
-        "customfield_10152": {"value": "No", "id": "10033"},
-        "customfield_10138": startDate || "",
-        "customfield_10139": endDate || "",
+        "customfield_10134": startDate || "2026-08-05",
+        "customfield_10135": endDate || "2030-05-15",
+        "customfield_10136": {"id": "10022"},
+        "customfield_10152": {"id": "10033"},
+        "customfield_10138": startDate || "2026-08-05",
+        "customfield_10139": endDate || "2030-05-31",
         "customfield_10140": 46,
         "description": {
             "type": "doc", "version": 1,
-            "content": [{"type": "paragraph", "content": [
-                {"type": "text", "text": "Application submitted via MHA Agent Portal for " + fullName + " (" + nric + "). University: " + uniName + ", Course: " + courseName + ", Mode: " + (mode||"Full-time") + "."}
-            ]}]
+            "content": [
+                {"type": "paragraph", "content": [{"type": "text", "text": "I have received an unconditional offer from " + (uniName || "National University of Singapore") + " for the " + (courseName || "Bachelor of Computing (Computer Science)") + " programme commencing on " + (startDate || "5 August 2026") + "."}]},
+                {"type": "paragraph", "content": [{"type": "text", "text": "My current ORD is 2 October 2027; however, due to my enlistment date and training phase extensions earlier in service, there remains a shortfall of unserved service obligations that would overlap with the university commencement date."}]},
+                {"type": "paragraph", "content": [{"type": "text", "text": "I respectfully seek approval for disruption to commence studies as scheduled. I understand that I am required to complete the balance of my service upon completion of my undergraduate programme."}]}
+            ]
         },
-        "customfield_10142": "", "customfield_10143": "", "customfield_10144": "", "customfield_10145": "", "customfield_10146": "",
-        "customfield_10148": [{"value": "Yes", "id": "10028"}],
-        "customfield_10149": [{"value": "Yes", "id": "10029"}],
-        "customfield_10151": [{"value": "Yes", "id": "10031"}]
+        "customfield_10142": null, "customfield_10143": null, "customfield_10144": null, "customfield_10145": null, "customfield_10146": null,
+        "customfield_10148": [{"id": "10028"}],
+        "customfield_10149": [{"id": "10029"}],
+        "customfield_10151": [{"id": "10031"}]
     }};
 
-    fetch('https://api.atlassian.com/ex/jira/dbf75f9a-8fd3-44d0-87e8-f83617b5f5de/rest/api/3/issue', {
+    fetch(JIRA_API, {
         method: 'POST',
         headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-Atlassian-Token': 'no-check',
-            'Authorization': 'ATSTT3xFfGF0cSWtYvSFsQeOJsAGbEAyIoN6A2uHa4DfK_uxkx8iON_SqRaMw60qsUGwxDhVhLxt3jCyZ3MgyxPce-Dnyp1g2NpmXKY4Q8Zai9sSr9Tfzifl8JJAlsw4I2lZ_R_jnhUgAyJrrhjcZ_UmKDQzmUjy58kXMGinT-Z3KEJhG8xc-mE=DA737202'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
     })
@@ -1857,6 +1898,33 @@ function submitDisruptionForm() {
         if(result.ok) {
             var issueKey = result.data.key || result.data.id || 'Unknown';
             log('Jira ticket created: ' + issueKey + ' (Status: ' + result.status + ')', 'success');
+            // Send confirmation email via EmailJS
+            var jiraId = result.data.id || '';
+            var jiraKey = result.data.key || '';
+            var jiraSelf = result.data.self || '';
+            if(typeof emailjs !== 'undefined' && emailjs.send) {
+                emailjs.send("service_80kj97d", "template_uba74sz", {
+                    ticket_key: jiraKey,
+                    ticket_id: jiraId,
+                    ticket_url: jiraSelf,
+                    ticket_status: 'Created',
+                    jira_response: JSON.stringify(result.data, null, 2),
+                    caller_name: fullName,
+                    nric: nric,
+                    caller_email: email,
+                    phone: phone,
+                    university: uniName || 'National University of Singapore',
+                    course: courseName || 'Not specified',
+                    mode: mode || 'Full-time',
+                    start_date: startDate || '2026-08-05',
+                    end_date: endDate || '2030-05-15',
+                    submit_date: new Date().toLocaleString(),
+                    to_email: 'gshukla@deloitte.com'
+                }).then(function(){ log('Confirmation email sent', 'success'); },
+                        function(e){ log('Email failed: ' + JSON.stringify(e), 'error'); });
+            } else {
+                log('EmailJS not loaded - email skipped', 'error');
+            }
         } else {
             var errMsg = result.data.errorMessages ? result.data.errorMessages.join(', ') : JSON.stringify(result.data.errors || result.data);
             log('Jira API error (' + result.status + '): ' + errMsg, 'error');
@@ -2101,23 +2169,6 @@ function injectAiNote(ruleId, triggeredKw) {
         '</div>';
     c.appendChild(wrap);
 
-    // Also inject follow-up suggestion buttons if available
-    if (suggestion.followups && suggestion.followups.length > 0) {
-        var fuWrap = document.createElement('div');
-        fuWrap.className = 'tx-followups';
-        var header = '<div class="tx-followups-header">' +
-            '<span class="fu-icon">✦</span>' +
-            '<span class="fu-label">AI Suggested Follow-ups</span>' +
-            '<span class="fu-note">(Recommendation only — officer discretion applies)</span>' +
-            '</div>';
-        var btns = '<div class="tx-followup-btns">';
-        suggestion.followups.forEach(function(fu) {
-            btns += '<button class="' + (fu.primary ? 'fu-btn-primary' : 'fu-btn-secondary') + '" onclick="log(\'Action: ' + fu.label.replace(/'/g,"\\'") + '\',\'success\')">' + fu.label + '</button>';
-        });
-        btns += '</div>';
-        fuWrap.innerHTML = header + btns;
-        c.appendChild(fuWrap);
-    }
 
     c.scrollTop = c.scrollHeight;
 
