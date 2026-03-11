@@ -331,22 +331,64 @@
         .sla-track { height:6px; background:#e1e4e8; border-radius:3px; overflow:hidden; }
         .sla-fill { height:100%; background:#2ea043; border-radius:3px; transition:width 1s linear; }
         .sla-target { font-size:10px; color:#8c959f; margin-top:4px; }
-        .ca-section { flex:1; padding:12px 14px; display:flex; flex-direction:column; }
-        .ca-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .ca-section { flex:1; padding:0; display:flex; flex-direction:column; overflow:hidden; }
+        .ca-hdr { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid #e1e4e8; flex-shrink:0; }
         .ca-title { font-size:11px; font-weight:700; color:var(--text); }
         .ca-close { width:20px; height:20px; border:none; background:none; cursor:pointer; color:#8c959f; font-size:14px; display:flex; align-items:center; justify-content:center; border-radius:3px; }
         .ca-close:hover { background:#f0f2f5; color:var(--text); }
-        .ca-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; padding:20px; }
+        .ca-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px; padding:20px 14px; }
         .ca-icon { width:44px; height:44px; border-radius:50%; border:2px solid #dde1e6; display:flex; align-items:center; justify-content:center; color:#8c959f; }
         .ca-icon svg { width:20px; height:20px; }
         .ca-no-call { font-size:13px; font-weight:600; color:var(--text); }
         .ca-no-call-sub { font-size:11.5px; color:#8c959f; line-height:1.6; }
         /* Live mode: active call in Connect Assistant */
-        .ca-live-body { flex:1; overflow-y:auto; padding:8px; display:none; flex-direction:column; gap:8px; }
+        .ca-live-body { flex:1; overflow-y:auto; padding:12px 14px; display:none; flex-direction:column; gap:0; min-height:0; }
         .ca-live-body::-webkit-scrollbar{width:3px} .ca-live-body::-webkit-scrollbar-thumb{background:var(--border)}
         .qcard { background:#fff; border:1px solid var(--border); border-radius:7px; padding:11px 12px; }
         .qctitle { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:7px; }
         .qcard p { font-size:12px; color:var(--text); line-height:1.6; }
+
+        /* ── Procedure Thread (right panel) ── */
+        .ca-proc-header { display:flex; align-items:flex-start; gap:8px; padding:0 0 14px; }
+        .ca-proc-icon { font-size:18px; flex-shrink:0; line-height:1; margin-top:1px; }
+        .ca-proc-title { font-size:13.5px; font-weight:700; color:#7c3aed; line-height:1.35; }
+
+        .ca-step { position:relative; padding-left:30px; margin-bottom:4px; }
+        .ca-step::before { content:''; position:absolute; left:12px; top:0; bottom:0; width:2px; background:#dde1e6; }
+        .ca-step:last-child::before { display:none; }
+        .ca-step-hdr { display:flex; align-items:flex-start; gap:0; cursor:pointer; padding:4px 0; user-select:none; position:relative; flex-direction:column; }
+        .ca-step-hdr-row { display:flex; align-items:center; gap:6px; width:100%; }
+        .ca-step-dot { position:absolute; left:-30px; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; z-index:1; top:18px; }
+        .ca-step-dot.completed { background:#f0f2f5; border:2px solid #57606a; }
+        .ca-step-dot.completed svg { width:12px; height:12px; color:#57606a; }
+        .ca-step-dot.active { background:#e8f0fe; border:2px solid #0969da; }
+        .ca-step-dot.active svg { width:12px; height:12px; color:#0969da; }
+        .ca-step-label { font-size:9px; font-weight:600; color:#8c959f; text-transform:uppercase; letter-spacing:0.3px; display:block; margin-bottom:1px; }
+        .ca-step-title { font-size:12.5px; font-weight:700; color:#0969da; flex:1; }
+        .ca-step-chevron { width:18px; height:18px; color:#8c959f; transition:transform 0.2s; flex-shrink:0; cursor:pointer; }
+        .ca-step-chevron.collapsed { transform:rotate(-90deg); }
+        .ca-step-body { padding:4px 0 14px 0; }
+        .ca-step-body.hidden { display:none; }
+
+        .ca-step-body ol { margin:0 0 8px 0; padding-left:18px; font-size:12px; color:#24292f; line-height:1.7; }
+        .ca-step-body ol li { margin-bottom:4px; }
+        .ca-step-body ol li ul { list-style:disc; margin:4px 0 4px 0; padding-left:16px; }
+        .ca-step-body ol li ul li { font-size:11.5px; font-style:italic; color:#57606a; margin-bottom:2px; }
+
+        .ca-kb-section { margin-top:8px; border:1px solid #e1e4e8; border-radius:6px; overflow:hidden; }
+        .ca-kb-hdr { display:flex; align-items:center; gap:6px; padding:8px 10px; background:#f6f8fa; border-bottom:1px solid #e1e4e8; cursor:pointer; user-select:none; }
+        .ca-kb-hdr-icon { font-size:10px; }
+        .ca-kb-hdr-title { font-size:10.5px; font-weight:700; color:#57606a; flex:1; }
+        .ca-kb-hdr .ca-step-chevron { width:14px; height:14px; }
+        .ca-kb-body { padding:10px; }
+        .ca-kb-body.hidden { display:none; }
+        .ca-kb-link { display:flex; align-items:center; gap:6px; font-size:12px; color:#0969da; text-decoration:none; margin-bottom:6px; font-weight:600; }
+        .ca-kb-link:hover { text-decoration:underline; }
+        .ca-kb-link-ext { width:12px; height:12px; color:#8c959f; flex-shrink:0; }
+        .ca-kb-summary { font-size:11.5px; font-weight:700; color:#24292f; margin:6px 0 4px; }
+        .ca-kb-bullets { margin:0; padding-left:18px; font-size:11px; color:#57606a; line-height:1.7; list-style:disc; }
+        .ca-kb-bullets li { margin-bottom:2px; }
+        .ca-kb-check { color:#2ea043; margin-right:2px; }
         .qdispatch { margin-top:9px; width:100%; padding:7px; background:var(--navy); color:#fff; border:none; border-radius:5px; font-size:12px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; }
         .qdispatch:hover { background:#0a3080; }
         .consent-create-btn { width:100%; padding:9px 16px; background:#0078d4; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; transition:all 0.15s; }
@@ -499,7 +541,7 @@
 <!-- ════════════════ HEADER ════════════════ -->
 <div class="header">
     <div class="hdr-left">
-        <img src="mha_logo.png" alt="MHA" class="hdr-logo" id="hdr-logo"
+        <img src="MHALogo.png" alt="MHA" class="hdr-logo" id="hdr-logo"
              onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
         <div class="hdr-logo-fallback" id="logo-fb">🛡️</div>
         <div class="hdr-divider"></div>
@@ -577,7 +619,7 @@
     <div class="sb-agent" id="sb-agent-card" style="border-top:none; border-bottom:1px solid var(--border); display:none;">
         <div class="agent-card">
             <div class="agent-av" id="agent-avatar" style="background:linear-gradient(135deg,#6b7280,#4b5563);font-size:11px;">
-                <img src="mha_avatar.png" alt="PN" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.textContent='PN';">
+                <img src="agent-avatar.png" alt="PN" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.textContent='PN';">
             </div>
             <div>
                 <div class="agent-nm" id="agent-name">Agent</div>
@@ -938,8 +980,7 @@
                     </div>
 
                     <div class="form-actions">
-                        <button class="form-btn-draft" onclick="saveDraft()">Save draft</button>
-                        <button class="form-btn-submit" onclick="submitDisruptionForm()">Submit</button>
+                        <button class="form-btn-submit" id="save-app-btn" onclick="submitDisruptionForm()">Save application</button>
                     </div>
                 </div>
 
@@ -1095,27 +1136,8 @@
         </div>
         <!-- Live call state (shown when connected) -->
         <div class="ca-live-body" id="ca-live-body" style="display:flex;">
-            <div class="qcard" id="q-default-action">
-                <div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>
-                <p>Waiting for call to connect. Suggestions will appear automatically when keywords are detected in the transcript.</p>
-            </div>
-            <div class="qcard" id="q-default-kb">
-                <div class="qctitle" style="color:#57606a">📚 Knowledge Base</div>
-                <a href="#" class="qkbl">↗ NS Deferment: Documentary Requirements</a>
-                <a href="#" class="qkbl">↗ Disruption &amp; Deferment SOP</a>
-                <a href="#" class="qkbl">↗ IPA vs Official Offer — NS Policy</a>
-                <a href="#" class="qkbl">↗ NS Portal Submission Guide</a>
-            </div>
-            <div class="qcard">
-                <div class="qctitle" style="color:#57606a">✍️ AI Generated Draft</div>
-                <p id="ai-draft-text">Listening for call details…</p>
-                <div class="qdnote">Review and edit before submission</div>
-            </div>
-            <div class="qcard" id="dynamic-kb-card" style="display:none;"></div>
-            <div class="qcard">
-                <div class="qctitle" style="color:#57606a">💬 Ask a Question</div>
-                <input type="text" class="qaski" placeholder="Ask a question...">
-            </div>
+            <!-- Procedure header - injected dynamically -->
+            <div id="ca-proc-thread"></div>
         </div>
     </div>
     <div id="q-panel-body" style="display:none"></div>
@@ -1510,6 +1532,90 @@ const KB_SUGGESTIONS = {
   }
 };
 
+// ── PROCEDURE STEPS (right panel thread) ──────────────────────────────────────
+// Map keyword rule IDs to their procedure context
+const PROCEDURE_STEPS = {
+  // Step 1 always shows on call connect
+  step1: {
+    title: 'Greet & Identify Purpose',
+    instructions: [
+      { text: 'Greet the caller and confirm their reason for calling.', subs: ['"Hello [Rank + Name], thank you for calling MHQ. I understand you are calling about disruption and deferment. What can I help you with today?"'] },
+      { text: 'Confirm the caller\'s intent (e.g., applying for disruption, checking application status)', subs: [] }
+    ],
+    kb: {
+      title: 'Deferment & Disruption Information',
+      url: '#',
+      summary: 'Summary:',
+      bullets: [
+        'Deferment allows you to postpone a scheduled NS activity if you are unable to attend due to valid reasons.',
+        'Disruption refers to a temporary pause in full-time National Service for approved commitments, such as studies.',
+        'Each request is assessed individually based on your circumstances, supporting documents, and service requirements.'
+      ]
+    }
+  },
+  // Step 2 shows when 'disruption' keyword detected
+  disruption: {
+    title: 'Confirm Specific Enquiry / Context',
+    instructions: [
+      { text: 'Ask caller to explain their current situation regarding university admission.', subs: ['"Can you tell me more about your university admission status and what your unit HR advised?"'] },
+      { text: 'Confirm the following:', subs: ['Admission type (in-principle or official offer)', 'Urgency / start date of semester'] }
+    ],
+    kb: {
+      title: 'Deferment Eligibility Criteria',
+      url: '#',
+      summary: 'Summary:',
+      bullets: [
+        '✅ You enlisted later than your school cohort',
+        '✅ You are enrolling in a degree programme (local or overseas)',
+        '✅ You have an unconditional university offer',
+        '✅ You apply at least 3 months before your intended disruption date'
+      ],
+      footer: 'Service man is <strong>ELIGIBLE</strong> for disruption application'
+    }
+  },
+  // Step 3 shows when consent is given
+  consent: {
+    title: 'Explain Required Next Steps and Obtain Consent',
+    instructions: [
+      { text: 'Explain the disruption application process and next steps to the caller.', subs: [] },
+      { text: 'Obtain the caller\'s official consent to proceed with creating the application on their behalf.', subs: [] },
+      { text: 'Inform them that a certifying letter from the university must be submitted afterward to support the application.', subs: [] }
+    ],
+    kb: null,
+    createBtn: true
+  },
+  // Step 4 shows when Create Application is clicked
+  fillForm: {
+    title: 'Fill in Disruption Application Form',
+    instructions: [
+      { text: 'Confirm NRIC, email, and contact number to ensure data matches official records', subs: [] },
+      { text: 'Ask structured questions based on the form fields to complete the application form.', subs: [] },
+      { text: 'Redirect NSF to submit certifying document via portal link', subs: [] },
+      { text: 'Advise submission within 10 working days', subs: [] }
+    ],
+    kb: null
+  },
+  // Step 5 shows after application is saved
+  sendPortal: {
+    title: 'Save Application & Send Portal URL via Email',
+    instructions: [
+      { text: 'Confirm that application is saved as draft and provide instructions for submitting certifying documents.', subs: ['"Thank you. I will save your application as a draft. I will now send you a link to your email to upload your certifying document. Please request it from the Office of Admissions and submit within 10 working days, or the application will lapse."'] }
+    ],
+    kb: {
+      title: 'Documents to submit, timeframe required for NSF, protocol for agent',
+      url: '#',
+      summary: 'Summary:',
+      bullets: [
+        'Application draft is valid for 10 days.',
+        'Applications must be submitted at least 3 months before the date of disruption.'
+      ]
+    },
+    sendPortalBtn: true
+  }
+};
+
+var procStepCount = 0; // tracks how many steps have been added
+
 // ── KEYWORD STATE ──────────────────────────────────────────────────────────────
 const kwDetected = new Set();
 const kwShown    = new Set();
@@ -1558,6 +1664,10 @@ function setPanel(state) {
         var caLive = document.getElementById('ca-live-body');
         if(caNoCall) caNoCall.style.display='flex';
         if(caLive) caLive.style.display='none';
+        // Reset procedure thread
+        var procThread = document.getElementById('ca-proc-thread');
+        if(procThread) procThread.innerHTML = '';
+        procStepCount = 0;
     } else if (state === 'ringing') {
         cpb.classList.add('active','ringing');
         // Open the profile accordion to show serviceman details
@@ -1588,6 +1698,9 @@ function setPanel(state) {
         if(caNoCall) caNoCall.style.display='none';
         if(caLive) caLive.style.display='flex';
         if(caLive) caLive.style.flexDirection='column';
+        // Initialize procedure thread with Step 1
+        initProcedureThread('Disruption & Deferment Procedure');
+        addProcStep('step1');
         var stTag = document.getElementById('cpb-status-tag');
         if(stTag){ stTag.textContent='● Connected'; stTag.className='ptag ptag-connected'; }
         switchTab('callview');
@@ -1818,19 +1931,9 @@ function submitDisruptionForm() {
     if(!nric){ alert('Please fill in NRIC.'); return; }
     if(!fullName){ alert('Please fill in Full Name.'); return; }
 
-    var btn = document.querySelector('.form-btn-submit');
-    btn.textContent = 'Submitting...'; btn.disabled = true;
-    log('Submitting Disruption Application to Jira...', 'info');
-
-    // Immediately: green note, grey out button, close form
-    injectGreenNote('Created disruption application on behalf of caller');
-    var consentBtn = document.getElementById('consent-create-btn');
-    if (consentBtn) {
-        consentBtn.textContent = '\ud83d\udccb Application created';
-        consentBtn.disabled = true;
-        consentBtn.classList.add('consent-btn-done');
-    }
-    setTimeout(function(){ closeFormTab(); switchTab('callview'); btn.textContent = 'Submit'; btn.style.background = ''; btn.disabled = false; }, 1200);
+    var btn = document.getElementById('save-app-btn');
+    btn.textContent = 'Saving...'; btn.disabled = true;
+    log('Saving Disruption Application to Jira...', 'info');
 
     var now = new Date();
     var tzOffset = now.getTimezoneOffset() * -1;
@@ -1886,9 +1989,7 @@ function submitDisruptionForm() {
 
     fetch(JIRA_API, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
     .then(function(res) {
@@ -1898,43 +1999,96 @@ function submitDisruptionForm() {
         if(result.ok) {
             var issueKey = result.data.key || result.data.id || 'Unknown';
             log('Jira ticket created: ' + issueKey + ' (Status: ' + result.status + ')', 'success');
-            // Send confirmation email via EmailJS
-            var jiraId = result.data.id || '';
-            var jiraKey = result.data.key || '';
-            var jiraSelf = result.data.self || '';
-            if(typeof emailjs !== 'undefined' && emailjs.send) {
-                emailjs.send("service_80kj97d", "template_uba74sz", {
-                    ticket_key: jiraKey,
-                    ticket_id: jiraId,
-                    ticket_url: jiraSelf,
-                    ticket_status: 'Created',
-                    jira_response: JSON.stringify(result.data, null, 2),
-                    caller_name: fullName,
-                    nric: nric,
-                    caller_email: email,
-                    phone: phone,
-                    university: uniName || 'National University of Singapore',
-                    course: courseName || 'Not specified',
-                    mode: mode || 'Full-time',
-                    start_date: startDate || '2026-08-05',
-                    end_date: endDate || '2030-05-15',
-                    submit_date: new Date().toLocaleString(),
-                    to_email: 'gshukla@deloitte.com'
-                }).then(function(){ log('Confirmation email sent', 'success'); },
-                        function(e){ log('Email failed: ' + JSON.stringify(e), 'error'); });
-            } else {
-                log('EmailJS not loaded - email skipped', 'error');
+
+            // Store ticket data for email send later
+            window._savedTicket = {
+                jiraId: result.data.id || '',
+                jiraKey: result.data.key || '',
+                jiraSelf: result.data.self || '',
+                jiraData: result.data,
+                fullName: fullName, nric: nric, email: email, phone: phone,
+                uniName: uniName, courseName: courseName, mode: mode,
+                startDate: startDate, endDate: endDate
+            };
+
+            // Update button, show green note, close form
+            btn.textContent = 'Application saved';
+            btn.disabled = true;
+            btn.style.background = '#e8ecf0'; btn.style.color = '#57606a';
+            // Grey out the Create Application button in Step 3
+            var createAppBtn = document.getElementById('create-app-btn');
+            if (createAppBtn) {
+                createAppBtn.textContent = 'Application Created';
+                createAppBtn.disabled = true;
+                createAppBtn.className = 'consent-create-btn consent-btn-done';
+                createAppBtn.style.cursor = 'default';
             }
+            injectGreenNote('Created disruption application on behalf of caller');
+            setTimeout(function(){ closeFormTab(); switchTab('callview'); }, 1200);
+
+            // Show Step 5 in procedure thread
+            addProcStep('sendPortal');
         } else {
             var errMsg = result.data.errorMessages ? result.data.errorMessages.join(', ') : JSON.stringify(result.data.errors || result.data);
             log('Jira API error (' + result.status + '): ' + errMsg, 'error');
-            btn.textContent = 'Submit'; btn.disabled = false;
+            btn.textContent = 'Save application'; btn.disabled = false;
         }
     })
     .catch(function(err) {
         log('Jira API request failed: ' + err.message, 'error');
-        btn.textContent = 'Submit'; btn.disabled = false;
+        btn.textContent = 'Save application'; btn.disabled = false;
     });
+}
+
+// ── Send portal link email (triggered from Step 5 button) ─────────────────
+function sendPortalLink() {
+    var t = window._savedTicket;
+    if (!t) { log('No saved ticket data — save the application first', 'error'); return; }
+
+    var sendBtn = document.getElementById('send-portal-btn');
+    if (sendBtn) { sendBtn.textContent = 'Sending...'; sendBtn.disabled = true; }
+
+    if (typeof emailjs !== 'undefined' && emailjs.send) {
+        emailjs.send("service_80kj97d", "template_uba74sz", {
+            ticket_key: t.jiraKey,
+            ticket_id: t.jiraId,
+            ticket_url: t.jiraSelf,
+            ticket_status: 'Created',
+            jira_response: JSON.stringify(t.jiraData, null, 2),
+            caller_name: t.fullName,
+            nric: t.nric,
+            caller_email: t.email,
+            phone: t.phone,
+            university: t.uniName || 'National University of Singapore',
+            course: t.courseName || 'Not specified',
+            mode: t.mode || 'Full-time',
+            start_date: t.startDate || '2026-08-05',
+            end_date: t.endDate || '2030-05-15',
+            submit_date: new Date().toLocaleString(),
+            to_email: 'gshukla@deloitte.com'
+        }).then(function() {
+            log('Portal link email sent', 'success');
+            injectGreenNote('Portal link sent to serviceman email address');
+            // Update Step 5 buttons: grey out send, show resend
+            if (sendBtn) {
+                sendBtn.textContent = '✅ Portal link sent';
+                sendBtn.disabled = true;
+                sendBtn.className = 'consent-create-btn consent-btn-done';
+                sendBtn.style.cursor = 'default';
+            }
+            // Add resend button
+            var resendContainer = document.getElementById('resend-portal-container');
+            if (resendContainer) {
+                resendContainer.innerHTML = '<button class="consent-create-btn" style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" onclick="sendPortalLink()">Resend portal link</button>';
+            }
+        }, function(e) {
+            log('Email failed: ' + JSON.stringify(e), 'error');
+            if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
+        });
+    } else {
+        log('EmailJS not loaded - email skipped', 'error');
+        if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
+    }
 }
 
 // Transcript view toggle (Transcription vs Officer Notes)
@@ -2196,46 +2350,143 @@ function setTxStatus(live){var el=document.getElementById('tx-status');el.textCo
 function setAps(t){var el=document.getElementById('aps-status');el.textContent='AppSync: '+t;el.className=t.includes('LIVE')?'connected':t.toLowerCase().includes('error')?'error':'';}
 
 // ════════════════════════════════════════════════════════════════════════════
-//  RENDER KB SUGGESTION CARD IN AMAZON Q PANEL
+//  PROCEDURE THREAD — step-by-step right panel
 // ════════════════════════════════════════════════════════════════════════════
-function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
-    var qBody = document.getElementById('ca-live-body');
-    if (!qBody) return;
-
-    var suggestion = KB_SUGGESTIONS[ruleId];
-    if (!suggestion) return;
-
-    // Remove previous dynamic card
-    var old = document.getElementById('dynamic-kb-card');
-    if (old) old.remove();
-
-    var articleHtml = (suggestion.articles || []).map(function(a) {
-        return '<a href="' + a.url + '" class="qkbl" target="_blank">↗ ' + a.title + '</a>' +
-               '<p style="font-size:11px;color:#8c959f;margin:2px 0 10px 14px;line-height:1.5">' + a.summary + '</p>';
-    }).join('');
-
-    var dispatchHtml = suggestion.dispatch
-        ? '<button class="qdispatch" onclick="log(\'Dispatch: ' + suggestion.dispatch.replace(/'/g,"\\'") + '\',\'success\')">' + suggestion.dispatch + '</button>'
-        : '';
-
-    var card = document.createElement('div');
-    card.className = 'qcard suggestion-new';
-    card.id = 'dynamic-kb-card';
-    card.innerHTML =
-        '<div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>' +
-        '<p style="font-size:12px;color:#0d1117;line-height:1.6;margin-bottom:6px">' + suggestion.action + '</p>' +
-        dispatchHtml +
-        '<hr style="border:none;border-top:1px solid #e1e4e8;margin:12px 0">' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">' +
-            '<span style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;letter-spacing:0.5px">Triggered by</span>' +
-            '<span class="kw-tag-pill">' + triggeredKw + '</span>' +
-            '<span style="font-size:10px;color:#8c959f">→ ' + ruleLabel + '</span>' +
+function initProcedureThread(procedureName) {
+    var thread = document.getElementById('ca-proc-thread');
+    if (!thread) return;
+    thread.innerHTML =
+        '<div class="ca-proc-header">' +
+            '<span class="ca-proc-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><defs><linearGradient id="aiGrad" x1="0" y1="0" x2="24" y2="24"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><path d="M12 0L14.59 8.41L23 12L14.59 15.59L12 24L9.41 15.59L1 12L9.41 8.41Z" fill="url(#aiGrad)"/><path d="M20 2L20.75 4.25L23 5L20.75 5.75L20 8L19.25 5.75L17 5L19.25 4.25Z" fill="url(#aiGrad)" opacity="0.6"/></svg></span>' +
+            '<span class="ca-proc-title">' + procedureName + '</span>' +
         '</div>' +
-        '<div class="qctitle" style="color:#57606a;margin-bottom:6px">📚 Knowledge Base</div>' +
-        articleHtml;
+        '<div id="ca-steps-container"></div>';
+    procStepCount = 0;
+}
 
-    qBody.insertBefore(card, qBody.firstChild);
-    qBody.scrollTop = 0;
+function addProcStep(stepKey) {
+    var stepData = PROCEDURE_STEPS[stepKey];
+    if (!stepData) return;
+    var container = document.getElementById('ca-steps-container');
+    if (!container) return;
+
+    // If there are existing steps, mark the previous one as completed and collapse it
+    var prevSteps = container.querySelectorAll('.ca-step');
+    if (prevSteps.length > 0) {
+        var last = prevSteps[prevSteps.length - 1];
+        var dot = last.querySelector('.ca-step-dot');
+        if (dot) {
+            dot.className = 'ca-step-dot completed';
+            dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+        }
+        // Change completed step title to normal dark grey (matching tick colour)
+        var prevTitle = last.querySelector('.ca-step-title');
+        if (prevTitle) prevTitle.style.color = '#57606a';
+        var body = last.querySelector('.ca-step-body');
+        var chev = last.querySelector('.ca-step-chevron');
+        if (body) body.classList.add('hidden');
+        if (chev) chev.classList.add('collapsed');
+    }
+
+    procStepCount++;
+    var stepId = 'ca-step-' + procStepCount;
+
+    // Build instructions HTML
+    var olHtml = '<ol>';
+    stepData.instructions.forEach(function(instr) {
+        olHtml += '<li>' + instr.text;
+        if (instr.subs && instr.subs.length > 0) {
+            olHtml += '<ul>';
+            instr.subs.forEach(function(s) { olHtml += '<li>' + s + '</li>'; });
+            olHtml += '</ul>';
+        }
+        olHtml += '</li>';
+    });
+    olHtml += '</ol>';
+
+    // Build KB section
+    var kbHtml = '';
+    if (stepData.kb) {
+        var kb = stepData.kb;
+        var bulletsHtml = (kb.bullets || []).map(function(b) { return '<li>' + b + '</li>'; }).join('');
+        var footerHtml = kb.footer ? '<div style="font-size:12px;font-weight:700;color:#24292f;margin-top:8px;padding-top:6px;border-top:1px solid #e1e4e8;">' + kb.footer + '</div>' : '';
+        kbHtml =
+            '<div class="ca-kb-section">' +
+                '<div class="ca-kb-hdr" onclick="toggleKb(this)">' +
+                    '<span class="ca-kb-hdr-icon">▼</span>' +
+                    '<span class="ca-kb-hdr-title">Knowledge Base</span>' +
+                '</div>' +
+                '<div class="ca-kb-body">' +
+                    '<a href="' + kb.url + '" class="ca-kb-link" target="_blank">' + kb.title +
+                        ' <svg class="ca-kb-link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+                    '</a>' +
+                    '<div class="ca-kb-summary">' + kb.summary + '</div>' +
+                    '<ul class="ca-kb-bullets">' + bulletsHtml + '</ul>' +
+                    footerHtml +
+                '</div>' +
+            '</div>';
+    }
+
+    // Build body: for sendPortal step, KB goes below buttons
+    var bodyContent = '';
+    if (stepData.sendPortalBtn) {
+        bodyContent = olHtml +
+            '<button class="consent-create-btn" id="send-portal-btn" style="margin-top:10px" onclick="sendPortalLink()">Send portal link</button><div id="resend-portal-container"></div>' +
+            kbHtml;
+    } else {
+        bodyContent = olHtml + kbHtml +
+            (stepData.createBtn ? '<button class="consent-create-btn" id="create-app-btn" style="margin-top:10px" onclick="onCreateApplication()">Create Application</button>' : '');
+    }
+
+    var step = document.createElement('div');
+    step.className = 'ca-step';
+    step.id = stepId;
+    step.setAttribute('data-step-num', procStepCount);
+    step.innerHTML =
+        '<div class="ca-step-hdr" onclick="toggleStep(\'' + stepId + '\')">' +
+            '<div class="ca-step-dot active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/></svg></div>' +
+            '<span class="ca-step-label">Step ' + procStepCount + '</span>' +
+            '<div class="ca-step-hdr-row">' +
+                '<span class="ca-step-title">' + stepData.title + '</span>' +
+                '<svg class="ca-step-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</div>' +
+        '</div>' +
+        '<div class="ca-step-body">' + bodyContent + '</div>';
+
+    container.appendChild(step);
+
+    // Scroll to the new step
+    var liveBody = document.getElementById('ca-live-body');
+    if (liveBody) setTimeout(function() { liveBody.scrollTop = liveBody.scrollHeight; }, 100);
+
+    log('📋 Step ' + procStepCount + ': ' + stepData.title, 'success');
+}
+
+function toggleStep(stepId) {
+    var step = document.getElementById(stepId);
+    if (!step) return;
+    var body = step.querySelector('.ca-step-body');
+    var chev = step.querySelector('.ca-step-chevron');
+    if (body) body.classList.toggle('hidden');
+    if (chev) chev.classList.toggle('collapsed');
+}
+
+function toggleKb(hdr) {
+    var section = hdr.parentElement;
+    var body = section.querySelector('.ca-kb-body');
+    var icon = hdr.querySelector('.ca-kb-hdr-icon');
+    if (body) {
+        body.classList.toggle('hidden');
+        if (icon) icon.textContent = body.classList.contains('hidden') ? '▶' : '▼';
+    }
+}
+
+// Old function kept as wrapper — now adds procedure step instead of card
+function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
+    // Add matching procedure step if one exists for this rule
+    if (PROCEDURE_STEPS[ruleId]) {
+        addProcStep(ruleId);
+    }
     log('💡 KB suggestions loaded: ' + ruleLabel, 'success');
 }
 
@@ -2243,37 +2494,14 @@ function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
 //  CONSENT → CREATE APPLICATION SUGGESTION CARD
 // ════════════════════════════════════════════════════════════════════════════
 function showCreateApplicationSuggestion() {
-    var qBody = document.getElementById('ca-live-body');
-    if (!qBody) return;
-
-    // Update the default action card with the consent suggestion
-    var defaultCard = document.getElementById('q-default-action');
-    if (defaultCard) defaultCard.style.display = 'none';
-
-    // Remove any previous consent card
-    var prev = document.getElementById('consent-action-card');
-    if (prev) prev.remove();
-
-    var card = document.createElement('div');
-    card.className = 'qcard suggestion-new';
-    card.id = 'consent-action-card';
-    card.innerHTML =
-        '<div class="qctitle" style="color:#0078d4">⚡ Suggested Next Action</div>' +
-        '<div style="margin-top:6px">' +
-            '<p style="font-size:12px;color:#0d1117;line-height:1.6;margin-bottom:8px"><strong>Suggested Next Action:</strong><br>' +
-            'Create a disruption application on behalf of the caller and obtain their consent to proceed.</p>' +
-            '<p style="font-size:12px;color:#0d1117;line-height:1.6;margin-bottom:12px">' +
-            'Inform the caller that the certifying letter from the university must be submitted afterward to support the application.</p>' +
-        '</div>' +
-        '<button class="consent-create-btn" id="consent-create-btn" onclick="onCreateApplication()">Create application</button>';
-
-    qBody.insertBefore(card, qBody.firstChild);
-    qBody.scrollTop = 0;
+    addProcStep('consent');
     log('⚡ Consent received — Create Application suggestion shown', 'success');
 }
 
 function onCreateApplication() {
-    // Just open the form — green note + grey-out happen on Submit
+    // Add Step 4 to the procedure thread
+    addProcStep('fillForm');
+    // Open the disruption form
     openFormTab('Disruption Application Form');
     switchTab('formview');
 }
