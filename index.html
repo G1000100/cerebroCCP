@@ -1147,8 +1147,6 @@
 </div><!-- /workspace -->
 
 <script src="https://unpkg.com/amazon-connect-streams@2/release/connect-streams-min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>(function(){emailjs.init("ItJ4M1IyoBtKI7RZ8");})()</script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const ccpUrl      = "https://cerebro.my.connect.aws/ccp-v2";
@@ -2048,47 +2046,47 @@ function sendPortalLink() {
     var sendBtn = document.getElementById('send-portal-btn');
     if (sendBtn) { sendBtn.textContent = 'Sending...'; sendBtn.disabled = true; }
 
-    if (typeof emailjs !== 'undefined' && emailjs.send) {
-        emailjs.send("service_80kj97d", "template_uba74sz", {
-            ticket_key: t.jiraKey,
-            ticket_id: t.jiraId,
-            ticket_url: t.jiraSelf,
-            ticket_status: 'Created',
-            jira_response: JSON.stringify(t.jiraData, null, 2),
-            caller_name: t.fullName,
-            nric: t.nric,
-            caller_email: t.email,
-            phone: t.phone,
-            university: t.uniName || 'National University of Singapore',
-            course: t.courseName || 'Not specified',
-            mode: t.mode || 'Full-time',
-            start_date: t.startDate || '2026-08-05',
-            end_date: t.endDate || '2030-05-15',
-            submit_date: new Date().toLocaleString(),
-            to_email: 'gshukla@deloitte.com'
-        }).then(function() {
+    // Use EmailJS REST API directly instead of SDK (more reliable across regions)
+    fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'origin': 'http://localhost'
+        },
+        body: JSON.stringify({
+            service_id: 'service_80kj97d',
+            template_id: 'template_uba74sz',
+            user_id: 'ItJ4M1IyoBtKI7RZ8',
+            template_params: {
+                ticket_id: t.jiraId
+            }
+        })
+    })
+    .then(function(res) {
+        if (res.ok) {
             log('Portal link email sent', 'success');
             injectGreenNote('Portal link sent to serviceman email address');
-            // Update Step 5 buttons: grey out send, show resend
             if (sendBtn) {
                 sendBtn.textContent = '✅ Portal link sent';
                 sendBtn.disabled = true;
                 sendBtn.className = 'consent-create-btn consent-btn-done';
                 sendBtn.style.cursor = 'default';
             }
-            // Add resend button
             var resendContainer = document.getElementById('resend-portal-container');
             if (resendContainer) {
                 resendContainer.innerHTML = '<button class="consent-create-btn" style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" onclick="sendPortalLink()">Resend portal link</button>';
             }
-        }, function(e) {
-            log('Email failed: ' + JSON.stringify(e), 'error');
-            if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
-        });
-    } else {
-        log('EmailJS not loaded - email skipped', 'error');
+        } else {
+            return res.text().then(function(errText) {
+                throw new Error('Status ' + res.status + ': ' + errText);
+            });
+        }
+    })
+    .catch(function(err) {
+        log('Email failed: ' + err.message, 'error');
+        console.error('EmailJS fetch error:', err);
         if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
-    }
+    });
 }
 
 // Transcript view toggle (Transcription vs Officer Notes)
