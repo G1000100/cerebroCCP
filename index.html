@@ -2047,47 +2047,39 @@ function sendPortalLink() {
     if (sendBtn) { sendBtn.textContent = 'Sending...'; sendBtn.disabled = true; }
 
     // Use EmailJS REST API directly instead of SDK (more reliable across regions)
-    fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'origin': 'http://localhost'
-        },
-        body: JSON.stringify({
-            service_id: 'service_80kj97d',
-            template_id: 'template_uba74sz',
-            user_id: 'ItJ4M1IyoBtKI7RZ8',
-            template_params: {
-                ticket_id: t.jiraId
-            }
-        })
+    fetch('https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        ticket_id: t.jiraId
     })
-    .then(function(res) {
-        if (res.ok) {
-            log('Portal link email sent', 'success');
-            injectGreenNote('Portal link sent to serviceman email address');
-            if (sendBtn) {
-                sendBtn.textContent = '✅ Portal link sent';
-                sendBtn.disabled = true;
-                sendBtn.className = 'consent-create-btn consent-btn-done';
-                sendBtn.style.cursor = 'default';
-            }
-            var resendContainer = document.getElementById('resend-portal-container');
-            if (resendContainer) {
-                resendContainer.innerHTML = '<button class="consent-create-btn" style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" onclick="sendPortalLink()">Resend portal link</button>';
-            }
-        } else {
-            return res.text().then(function(errText) {
-                throw new Error('Status ' + res.status + ': ' + errText);
-            });
+})
+.then(function(res) {
+    if (res.ok) {
+        log('Portal link email sent', 'success');
+        injectGreenNote('Portal link sent to serviceman email address');
+        if (sendBtn) {
+            sendBtn.textContent = '✅ Portal link sent';
+            sendBtn.disabled = true;
+            sendBtn.className = 'consent-create-btn consent-btn-done';
+            sendBtn.style.cursor = 'default';
         }
-    })
-    .catch(function(err) {
-        log('Email failed: ' + err.message, 'error');
-        console.error('EmailJS fetch error:', err);
-        if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
-    });
-}
+        var resendContainer = document.getElementById('resend-portal-container');
+        if (resendContainer) {
+            resendContainer.innerHTML = '<button class="consent-create-btn" ' +
+                'style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" ' +
+                'onclick="sendPortalLink()">Resend portal link</button>';
+        }
+    } else {
+        return res.text().then(function(errText) {
+            throw new Error('Status ' + res.status + ': ' + errText);
+        });
+    }
+})
+.catch(function(err) {
+    log('Email failed: ' + err.message, 'error');
+    if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
+});
 
 // Transcript view toggle (Transcription vs Officer Notes)
 function setTxView(view) {
