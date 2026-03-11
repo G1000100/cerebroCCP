@@ -1136,7 +1136,7 @@
         </div>
         <!-- Live call state (shown when connected) -->
         <div class="ca-live-body" id="ca-live-body" style="display:flex;">
-            <!-- Procedure header - injected dynamically -->
+            <!-- Procedure thread injected dynamically -->
             <div id="ca-proc-thread"></div>
         </div>
     </div>
@@ -1156,6 +1156,8 @@ const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2cha
 const TOKEN_ATTR  = "token";
 const PROFILE_API = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/profile";
 const JIRA_API    = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/create";
+// ── CHANGE 1: EMAIL_API routes email through Lambda, bypassing client-side network blocks ──
+const EMAIL_API   = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/email";
 
 // ── COURSE LISTS PER UNIVERSITY ───────────────────────────────────────────────
 const UNI_COURSES = {
@@ -1215,22 +1217,15 @@ function fetchUserProfile(nric) {
 }
 
 function populateProfile(u) {
-    // Helper: return value or "-"
     function v(val) { return val || '-'; }
-
-    // Short display name (first + last name only)
     var parts = (u.name || '').split(' ');
     var shortName = parts.length >= 2 ? parts[0] + ' ' + parts[1] : u.name || '-';
-    // Title-case the short name
     shortName = shortName.replace(/\w\S*/g, function(t) {
         return t.charAt(0).toUpperCase() + t.substr(1).toLowerCase();
     });
-    // Full name in title case
     var fullName = (u.name || '-').replace(/\w\S*/g, function(t) {
         return t.charAt(0).toUpperCase() + t.substr(1).toLowerCase();
     });
-
-    // ── Customer Profile Bar (top bar) ──
     var cpbName = document.getElementById('cpb-name');
     if (cpbName) cpbName.textContent = shortName;
     var cpbAv = document.getElementById('cpb-av');
@@ -1243,8 +1238,6 @@ function populateProfile(u) {
     if (cpbIr) cpbIr.textContent = v(u.ir);
     var cpbEmail = document.getElementById('cpb-email');
     if (cpbEmail) cpbEmail.textContent = v(u.email);
-
-    // ── Profile accordion (expandable card) ──
     var pfRank = document.getElementById('pf-rank');
     if (pfRank) pfRank.textContent = v(u.rank);
     var pfDiv = document.getElementById('pf-division');
@@ -1261,8 +1254,6 @@ function populateProfile(u) {
     if (pfLastIct) pfLastIct.textContent = v(u.last_ict);
     var pfNextIct = document.getElementById('pf-next-ict');
     if (pfNextIct) pfNextIct.textContent = v(u.next_ict);
-
-    // ── Overview tab ──
     var ovName = document.getElementById('ov-fullname');
     if (ovName) ovName.textContent = fullName;
     var ovEmail = document.getElementById('ov-email');
@@ -1278,14 +1269,12 @@ function populateProfile(u) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  KEYWORD RULES — sorted longest-first so multi-word phrases match before
-//  shorter ones (e.g. "do not have the official admission offer" before "offer")
+//  KEYWORD RULES
 // ════════════════════════════════════════════════════════════════════════════
 const KW_RULES = [
   {
     id: 'no_offer',
     label: 'No Admission Offer',
-    // Sorted: longest phrase first
     keywords: [
       'do not have the official admission offer',
       'does not have the official admission offer',
@@ -1318,7 +1307,6 @@ const KW_RULES = [
       'disrupting'
     ]
   },
-  // ── original SPF rules retained below ──
   {
     id: 'fraud',
     label: 'Fraud / Scam',
@@ -1360,7 +1348,7 @@ const KW_RULES = [
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
-//  KB SUGGESTIONS — hardcoded per rule id
+//  KB SUGGESTIONS
 // ════════════════════════════════════════════════════════════════════════════
 const KB_SUGGESTIONS = {
   no_offer: {
@@ -1373,21 +1361,9 @@ const KB_SUGGESTIONS = {
       { label: 'Escalate to NS admin team', primary: true }
     ],
     articles: [
-      {
-        title: 'NS Deferment: Documentary Requirements (No Offer Letter)',
-        summary: 'Lists accepted alternative documents when applicant does not hold an official admission offer at time of application.',
-        url: '#'
-      },
-      {
-        title: 'IPA vs Official Offer — NS Deferment Policy',
-        summary: 'Explains the difference between In-Principal Acceptance and an official admission offer, and the processing implications.',
-        url: '#'
-      },
-      {
-        title: 'NS Deferment Application SOP',
-        summary: 'Full step-by-step procedure for processing NS deferment applications including document checklist.',
-        url: '#'
-      }
+      { title: 'NS Deferment: Documentary Requirements (No Offer Letter)', summary: 'Lists accepted alternative documents when applicant does not hold an official admission offer at time of application.', url: '#' },
+      { title: 'IPA vs Official Offer — NS Deferment Policy', summary: 'Explains the difference between In-Principal Acceptance and an official admission offer, and the processing implications.', url: '#' },
+      { title: 'NS Deferment Application SOP', summary: 'Full step-by-step procedure for processing NS deferment applications including document checklist.', url: '#' }
     ]
   },
   offer: {
@@ -1400,16 +1376,8 @@ const KB_SUGGESTIONS = {
       { label: 'Guide caller to NS Portal submission', primary: false }
     ],
     articles: [
-      {
-        title: 'NS Deferment: Admission Offer Requirements',
-        summary: 'What constitutes a valid official admission offer for NS deferment purposes and accepted institutions.',
-        url: '#'
-      },
-      {
-        title: 'In-Principal Acceptance (IPA) — NS Processing Guide',
-        summary: 'How to process IPA-based deferment applications and additional steps required.',
-        url: '#'
-      }
+      { title: 'NS Deferment: Admission Offer Requirements', summary: 'What constitutes a valid official admission offer for NS deferment purposes and accepted institutions.', url: '#' },
+      { title: 'In-Principal Acceptance (IPA) — NS Processing Guide', summary: 'How to process IPA-based deferment applications and additional steps required.', url: '#' }
     ]
   },
   disruption: {
@@ -1422,16 +1390,8 @@ const KB_SUGGESTIONS = {
       { label: 'Notify supervisory officer', primary: false }
     ],
     articles: [
-      {
-        title: 'SOP: Public Order Disruption Response',
-        summary: 'Procedures for handling reports of public disruption including escalation thresholds.',
-        url: '#'
-      },
-      {
-        title: 'Essential Services Disruption Reporting',
-        summary: 'How to log and route disruption reports affecting essential services (transport, utilities, comms).',
-        url: '#'
-      }
+      { title: 'SOP: Public Order Disruption Response', summary: 'Procedures for handling reports of public disruption including escalation thresholds.', url: '#' },
+      { title: 'Essential Services Disruption Reporting', summary: 'How to log and route disruption reports affecting essential services (transport, utilities, comms).', url: '#' }
     ]
   },
   fraud: {
@@ -1531,9 +1491,7 @@ const KB_SUGGESTIONS = {
 };
 
 // ── PROCEDURE STEPS (right panel thread) ──────────────────────────────────────
-// Map keyword rule IDs to their procedure context
 const PROCEDURE_STEPS = {
-  // Step 1 always shows on call connect
   step1: {
     title: 'Greet & Identify Purpose',
     instructions: [
@@ -1551,7 +1509,6 @@ const PROCEDURE_STEPS = {
       ]
     }
   },
-  // Step 2 shows when 'disruption' keyword detected
   disruption: {
     title: 'Confirm Specific Enquiry / Context',
     instructions: [
@@ -1571,7 +1528,6 @@ const PROCEDURE_STEPS = {
       footer: 'Service man is <strong>ELIGIBLE</strong> for disruption application'
     }
   },
-  // Step 3 shows when consent is given
   consent: {
     title: 'Explain Required Next Steps and Obtain Consent',
     instructions: [
@@ -1582,7 +1538,6 @@ const PROCEDURE_STEPS = {
     kb: null,
     createBtn: true
   },
-  // Step 4 shows when Create Application is clicked
   fillForm: {
     title: 'Fill in Disruption Application Form',
     instructions: [
@@ -1593,7 +1548,6 @@ const PROCEDURE_STEPS = {
     ],
     kb: null
   },
-  // Step 5 shows after application is saved
   sendPortal: {
     title: 'Save Application & Send Portal URL via Email',
     instructions: [
@@ -1612,14 +1566,14 @@ const PROCEDURE_STEPS = {
   }
 };
 
-var procStepCount = 0; // tracks how many steps have been added
+var procStepCount = 0;
 
 // ── KEYWORD STATE ──────────────────────────────────────────────────────────────
 const kwDetected = new Set();
 const kwShown    = new Set();
 var   txLines    = [];
-var   consentAsked = false;   // tracks if agent asked "consent to proceed"
-var   consentShown = false;   // prevents duplicate consent suggestion
+var   consentAsked = false;
+var   consentShown = false;
 
 // ════════════════════════════════════════════════════════════════════════════
 //  CENTRE PANEL STATE MACHINE
@@ -1631,7 +1585,6 @@ function setPanel(state) {
     const incP      = document.getElementById('inc-panel');
     const txSec     = document.getElementById('tx-section');
 
-    // Hide all states
     if(prelogin)  { prelogin.classList.remove('visible');  prelogin.style.display='none'; }
     if(idleLogin) { idleLogin.classList.remove('visible'); idleLogin.style.display='none'; }
     cpb.classList.remove('active','ringing');
@@ -1639,10 +1592,8 @@ function setPanel(state) {
     txSec.classList.remove('visible');
     var acwBar=document.getElementById('acw-bar');
     if(acwBar) acwBar.classList.remove('visible');
-    // Hide postcall panel
     var postcallP=document.getElementById('postcall-panel');
     if(postcallP) postcallP.classList.remove('visible');
-    // Restore call-controls-bar to original state if it was changed to "Call ended"
     var callBarReset=document.getElementById('call-controls-bar');
     if(callBarReset && callBarReset.querySelector('[disabled]')) {
         callBarReset.style.display='none';
@@ -1657,23 +1608,19 @@ function setPanel(state) {
     } else if (state === 'idle') {
         idleLogin.style.display = 'flex';
         idleLogin.classList.add('visible');
-        // Reset connect assistant
         var caNoCall = document.getElementById('ca-no-call');
         var caLive = document.getElementById('ca-live-body');
         if(caNoCall) caNoCall.style.display='flex';
         if(caLive) caLive.style.display='none';
-        // Reset procedure thread
         var procThread = document.getElementById('ca-proc-thread');
         if(procThread) procThread.innerHTML = '';
         procStepCount = 0;
     } else if (state === 'ringing') {
         cpb.classList.add('active','ringing');
-        // Open the profile accordion to show serviceman details
         var acc = document.getElementById('cpb-acc');
         var vdBtn = document.getElementById('btn-vd');
         if(acc) { acc.classList.add('open'); }
         if(vdBtn) { vdBtn.classList.add('open'); vdBtn.innerHTML='Hide Details <i class="chev">▾</i>'; }
-        // Show transcript section with ringing bottom bar
         txSec.classList.add('visible');
         var callBar = document.getElementById('call-controls-bar');
         var ringBar = document.getElementById('ring-controls-bar');
@@ -1685,18 +1632,15 @@ function setPanel(state) {
     } else if (state === 'connected') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
-        // Swap bottom bars
         var callBar = document.getElementById('call-controls-bar');
         var ringBar = document.getElementById('ring-controls-bar');
         if(callBar) callBar.style.display='flex';
         if(ringBar) ringBar.classList.remove('visible');
-        // Show connect assistant live panel
         var caNoCall = document.getElementById('ca-no-call');
         var caLive = document.getElementById('ca-live-body');
         if(caNoCall) caNoCall.style.display='none';
         if(caLive) caLive.style.display='flex';
         if(caLive) caLive.style.flexDirection='column';
-        // Initialize procedure thread with Step 1
         initProcedureThread('Disruption & Deferment Procedure');
         addProcStep('step1');
         var stTag = document.getElementById('cpb-status-tag');
@@ -1706,10 +1650,8 @@ function setPanel(state) {
     } else if (state === 'acw') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
-        // Hide ring bar
         var ringBar = document.getElementById('ring-controls-bar');
         if(ringBar) ringBar.classList.remove('visible');
-        // Transform call bar to "Call ended" grey state
         var callBar = document.getElementById('call-controls-bar');
         if(callBar) {
             callBar.style.display='flex';
@@ -1718,16 +1660,13 @@ function setPanel(state) {
             var finalDur = document.getElementById('dur-badge') ? document.getElementById('dur-badge').textContent : '00:00';
             callBar.innerHTML='<div class="audio-indicator" style="gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8c959f" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span style="font-size:11px;color:#57606a;font-weight:600">' + finalDur + '</span></div><div class="call-ctrl-btns"><button class="ctrl-btn" style="background:#e8ecf0;color:#8c959f;border-color:#d0d7de;cursor:default;gap:4px" disabled><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8c959f" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Call ended</button></div>';
         }
-        // Update status tag
         var stTag = document.getElementById('cpb-status-tag');
         if(stTag){ stTag.textContent='● After Call Work'; stTag.className='ptag'; stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;'; }
-        // Show post-call AI summary panel (between center and right)
         var postcallPanel = document.getElementById('postcall-panel');
         if(postcallPanel) postcallPanel.classList.add('visible');
     }
 }
 
-// Tab switching
 function switchTab(tab) {
     document.querySelectorAll('.call-tab').forEach(t => t.classList.remove('active'));
     var el = document.getElementById('tab-' + tab);
@@ -1742,7 +1681,6 @@ function switchTab(tab) {
     var dbgBar  = document.getElementById('dbgbar');
     var ctrlDiv = document.getElementById('callview-controls');
 
-    // Hide all panels first
     if(ovView)  ovView.style.display='none';
     if(txView)  txView.style.display='none';
     if(ntView)  ntView.style.display='none';
@@ -1752,7 +1690,6 @@ function switchTab(tab) {
     if(dbgBar)  dbgBar.style.display='none';
     if(ctrlDiv) ctrlDiv.style.display='none';
 
-    // Main bottom bars
     var callBar = document.getElementById('call-controls-bar');
     var acwBar  = document.getElementById('acw-bar');
 
@@ -1763,7 +1700,6 @@ function switchTab(tab) {
     } else if (tab === 'formview') {
         if(fmView) { fmView.style.display='flex'; }
     } else {
-        // Call View — show bottom bars again
         if(sentBar) sentBar.style.display='block';
         if(dbgBar)  dbgBar.style.display='flex';
         if(ctrlDiv) ctrlDiv.style.display='flex';
@@ -1773,12 +1709,10 @@ function switchTab(tab) {
     }
 }
 
-// ── FORM TAB — open a form from More Actions in a split view ─────────────
 var formTabOpen = false;
 
 function openFormTab(formName) {
     formTabOpen = true;
-    // Add the form tab button if it doesn't exist
     var existing = document.getElementById('tab-formview');
     if (!existing) {
         var tabBar = document.querySelector('.call-tabs');
@@ -1794,7 +1728,6 @@ function openFormTab(formName) {
         existing.onclick = function(){ switchTab('formview'); };
     }
 
-    // Pre-fill form fields from the profile bar data
     var nric = document.getElementById('cpb-nric');
     var dfNric = document.getElementById('df-nric');
     if(dfNric) dfNric.value = nric ? nric.textContent.replace(/[()]/g,'') : '';
@@ -1802,7 +1735,6 @@ function openFormTab(formName) {
     var cpbName = document.getElementById('cpb-name');
     var dfName = document.getElementById('df-name');
     if(dfName && cpbName) {
-        // Use full name from overview if available
         var ovName = document.getElementById('ov-fullname');
         dfName.value = ovName ? ovName.textContent : cpbName.textContent;
     }
@@ -1815,14 +1747,10 @@ function openFormTab(formName) {
     var dfPhone = document.getElementById('df-phone');
     if(dfPhone) dfPhone.value = cpbPhone ? cpbPhone.textContent : '';
 
-    // Set form title
     var fTitle = document.getElementById('form-view-title');
     if(fTitle) fTitle.textContent = formName;
 
-    // Mirror existing transcript messages to live-tx sidebar
     syncTranscriptToSide();
-
-    // Switch to the form tab
     switchTab('formview');
     log('Opened form: ' + formName, 'success');
 }
@@ -1831,10 +1759,8 @@ function closeFormTab() {
     formTabOpen = false;
     var tab = document.getElementById('tab-formview');
     if(tab) tab.remove();
-    // Clear the live-tx sidebar
     var ltx = document.getElementById('live-tx-msgs');
     if(ltx) ltx.innerHTML = '';
-    // Switch back to call view
     switchTab('callview');
     log('Form tab closed', 'warning');
 }
@@ -1843,7 +1769,6 @@ function syncTranscriptToSide() {
     var ltx = document.getElementById('live-tx-msgs');
     if(!ltx) return;
     ltx.innerHTML = '';
-    // Copy all children from main transcript (messages + AI notes)
     var children = document.querySelectorAll('#tx-msgs > *');
     children.forEach(function(child) {
         if (child.classList.contains('tx-row')) {
@@ -1998,7 +1923,6 @@ function submitDisruptionForm() {
             var issueKey = result.data.key || result.data.id || 'Unknown';
             log('Jira ticket created: ' + issueKey + ' (Status: ' + result.status + ')', 'success');
 
-            // Store ticket data for email send later
             window._savedTicket = {
                 jiraId: result.data.id || '',
                 jiraKey: result.data.key || '',
@@ -2009,11 +1933,9 @@ function submitDisruptionForm() {
                 startDate: startDate, endDate: endDate
             };
 
-            // Update button, show green note, close form
             btn.textContent = 'Application saved';
             btn.disabled = true;
             btn.style.background = '#e8ecf0'; btn.style.color = '#57606a';
-            // Grey out the Create Application button in Step 3
             var createAppBtn = document.getElementById('create-app-btn');
             if (createAppBtn) {
                 createAppBtn.textContent = 'Application Created';
@@ -2024,7 +1946,6 @@ function submitDisruptionForm() {
             injectGreenNote('Created disruption application on behalf of caller');
             setTimeout(function(){ closeFormTab(); switchTab('callview'); }, 1200);
 
-            // Show Step 5 in procedure thread
             addProcStep('sendPortal');
         } else {
             var errMsg = result.data.errorMessages ? result.data.errorMessages.join(', ') : JSON.stringify(result.data.errors || result.data);
@@ -2038,7 +1959,8 @@ function submitDisruptionForm() {
     });
 }
 
-// ── Send portal link email (triggered from Step 5 button) ─────────────────
+// ── CHANGE 2: sendPortalLink() — now calls EMAIL_API (AWS Lambda) instead of
+//    EmailJS directly, so it works from any network including Singapore ────────
 function sendPortalLink() {
     var t = window._savedTicket;
     if (!t) { log('No saved ticket data — save the application first', 'error'); return; }
@@ -2046,42 +1968,41 @@ function sendPortalLink() {
     var sendBtn = document.getElementById('send-portal-btn');
     if (sendBtn) { sendBtn.textContent = 'Sending...'; sendBtn.disabled = true; }
 
-    // Use EmailJS REST API directly instead of SDK (more reliable across regions)
-    fetch('https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/email', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        ticket_id: t.jiraId
+    // Route email through AWS Lambda so it works regardless of client network/region
+    fetch(EMAIL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ticket_id: t.jiraId })
     })
-})
-.then(function(res) {
-    if (res.ok) {
-        log('Portal link email sent', 'success');
-        injectGreenNote('Portal link sent to serviceman email address');
-        if (sendBtn) {
-            sendBtn.textContent = '✅ Portal link sent';
-            sendBtn.disabled = true;
-            sendBtn.className = 'consent-create-btn consent-btn-done';
-            sendBtn.style.cursor = 'default';
+    .then(function(res) {
+        if (res.ok) {
+            log('Portal link email sent', 'success');
+            injectGreenNote('Portal link sent to serviceman email address');
+            if (sendBtn) {
+                sendBtn.textContent = '✅ Portal link sent';
+                sendBtn.disabled = true;
+                sendBtn.className = 'consent-create-btn consent-btn-done';
+                sendBtn.style.cursor = 'default';
+            }
+            var resendContainer = document.getElementById('resend-portal-container');
+            if (resendContainer) {
+                resendContainer.innerHTML = '<button class="consent-create-btn" ' +
+                    'style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" ' +
+                    'onclick="sendPortalLink()">Resend portal link</button>';
+            }
+        } else {
+            return res.text().then(function(errText) {
+                throw new Error('Status ' + res.status + ': ' + errText);
+            });
         }
-        var resendContainer = document.getElementById('resend-portal-container');
-        if (resendContainer) {
-            resendContainer.innerHTML = '<button class="consent-create-btn" ' +
-                'style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" ' +
-                'onclick="sendPortalLink()">Resend portal link</button>';
-        }
-    } else {
-        return res.text().then(function(errText) {
-            throw new Error('Status ' + res.status + ': ' + errText);
-        });
-    }
-})
-.catch(function(err) {
-    log('Email failed: ' + err.message, 'error');
-    if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
-});
+    })
+    .catch(function(err) {
+        log('Email failed: ' + err.message, 'error');
+        if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
+    });
+}
 
-// Transcript view toggle (Transcription vs Officer Notes)
+// Transcript view toggle
 function setTxView(view) {
     var txView    = document.getElementById('tx-view-transcript');
     var notesView = document.getElementById('tx-view-notes');
@@ -2156,23 +2077,14 @@ function parseSegments(msg){
     }catch(e){console.error(e);log('Parse error','error');}
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  HIGHLIGHT KEYWORDS IN TRANSCRIPT TEXT
-//  Handles case-insensitive matching; sorts by length desc so long phrases
-//  match before short sub-words
-// ════════════════════════════════════════════════════════════════════════════
 function highlightKw(text) {
     if (!text) return '';
-    // Collect all keywords, sort longest first to avoid partial clobbering
     var allKws = [];
     KW_RULES.forEach(function(rule) {
         rule.keywords.forEach(function(kw) { allKws.push(kw); });
     });
     allKws.sort(function(a,b){ return b.length - a.length; });
-
-    // Escape HTML first
     var r = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
     allKws.forEach(function(kw) {
         var esc = kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
         var re  = new RegExp('(' + esc + ')', 'gi');
@@ -2181,14 +2093,9 @@ function highlightKw(text) {
     return r;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  SCAN UTTERANCE FOR KEYWORDS
-// ════════════════════════════════════════════════════════════════════════════
 function scanKw(text) {
     if (!text) return;
     var lower = text.toLowerCase();
-
-    // Check longest keywords first (rules already ordered: no_offer before offer)
     KW_RULES.forEach(function(rule) {
         rule.keywords.forEach(function(kw) {
             if (lower.indexOf(kw.toLowerCase()) >= 0 && !kwDetected.has(kw)) {
@@ -2199,42 +2106,29 @@ function scanKw(text) {
                     flashKwAlert(rule.label + ' keyword detected: "' + kw + '"');
                     log('🔍 Keyword [' + rule.label + ']: ' + kw, 'warning');
                     renderKbSuggestions(rule.id, rule.label, kw);
-                    // Insert AI note into transcript
                     injectAiNote(rule.id, kw);
                 }
             }
         });
     });
-
     txLines.push(text);
     if (txLines.length % 3 === 0) updateAiSummary();
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  TRANSCRIPT UI — new reference-style rows
-// ════════════════════════════════════════════════════════════════════════════
 function addMsg({text, role, sent, partial}) {
     if (!text || !text.trim()) return;
     var c = document.getElementById('tx-msgs');
     var e = document.getElementById('empty-s'); if(e) e.remove();
-
     var isAg = (role||'').toUpperCase() === 'AGENT';
     var now  = new Date().toLocaleTimeString('en-SG', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
-
     var row = document.createElement('div');
     row.className = 'tx-row';
-
-    // Time column
     var timeCol = document.createElement('div');
     timeCol.className = 'tx-time';
     timeCol.innerHTML = '<span>' + now + '</span>';
-
-    // Role column
     var roleCol = document.createElement('div');
     roleCol.className = 'tx-role';
     roleCol.innerHTML = '<span class="' + (isAg ? 'role-agent' : 'role-customer') + '">' + (isAg ? 'Officer' : 'Caller') + '</span>';
-
-    // Bubble column
     var bubbleCol = document.createElement('div');
     bubbleCol.className = 'tx-bubble';
     var bubbleInner = document.createElement('div');
@@ -2242,8 +2136,6 @@ function addMsg({text, role, sent, partial}) {
     bubbleInner.innerHTML = '<span class="bubble-text">' + highlightKw(text) + '</span>';
     if (partial) { bubbleInner.style.opacity = '0.6'; }
     bubbleCol.appendChild(bubbleInner);
-
-    // Sentiment column
     var sentCol = document.createElement('div');
     sentCol.className = 'tx-sent';
     if (sent) {
@@ -2253,34 +2145,26 @@ function addMsg({text, role, sent, partial}) {
         sentCol.innerHTML = '<span class="sent-badge ' + cls + '"><span class="sent-dot ' + dcls + '"></span>' + lbl + '</span>';
         updateSent(sent);
     }
-
     row.appendChild(timeCol);
     row.appendChild(roleCol);
     row.appendChild(bubbleCol);
     row.appendChild(sentCol);
     c.appendChild(row);
     c.scrollTop = c.scrollHeight;
-
     txCount++;
     document.getElementById('msg-count').textContent = txCount + ' utterances';
     if (!partial) scanKw(text);
-
-    // ── Consent-to-proceed detection (two-phase) ──
     if (!partial && !consentShown) {
         var lower = (text || '').toLowerCase();
         var isAgent = (role||'').toUpperCase() === 'AGENT';
-        // Phase 1: Agent asks for consent
         if (isAgent && (lower.indexOf('consent to proceed') >= 0 || lower.indexOf('official consent') >= 0)) {
             consentAsked = true;
         }
-        // Phase 2: Caller confirms with "yes"
         if (!isAgent && consentAsked && (lower.indexOf('yes') >= 0)) {
             consentShown = true;
             showCreateApplicationSuggestion();
         }
     }
-
-    // Mirror to form side panel if open
     if (!partial) addMsgToSide(text, role);
 }
 
@@ -2298,11 +2182,9 @@ function addSysMsg(t) {
     c.scrollTop = c.scrollHeight;
 }
 
-// Inject AI NOTE inline into transcript after keyword detected
 function injectAiNote(ruleId, triggeredKw) {
     var suggestion = KB_SUGGESTIONS[ruleId];
     if (!suggestion || !suggestion.aiNote) return;
-
     var c = document.getElementById('tx-msgs');
     var wrap = document.createElement('div');
     wrap.className = 'tx-ai-note';
@@ -2312,11 +2194,7 @@ function injectAiNote(ruleId, triggeredKw) {
         '<span class="ai-note-text">' + suggestion.aiNote + '</span>' +
         '</div>';
     c.appendChild(wrap);
-
-
     c.scrollTop = c.scrollHeight;
-
-    // Mirror AI note to side panel if form is open
     if (formTabOpen) {
         var ltx = document.getElementById('live-tx-msgs');
         if (ltx) {
@@ -2340,7 +2218,7 @@ function setTxStatus(live){var el=document.getElementById('tx-status');el.textCo
 function setAps(t){var el=document.getElementById('aps-status');el.textContent='AppSync: '+t;el.className=t.includes('LIVE')?'connected':t.toLowerCase().includes('error')?'error':'';}
 
 // ════════════════════════════════════════════════════════════════════════════
-//  PROCEDURE THREAD — step-by-step right panel
+//  PROCEDURE THREAD
 // ════════════════════════════════════════════════════════════════════════════
 function initProcedureThread(procedureName) {
     var thread = document.getElementById('ca-proc-thread');
@@ -2359,8 +2237,6 @@ function addProcStep(stepKey) {
     if (!stepData) return;
     var container = document.getElementById('ca-steps-container');
     if (!container) return;
-
-    // If there are existing steps, mark the previous one as completed and collapse it
     var prevSteps = container.querySelectorAll('.ca-step');
     if (prevSteps.length > 0) {
         var last = prevSteps[prevSteps.length - 1];
@@ -2369,7 +2245,6 @@ function addProcStep(stepKey) {
             dot.className = 'ca-step-dot completed';
             dot.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
         }
-        // Change completed step title to normal dark grey (matching tick colour)
         var prevTitle = last.querySelector('.ca-step-title');
         if (prevTitle) prevTitle.style.color = '#57606a';
         var body = last.querySelector('.ca-step-body');
@@ -2377,11 +2252,8 @@ function addProcStep(stepKey) {
         if (body) body.classList.add('hidden');
         if (chev) chev.classList.add('collapsed');
     }
-
     procStepCount++;
     var stepId = 'ca-step-' + procStepCount;
-
-    // Build instructions HTML
     var olHtml = '<ol>';
     stepData.instructions.forEach(function(instr) {
         olHtml += '<li>' + instr.text;
@@ -2393,8 +2265,6 @@ function addProcStep(stepKey) {
         olHtml += '</li>';
     });
     olHtml += '</ol>';
-
-    // Build KB section
     var kbHtml = '';
     if (stepData.kb) {
         var kb = stepData.kb;
@@ -2416,8 +2286,6 @@ function addProcStep(stepKey) {
                 '</div>' +
             '</div>';
     }
-
-    // Build body: for sendPortal step, KB goes below buttons
     var bodyContent = '';
     if (stepData.sendPortalBtn) {
         bodyContent = olHtml +
@@ -2427,7 +2295,6 @@ function addProcStep(stepKey) {
         bodyContent = olHtml + kbHtml +
             (stepData.createBtn ? '<button class="consent-create-btn" id="create-app-btn" style="margin-top:10px" onclick="onCreateApplication()">Create Application</button>' : '');
     }
-
     var step = document.createElement('div');
     step.className = 'ca-step';
     step.id = stepId;
@@ -2442,13 +2309,9 @@ function addProcStep(stepKey) {
             '</div>' +
         '</div>' +
         '<div class="ca-step-body">' + bodyContent + '</div>';
-
     container.appendChild(step);
-
-    // Scroll to the new step
     var liveBody = document.getElementById('ca-live-body');
     if (liveBody) setTimeout(function() { liveBody.scrollTop = liveBody.scrollHeight; }, 100);
-
     log('📋 Step ' + procStepCount + ': ' + stepData.title, 'success');
 }
 
@@ -2471,33 +2334,25 @@ function toggleKb(hdr) {
     }
 }
 
-// Old function kept as wrapper — now adds procedure step instead of card
 function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
-    // Add matching procedure step if one exists for this rule
     if (PROCEDURE_STEPS[ruleId]) {
         addProcStep(ruleId);
     }
     log('💡 KB suggestions loaded: ' + ruleLabel, 'success');
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//  CONSENT → CREATE APPLICATION SUGGESTION CARD
-// ════════════════════════════════════════════════════════════════════════════
 function showCreateApplicationSuggestion() {
     addProcStep('consent');
     log('⚡ Consent received — Create Application suggestion shown', 'success');
 }
 
 function onCreateApplication() {
-    // Add Step 4 to the procedure thread
     addProcStep('fillForm');
-    // Open the disruption form
     openFormTab('Disruption Application Form');
     switchTab('formview');
 }
 
 function injectGreenNote(text) {
-    // Main transcript
     var c = document.getElementById('tx-msgs');
     if (c) {
         var wrap = document.createElement('div');
@@ -2509,7 +2364,6 @@ function injectGreenNote(text) {
         c.appendChild(wrap);
         c.scrollTop = c.scrollHeight;
     }
-    // Side panel
     var ltx = document.getElementById('live-tx-msgs');
     if (ltx) {
         var side = document.createElement('div');
@@ -2523,7 +2377,6 @@ function injectGreenNote(text) {
     }
 }
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
 function flashKwAlert(msg){var el=document.getElementById('kw-alert');var tx=document.getElementById('kw-alert-text');if(!el)return;tx.textContent=msg;el.style.display='block';setTimeout(function(){el.style.display='none';},5000);}
 function addKwTag(kw){var row=document.getElementById('kw-tags-row');if(!row)return;var t=document.createElement('span');t.className='kw-tag-pill';t.textContent=kw;row.appendChild(t);}
 function updateAiSummary(){
@@ -2578,8 +2431,8 @@ function initConnect(){
 
     connect.agent(a=>{
         agent=a; updateAgentInfo(a); updateConn(true);
-        showAgentCard();  // hide login btn, show agent name+status
-        setPanel('idle');  // agent logged in
+        showAgentCard();
+        setPanel('idle');
         const ini=a.getName().charAt(0).toUpperCase();
         document.getElementById('agent-avatar').textContent=ini;
         document.getElementById('hdr-av').textContent=ini;
@@ -2628,18 +2481,14 @@ function initConnect(){
     }catch{}
 }
 
-// ── QUEUE ITEM CLICK — agent selects a ringing call from sidebar ─────────────
 function selectQueueCall(){
-    // Fetch profile and show center panel with overview + accept/decline
     fetchUserProfile('T0012345A');
     setPanel('ringing');
     log('Agent selected ringing call','success');
-    // Highlight the queue item as selected
     var qItem=document.getElementById('queue-item-johnny');
     if(qItem) qItem.classList.add('active-item');
 }
 
-// ── CALL LIFECYCLE ────────────────────────────────────────────────────────────
 function onIncoming(ct,ph){
     wasConnected=false;
     var _cn=document.getElementById('caller-number'); if(_cn) _cn.textContent=ph;
@@ -2651,21 +2500,15 @@ function onIncoming(ct,ph){
     var btx=document.getElementById('ring-bottom-text');
     if(btx)btx.textContent='Incoming call from '+ph;
     var btx2=document.getElementById('inc-bottom-text');if(btx2)btx2.textContent='Incoming call from '+ph;
-
-    // Show Johnny Pang in queue sidebar with Ringing status
     var qItem=document.getElementById('queue-item-johnny');
     if(qItem){ qItem.style.display=''; }
     var qc=document.getElementById('queue-count');
     if(qc){ var n=parseInt(qc.textContent.replace(/[()]/g,''))||3; qc.textContent='('+(n+1)+')'; }
-
-    // Start wait timer
     waitStart = Date.now();
     waitTimer = setInterval(() => {
         const ms=Date.now()-waitStart, m=Math.floor(ms/60000), s=Math.floor((ms%60000)/1000);
         const el=document.getElementById('inc-wait'); if(el) el.textContent='Waiting '+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
     }, 1000);
-
-    // Stay on idle — agent must click queue item to see details
     log('Incoming: '+ph,'success');
     beep();
 }
@@ -2674,11 +2517,9 @@ function onConnected(){
     wasConnected=true;
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
     clearTx();setPanel('connected');showForm();
-    // Move Johnny Pang from queue to In Call
     var qItem=document.getElementById('queue-item-johnny');
     var incallList=document.getElementById('incall-list');
     if(qItem && incallList){
-        // Reset ringing styles
         qItem.removeAttribute('style');
         qItem.className='call-item active-item';
         var dot=qItem.querySelector('.call-dot');
@@ -2686,7 +2527,6 @@ function onConnected(){
         var timer=qItem.querySelector('.call-timer');
         if(timer){timer.removeAttribute('style');timer.id='dur-mini';timer.textContent='00:00';}
         incallList.appendChild(qItem);
-        // Update counts
         var ic=document.getElementById('incall-count');if(ic) ic.textContent='(1)';
         var qc=document.getElementById('queue-count');if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
     }
@@ -2704,11 +2544,8 @@ function onEnded(){
     btn.innerHTML='View Details <i class="chev">▾</i>';
     stopTimer();
     if(waitTimer){clearInterval(waitTimer);waitTimer=null;}
-
-    // Reset Johnny Pang queue item — hide and move back to queue list
     var qItem=document.getElementById('queue-item-johnny');
     if(qItem){
-        // Reset to original ringing styles and hide
         qItem.style.display='none';
         qItem.style.borderLeft='2px solid #2ea043';
         qItem.style.background='rgba(46,160,67,0.03)';
@@ -2718,16 +2555,13 @@ function onEnded(){
         if(dot){dot.className='call-dot call-dot-green';dot.style.animation='pulse 1.5s infinite';}
         var timerEl=qItem.querySelector('.call-timer');
         if(timerEl){timerEl.style.color='#2ea043';timerEl.style.fontWeight='700';timerEl.style.fontSize='10px';timerEl.id='';timerEl.innerHTML='&#9670; Ringing';}
-        // Move back to queue list if it was moved to incall
         var queueList=document.querySelector('#queue-section .sb-calls');
         if(queueList && qItem.parentElement!==queueList){
             queueList.prepend(qItem);
         }
     }
     var ic=document.getElementById('incall-count');if(ic) ic.textContent='(0)';
-
     if(wasConnected){
-        // Inject "Call has ended" pill into transcript
         var txMsgs=document.getElementById('tx-msgs');
         if(txMsgs){
             var endPill=document.createElement('div');
@@ -2736,11 +2570,9 @@ function onEnded(){
             txMsgs.appendChild(endPill);
             txMsgs.scrollTop=txMsgs.scrollHeight;
         }
-        // Call was answered and completed — show After Contact Work
         setPanel('acw');
         log('Call ended — After Contact Work','warning');
     } else {
-        // Call was missed/timed out — go back to idle, no ACW needed
         setPanel('idle');
         contact=null;
         log('Call missed — returning to idle','warning');
@@ -2748,8 +2580,6 @@ function onEnded(){
     wasConnected=false;
 }
 
-// ── CALL ACTIONS ──────────────────────────────────────────────────────────────
-// ── POST-CALL PANEL ACTIONS ───────────────────────────────────────────────────
 function logReportToSR() {
     log('Logging report into SR Repository…', 'info');
     alert('Report logged into SR Repository.');
@@ -2761,7 +2591,6 @@ function escalateCase() {
 function closeCaseACW() {
     log('Closing case — clearing contact and setting Available…', 'success');
     closeContact();
-    // Set agent to Available state via CCP
     if (agent) {
         var avail = agent.getAgentStates().filter(function(s){ return s.name === 'Available'; })[0];
         if (avail) {
@@ -2801,7 +2630,6 @@ function closeContact(){
     clearTx();
     resetKwEngine();
     hideForm();
-    // Reset CPB accordion
     var acc=document.getElementById('cpb-acc');var vdBtn=document.getElementById('btn-vd');
     if(acc){acc.classList.remove('open');}
     if(vdBtn){vdBtn.classList.remove('open');vdBtn.innerHTML='View Details <i class="chev">▾</i>';}
@@ -2861,7 +2689,6 @@ function muteCall(){
 }
 function setAgentStatus(s){
     if(!agent){log('No agent','error');return;}
-    // Try exact match first, then try Offline/Unavailable aliases
     let t=agent.getAgentStates().find(x=>x.name.toLowerCase()===s.toLowerCase());
     if(!t && s==='Unavailable') t=agent.getAgentStates().find(x=>x.name.toLowerCase()==='offline');
     if(!t && s==='Offline') t=agent.getAgentStates().find(x=>x.name.toLowerCase()==='unavailable');
@@ -2881,16 +2708,12 @@ document.addEventListener('click',function(){
     closeAgentStatusDD();
 });
 
-// ── UI HELPERS ────────────────────────────────────────────────────────────────
 function updateAgentInfo(a){document.getElementById('agent-name').textContent=a.getName();updateStatus(a.getState().name);}
 function updateStatus(s){
     var d=document.getElementById('status-dot');
     document.getElementById('status-label').textContent=s;
     d.className='sdot';
     d.classList.add(s==='Available'?'dot-avail':s==='AfterCallWork'?'dot-acw':'dot-unavail');
-    // Update center dropdown
-    var isAvail=(s==='Available');
-    var isTrueOffline=(s==='Unavailable'||s==='Offline');
 }
 function updateConn(ok){var el=document.getElementById('connection-status');el.textContent=ok?'⬤ Connected':'⬤ Disconnected';el.className=ok?'connected':'disconnected';}
 function log(msg,type='info'){var l=document.getElementById('activity-log');var d=document.createElement('div');d.className='li '+type;d.innerHTML='<span class="ts">'+new Date().toLocaleTimeString()+'</span>'+msg;l.insertBefore(d,l.firstChild);while(l.children.length>60)l.removeChild(l.lastChild);}
@@ -2898,7 +2721,6 @@ function startTimer(){t0=Date.now();timer=setInterval(()=>{var ms=Date.now()-t0,
 function stopTimer(){if(timer){clearInterval(timer);timer=null;t0=null;}}
 function beep(){try{var ctx=new(window.AudioContext||window.webkitAudioContext)();var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.5);}catch{}}
 
-// ── FORM ──────────────────────────────────────────────────────────────────────
 function showForm(){
     var fi=document.getElementById('form-idle');if(fi)fi.style.display='none';
     var fb=document.getElementById('form-body');if(fb){fb.style.display='flex';fb.style.flexDirection='column';}
@@ -2940,13 +2762,11 @@ function submitForm(){
     setTimeout(function(){btn.textContent='✔ Submit Incident Report';btn.style.background='';btn.disabled=false;},3000);
 }
 
-// ── BOOT ──────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
     log('Page loaded');
     setPanel('prelogin');
-    // SLA countdown timer
-    var slaTotal = 15 * 60; // 15 mins
-    var slaLeft = 12 * 60 + 54; // start at 12:54
+    var slaTotal = 15 * 60;
+    var slaLeft = 12 * 60 + 54;
     var slaTimer = setInterval(function(){
         slaLeft--;
         if(slaLeft < 0) slaLeft = 0;
@@ -2958,10 +2778,6 @@ window.addEventListener('load', () => {
         if(fill) fill.style.width = Math.max(0, (slaLeft/slaTotal)*100) + '%';
         if(slaLeft <= 0) clearInterval(slaTimer);
     }, 1000);
-    // CCP login is now triggered by the sidebar "Login to CCP" button
-    // initConnect() is called from loginCCP()
-
-    // Profile fetch happens when agent clicks a queue item (selectQueueCall)
 });
 window.addEventListener('beforeunload', () => { if(ws) ws.close(); });
 </script>
