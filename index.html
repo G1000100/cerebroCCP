@@ -2050,8 +2050,8 @@ function submitDisruptionForm() {
                 createAppBtn.className = 'consent-create-btn consent-btn-done';
                 createAppBtn.style.cursor = 'default';
             }
-            var issueUrl = result.data.self || '#';
-injectGreenNote('Created disruption application <a href="' + issueUrl + '" target="_blank" style="color:#1a7f37;font-weight:700;text-decoration:underline;">' + issueKey + '</a> on behalf of caller');
+            var issueUrl = 'https://dttau-demo-sandbox-htx.atlassian.net/jira/servicedesk/projects/HCCCD/queues/custom/3/';
+            injectGreenNote('Created disruption application <a href="' + issueUrl + '" target="_blank" style="color:#1a7f37;font-weight:700;text-decoration:underline;">' + issueKey + '</a> on behalf of caller');
             setTimeout(function(){ closeFormTab(); switchTab('callview'); }, 1200);
 
             // Show Step 5 in procedure thread
