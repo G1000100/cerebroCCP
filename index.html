@@ -2050,7 +2050,8 @@ function submitDisruptionForm() {
                 createAppBtn.className = 'consent-create-btn consent-btn-done';
                 createAppBtn.style.cursor = 'default';
             }
-            injectGreenNote('Created disruption application on behalf of caller');
+            var issueUrl = result.data.self || '#';
+injectGreenNote('Created disruption application <a href="' + issueUrl + '" target="_blank" style="color:#1a7f37;font-weight:700;text-decoration:underline;">' + issueKey + '</a> on behalf of caller');
             setTimeout(function(){ closeFormTab(); switchTab('callview'); }, 1200);
 
             // Show Step 5 in procedure thread
@@ -2589,12 +2590,16 @@ function autoFillFromTranscript() {
     };
     var detectedUni = '';
     var uniKeys = Object.keys(uniMap).sort(function(a,b){ return b.length - a.length; });
-    for (var i = 0; i < uniKeys.length; i++) {
-        if (allText.indexOf(uniKeys[i]) >= 0) {
-            detectedUni = uniMap[uniKeys[i]];
-            break;
-        }
+for (var i = 0; i < uniKeys.length; i++) {
+    var k = uniKeys[i];
+    var matched = k.length <= 5
+        ? new RegExp('\\b' + k + '\\b', 'i').test(allText)
+        : allText.indexOf(k) >= 0;
+    if (matched) {
+        detectedUni = uniMap[k];
+        break;
     }
+}
     if (detectedUni) {
         var uniSel = document.getElementById('df-uni');
         if (uniSel) {
@@ -2824,16 +2829,20 @@ function _doLiveAutoFill() {
             'singapore university of social sciences': 'SUSS', 'suss': 'SUSS'
         };
         var uniKeys = Object.keys(uniMap).sort(function(a,b){ return b.length - a.length; });
-        for (var i = 0; i < uniKeys.length; i++) {
-            if (allText.indexOf(uniKeys[i]) >= 0) {
-                uniSel.value = uniMap[uniKeys[i]];
-                populateCourses();
-                markAutofilled(uniSel);
-                filled.push('University: ' + uniMap[uniKeys[i]]);
-                log('📝 Live auto-filled university: ' + uniMap[uniKeys[i]], 'success');
-                break;
-            }
-        }
+for (var i = 0; i < uniKeys.length; i++) {
+    var k = uniKeys[i];
+    var matched = k.length <= 5
+        ? new RegExp('\\b' + k + '\\b', 'i').test(allText)
+        : allText.indexOf(k) >= 0;
+    if (matched) {
+        uniSel.value = uniMap[k];
+        populateCourses();
+        markAutofilled(uniSel);
+        filled.push('University: ' + uniMap[k]);
+        log('📝 Live auto-filled university: ' + uniMap[k], 'success');
+        break;
+    }
+}
     }
 
     // ── Course (only if uni is set and course is empty) ──
