@@ -2080,7 +2080,6 @@ function sendPortalLink() {
 
     fetch('https://ylru5yu0cf.execute-api.us-west-2.amazonaws.com/sendemail', {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ticket_id: ticketId })
     })
