@@ -2080,22 +2080,29 @@ function sendPortalLink() {
 
     fetch('https://ylru5yu0cf.execute-api.us-west-2.amazonaws.com/sendemail', {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ticket_id: ticketId })
     })
-    .then(function() {
-        log('Portal link email sent via SMTP (Ticket: ' + ticketId + ')', 'success');
-        injectGreenNote('Portal link sent to serviceman email address');
-        if (sendBtn) {
-            sendBtn.textContent = '✅ Portal link sent';
-            sendBtn.disabled = true;
-            sendBtn.className = 'consent-create-btn consent-btn-done';
-            sendBtn.style.cursor = 'default';
-        }
-        var resendContainer = document.getElementById('resend-portal-container');
-        if (resendContainer) {
-            resendContainer.innerHTML = '<button class="consent-create-btn" style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" onclick="sendPortalLink()">Resend portal link</button>';
+    .then(function(res) {
+        return res.json().then(function(data) { return { ok: res.ok, status: res.status, data: data }; });
+    })
+    .then(function(result) {
+        if (result.ok || (result.data && result.data.status === 'Email sent')) {
+            log('Portal link email sent via SMTP (Ticket: ' + ticketId + ')', 'success');
+            injectGreenNote('Portal link sent to serviceman email address');
+            if (sendBtn) {
+                sendBtn.textContent = '✅ Portal link sent';
+                sendBtn.disabled = true;
+                sendBtn.className = 'consent-create-btn consent-btn-done';
+                sendBtn.style.cursor = 'default';
+            }
+            var resendContainer = document.getElementById('resend-portal-container');
+            if (resendContainer) {
+                resendContainer.innerHTML = '<button class="consent-create-btn" style="margin-top:6px;background:#fff;color:#0078d4;border:2px solid #0078d4;" onclick="sendPortalLink()">Resend portal link</button>';
+            }
+        } else {
+            log('Email API error (' + result.status + '): ' + JSON.stringify(result.data), 'error');
+            if (sendBtn) { sendBtn.textContent = 'Send portal link'; sendBtn.disabled = false; }
         }
     })
     .catch(function(err) {
