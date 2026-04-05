@@ -559,6 +559,30 @@
 
         .call-tab .tab-close { margin-left:6px; font-size:13px; font-weight:400; color:#8c959f; cursor:pointer; }
         .call-tab .tab-close:hover { color:#d73a49; }
+
+        /* ======= SCHEDULED CALLBACKS ======= */
+        .sb-callbacks { flex-shrink:0; border-top:1px solid var(--border); display:none; }
+        .sb-callbacks.visible { display:block; }
+        .sb-cb-hdr { padding:8px 12px 4px; display:flex; align-items:center; justify-content:space-between; }
+        .sb-cb-title { font-size:14px; font-weight:700; color:#001f5f; display:flex; align-items:center; gap:6px; }
+        .sb-cb-count { font-size:11px; font-weight:400; color:#57606a; }
+        .cb-list { max-height:220px; overflow-y:auto; }
+        .cb-list::-webkit-scrollbar { width:3px; }
+        .cb-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+        .cb-item { padding:8px 12px; border-bottom:1px solid #e8ecf0; cursor:pointer; transition:background 0.15s; display:flex; align-items:center; gap:8px; }
+        .cb-item:hover { background:#f0f4f8; }
+        .cb-item.cb-active { background:#e8f1ff; border-left:2px solid var(--accent); }
+        .cb-item-info { flex:1; min-width:0; }
+        .cb-item-name { font-size:12px; font-weight:600; color:#1c2432; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .cb-item-time { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; margin-top:1px; }
+        .cb-item-reason { font-size:10px; color:#8c959f; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .cb-call-btn { width:28px; height:28px; border-radius:50%; background:#2ea043; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+        .cb-call-btn:hover { background:#1a7f37; transform:scale(1.08); box-shadow:0 2px 8px rgba(46,160,67,0.4); }
+        .cb-call-btn svg { width:13px; height:13px; color:#fff; }
+        .callback-action-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px; background:#fff; display:flex; align-items:center; justify-content:space-between; }
+        .btn-callback-main { padding:8px 20px; background:#2ea043; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:6px; transition:all 0.15s; }
+        .btn-callback-main:hover { background:#1a7f37; box-shadow:0 2px 8px rgba(46,160,67,0.35); }
+        .cb-status-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:8px; background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
     </style>
 </head>
 <body>
@@ -723,7 +747,47 @@
         </div>
     </div>
 
-    <!-- Activity Log -->
+    
+    <!-- Scheduled Callbacks section — shown only to STGAlvin after login -->
+    <div class="sb-callbacks" id="sb-callbacks">
+        <div class="sb-cb-hdr">
+            <span class="sb-cb-title">Scheduled Call Back <span class="sb-cb-count" id="cb-count">(3)</span></span>
+        </div>
+        <div class="cb-list" id="cb-list">
+            <div class="cb-item" id="cb-item-0" onclick="selectCallback(0)">
+                <div class="cb-item-info">
+                    <div class="cb-item-name">Jonny Pang</div>
+                    <div class="cb-item-time">&#128337; 3:00 &ndash; 3:30 PM</div>
+                    <div class="cb-item-reason">Extension of Disruption</div>
+                </div>
+                <button class="cb-call-btn" title="Call back" onclick="event.stopPropagation();initiateCallback(0)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </button>
+            </div>
+            <div class="cb-item" id="cb-item-1" onclick="selectCallback(1)">
+                <div class="cb-item-info">
+                    <div class="cb-item-name">Ahmad Hassan</div>
+                    <div class="cb-item-time">&#128337; 3:30 &ndash; 4:00 PM</div>
+                    <div class="cb-item-reason">Training &amp; Posting</div>
+                </div>
+                <button class="cb-call-btn" title="Call back" onclick="event.stopPropagation();initiateCallback(1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </button>
+            </div>
+            <div class="cb-item" id="cb-item-2" onclick="selectCallback(2)">
+                <div class="cb-item-info">
+                    <div class="cb-item-name">Benjamin Tan Jia Jun</div>
+                    <div class="cb-item-time">&#128337; 4:00 &ndash; 4:30 PM</div>
+                    <div class="cb-item-reason">Training &amp; Posting</div>
+                </div>
+                <button class="cb-call-btn" title="Call back" onclick="event.stopPropagation();initiateCallback(2)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+<!-- Activity Log -->
     <div class="sb-alog" style="display:none;">
         <div class="sb-alog-hdr">Activity Log</div>
         <div class="alog" id="activity-log"><div class="li">System initialized</div></div>
@@ -1091,6 +1155,63 @@
             <button class="close-contact-btn" onclick="closeContact()">&#10003; Close Contact</button>
         </div>
     </div><!-- /tx-section -->
+
+
+    <!-- Callback Detail Panel -->
+    <div id="callback-detail-panel" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;">
+            <div>
+                <div style="font-size:13px;font-weight:700;color:var(--navy);">Scheduled Callback</div>
+                <div style="font-size:11px;color:#57606a;margin-top:2px;" id="cb-detail-subtitle">Today 3:00 PM &middot; Extension of Disruption</div>
+            </div>
+            <span class="cb-status-tag" id="cb-detail-tag">&#128337; Scheduled</span>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:16px;background:#f6f8fa;">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">
+                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">Serviceman details</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;">
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Full name</div><div style="font-size:12px;font-weight:600;color:var(--text);" id="cb-detail-name">Jonny Pang Jun Jie</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">NRIC</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--navy);" id="cb-detail-nric">S0012345A</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Phone</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;" id="cb-detail-phone">+65 9123 4567</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Email</div><div style="font-size:12px;" id="cb-detail-email">jonny.pang@example.com</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Rank</div><div style="font-size:12px;" id="cb-detail-rank">Corporal</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Unit</div><div style="font-size:12px;" id="cb-detail-unit">Central Police Division</div></div>
+                </div>
+            </div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">
+                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Call tree summary</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Call Classification</div><div style="font-size:12px;" id="cb-detail-reason">Extension of Disruption</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Singpass Authentication</div><div style="font-size:12px;color:#1a7f37;font-weight:600;">&#10003; Verified</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Booked Slot</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;" id="cb-detail-slot">Today 3:00 PM</div></div>
+                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Status</div><div style="font-size:12px;font-weight:600;color:#9a6700;">Pending</div></div>
+                </div>
+            </div>
+            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;">
+                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Recent transactions</div>
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead><tr>
+                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Date</th>
+                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Time</th>
+                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Case ID</th>
+                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Description</th>
+                    </tr></thead>
+                    <tbody id="cb-detail-transactions">
+                        <tr><td style="padding:8px;border-bottom:1px solid #e8ecf0;">12/01/2026</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">12:34</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">NS001</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">Enquiry about IPPT</td></tr>
+                        <tr><td style="padding:8px;border-bottom:1px solid #e8ecf0;">15/01/2026</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">13:45</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">NS002</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">Deferment request</td></tr>
+                        <tr><td style="padding:8px;">31/01/2026</td><td style="padding:8px;">09:30</td><td style="padding:8px;">NS003</td><td style="padding:8px;">Enquiry about IPPT</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="callback-action-bar">
+            <span style="font-size:11px;color:#57606a;" id="cb-detail-time-label">Today 3:00 PM</span>
+            <button class="btn-callback-main" id="btn-callback-main" onclick="initiateCallbackFromPanel()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                &#128222; Call Back
+            </button>
+        </div>
+    </div>
 
 </div><!-- /center-left -->
 
@@ -3009,6 +3130,8 @@ function showAgentCard(){
     var agentCard = document.getElementById('sb-agent-card');
     if(loginArea) loginArea.style.display = 'none';
     if(agentCard) agentCard.style.display = '';
+    // Load callbacks filtered by agent identity
+    if(agent){ loadCallbacksForAgent(agent.getName()); }
 }
 
 // ── AMAZON CONNECT ────────────────────────────────────────────────────────────
@@ -3405,5 +3528,133 @@ window.addEventListener('load', () => {
         if(fill) fill.style.width = Math.max(0, (slaLeft/slaTotal)*100) + '%';
     }, 1000);
 });
+
+// ======= SCHEDULED CALLBACKS =======
+// Keyed by agent username (lowercase) — only STGAlvin sees the full list
+var CB_BY_AGENT = {
+    'stgalvin': [
+        { id:'cb-0', name:'Jonny Pang Jun Jie', nric:'S0012345A', phone:'+65 9123 4567', email:'jonny.pang@example.com', slot:'Today 3:00 PM', timeDisplay:'3:00 – 3:30 PM', reason:'Extension of Disruption', rank:'Corporal', unit:'Central Police Division' },
+        { id:'cb-1', name:'Ahmad Hassan',        nric:'T0012345B', phone:'+65 9123 4568', email:'ahmad.hassan@example.com', slot:'Today 3:30 PM', timeDisplay:'3:30 – 4:00 PM', reason:'Training & Posting', rank:'Private', unit:'Tanglin NPC' },
+        { id:'cb-2', name:'Benjamin Tan Jia Jun', nric:'S0087654C', phone:'+65 9123 4569', email:'benjamin.tan@example.com', slot:'Today 4:00 PM', timeDisplay:'4:00 – 4:30 PM', reason:'Training & Posting', rank:'Private', unit:'Bedok NPC' }
+    ]
+};
+// Default list shown when agent name not matched (demo fallback — shows all)
+var MOCK_CALLBACKS = CB_BY_AGENT['stgalvin'];
+var selectedCallbackIdx = null;
+
+function loadCallbacksForAgent(agentName) {
+    var key = (agentName || '').toLowerCase().replace(/\s+/g,'');
+    var callbacks = CB_BY_AGENT[key] || null;
+    var section = document.getElementById('sb-callbacks');
+    if (!callbacks || callbacks.length === 0) {
+        // Agent has no callbacks — hide the section entirely
+        if (section) section.classList.remove('visible');
+        log('No callbacks for agent: ' + agentName, 'info');
+        return;
+    }
+    MOCK_CALLBACKS = callbacks;
+    // Update sidebar items
+    var list = document.getElementById('cb-list');
+    if (list) {
+        list.innerHTML = '';
+        callbacks.forEach(function(cb, idx) {
+            var div = document.createElement('div');
+            div.className = 'cb-item';
+            div.id = 'cb-item-' + idx;
+            div.setAttribute('onclick', 'selectCallback(' + idx + ')');
+            div.innerHTML =
+                '<div class="cb-item-info">' +
+                    '<div class="cb-item-name">' + cb.name + '</div>' +
+                    '<div class="cb-item-time">&#128337; ' + cb.timeDisplay + '</div>' +
+                    '<div class="cb-item-reason">' + cb.reason + '</div>' +
+                '</div>' +
+                '<button class="cb-call-btn" title="Call back" onclick="event.stopPropagation();initiateCallback(' + idx + ')">' +
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
+                '</button>';
+            list.appendChild(div);
+        });
+    }
+    var countEl = document.getElementById('cb-count');
+    if (countEl) countEl.textContent = '(' + callbacks.length + ')';
+    if (section) section.classList.add('visible');
+    log('Loaded ' + callbacks.length + ' callback(s) for ' + agentName, 'success');
+}
+
+function selectCallback(idx) {
+    document.querySelectorAll('.cb-item').forEach(function(el){ el.classList.remove('cb-active'); });
+    var item = document.getElementById('cb-item-' + idx);
+    if (item) item.classList.add('cb-active');
+    selectedCallbackIdx = idx;
+    var cb = MOCK_CALLBACKS[idx];
+    if (!cb) return;
+    // Populate detail panel
+    var f = {
+        'cb-detail-name': cb.name, 'cb-detail-nric': cb.nric, 'cb-detail-phone': cb.phone,
+        'cb-detail-email': cb.email, 'cb-detail-reason': cb.reason, 'cb-detail-slot': cb.slot,
+        'cb-detail-rank': cb.rank || '-', 'cb-detail-unit': cb.unit || '-',
+        'cb-detail-time-label': cb.slot,
+        'cb-detail-subtitle': cb.slot + ' \u00b7 ' + cb.reason
+    };
+    Object.keys(f).forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=f[id]; });
+    // Reset button
+    var btn=document.getElementById('btn-callback-main');
+    if(btn){ btn.disabled=false; btn.style.background='#2ea043';
+        btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> &#128222; Call Back'; }
+    // Hide all center panels, show callback detail
+    ['prelogin-panel','idle-loggedin','tx-section','inc-panel'].forEach(function(id){
+        var el=document.getElementById(id); if(el){ el.style.display='none'; el.classList.remove('visible'); }
+    });
+    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.remove('active','ringing');
+    var cbPanel=document.getElementById('callback-detail-panel');
+    if(cbPanel){ cbPanel.style.display='flex'; cbPanel.style.flexDirection='column'; }
+    log('Callback selected: '+cb.name+' -- '+cb.slot,'info');
+}
+
+function initiateCallback(idx){ selectCallback(idx); startOutboundCall(MOCK_CALLBACKS[idx]); }
+function initiateCallbackFromPanel(){ if(selectedCallbackIdx===null)return; startOutboundCall(MOCK_CALLBACKS[selectedCallbackIdx]); }
+
+function startOutboundCall(cb) {
+    if(!cb) return;
+    var btn=document.getElementById('btn-callback-main');
+    var tag=document.getElementById('cb-detail-tag');
+    if(btn){ btn.textContent='Dialling...'; btn.disabled=true; btn.style.background='#9a6700'; }
+    if(tag){ tag.textContent='Calling...'; tag.style.cssText='font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(46,160,67,0.1);color:#1a7f37;border:1px solid rgba(46,160,67,0.3);animation:pulse 1.5s infinite;'; }
+    log('Initiating outbound call to '+cb.name+' ('+cb.phone+')...','info');
+    if(agent){ try {
+        agent.connect(connect.Endpoint.byPhoneNumber(cb.phone),{
+            success:function(){ onOutboundCallConnected(cb); },
+            failure:function(err){ log('Outbound failed: '+(err&&err.message?err.message:'error'),'error'); resetCbButton(); }
+        }); return;
+    } catch(e){ log('Connect API: '+e.message+' -- demo mode','warning'); } }
+    // Demo mode
+    setTimeout(function(){ log('Demo: connected to '+cb.name,'success'); onOutboundCallConnected(cb); }, 1500);
+}
+
+function onOutboundCallConnected(cb) {
+    var cbPanel=document.getElementById('callback-detail-panel'); if(cbPanel) cbPanel.style.display='none';
+    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.add('active');
+    var el;
+    el=document.getElementById('cpb-name'); if(el) el.textContent=cb.name.split(' ').slice(0,2).join(' ');
+    el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
+    el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
+    el=document.getElementById('cpb-status-tag'); if(el){ el.textContent='Connected'; el.className='ptag ptag-connected'; }
+    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
+    var callBar=document.getElementById('call-controls-bar'); if(callBar) callBar.style.display='flex';
+    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
+    if(selectedCallbackIdx!==null){
+        var cbItem=document.getElementById('cb-item-'+selectedCallbackIdx);
+        if(cbItem){ cbItem.style.opacity='0.5'; cbItem.style.pointerEvents='none';
+            var r=cbItem.querySelector('.cb-item-reason'); if(r) r.textContent='Called'; }
+    }
+    switchTab('callview'); startTimer();
+    log('Outbound call to '+cb.name+' connected','success');
+}
+
+function resetCbButton(){
+    var btn=document.getElementById('btn-callback-main');
+    if(btn){ btn.disabled=false; btn.style.background='#2ea043';
+        btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> &#128222; Call Back'; }
+}
+
 </script>
 </html>
