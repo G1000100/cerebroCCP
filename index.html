@@ -3152,9 +3152,8 @@ function initConnect(){
         ct.onAccepted(()=>{ log('CCP: call accepted','success'); onAccepted(); });
         ct.onConnected(()=>{
             try {
-                const tok=getToken(ct);
-                if(tok&&tok!=='unknown'){connectWS(ct.getContactId(),tok);}
-                else{log('⚠️ No auth token — transcript disabled','error');}
+               const tok=ct.getContactId();
+                connectWS(ct.getContactId(),tok);
                 onConnected();
                 fillCallId(ct.getContactId());
             } catch(e){ log('onConnected error: '+e.message,'error'); }
