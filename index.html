@@ -3543,7 +3543,7 @@ function _buildPhoneIcon() {
 
 function loadCallbacksForAgent(agentName) {
     var key = (agentName || '').toLowerCase().replace(/\s+/g, '');
-    var defs = CB_BY_AGENT[key] || null;
+    var defs = CB_BY_AGENT[key] || CB_BY_AGENT['stgpriya'];
     var section = document.getElementById('sb-callbacks');
     if (!defs || defs.length === 0) { if (section) section.classList.remove('visible'); return; }
     MOCK_CALLBACKS = defs.map(function(cb) {
