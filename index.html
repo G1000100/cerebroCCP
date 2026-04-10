@@ -1868,7 +1868,7 @@ function switchTab(tab) {
     var maView  = document.getElementById('tx-view-moreactions');
     var fmView  = document.getElementById('tx-view-form');
     var sentBar = document.getElementById('sentbar');
-   //var dbgBar  = document.getElementById('dbgbar');
+   var dbgBar  = document.getElementById('dbgbar');
     var ctrlDiv = document.getElementById('callview-controls');
 
     // Hide all panels first
@@ -1878,7 +1878,7 @@ function switchTab(tab) {
     if(maView)  maView.style.display='none';
     if(fmView)  fmView.style.display='none';
     if(sentBar) sentBar.style.display='none';
-    //if(dbgBar)  dbgBar.style.display='none';
+    if(dbgBar)  dbgBar.style.display='none';
     if(ctrlDiv) ctrlDiv.style.display='none';
 
     // Main bottom bars
@@ -1894,7 +1894,7 @@ function switchTab(tab) {
     } else {
         // Call View — show bottom bars again
         if(sentBar) sentBar.style.display='block';
-        //if(dbgBar)  dbgBar.style.display='flex';
+        if(dbgBar)  dbgBar.style.display='flex';
         if(ctrlDiv) ctrlDiv.style.display='flex';
         var isTx = document.getElementById('toggle-transcript') && document.getElementById('toggle-transcript').classList.contains('active');
         if(txView) { txView.style.display = isTx ? 'flex' : 'none'; if(isTx) txView.style.flexDirection='column'; }
