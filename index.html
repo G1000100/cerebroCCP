@@ -3118,7 +3118,14 @@ function initConnect(){
         const ini=a.getName().charAt(0).toUpperCase();
         document.getElementById('agent-avatar').textContent=ini;
         document.getElementById('hdr-av').textContent=ini;
-        a.onStateChange(s=>{updateStatus(s.newState);log('State: '+s.newState);});
+        a.onStateChange(s=>{
+    updateStatus(s.newState);
+    log('State: '+s.newState);
+    if(s.newState === 'Available'){
+        loadCallbacksForAgent(agent.getName());
+        log('Refreshed callbacks on Available', 'success');
+    }
+});
     });
 
     connect.contact(ct=>{
