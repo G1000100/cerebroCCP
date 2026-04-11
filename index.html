@@ -595,6 +595,8 @@
         .btn-callback-main { padding:10px 24px; background:linear-gradient(135deg,#1a7f37,#2ea043); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 2px 8px rgba(46,160,67,0.25); }
         .btn-callback-main:hover { background:linear-gradient(135deg,#166d2f,#1a7f37); box-shadow:0 4px 16px rgba(46,160,67,0.45); transform:translateY(-1px); }
         .cb-status-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:8px; background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
+        /* Hide callback action bar when not in callback detail view */
+        #callback-detail-panel { display:none; }
     </style>
 </head>
 <body>
@@ -1817,6 +1819,9 @@ function setPanel(state) {
     } else if (state === 'idle') {
         idleLogin.style.display = 'flex';
         idleLogin.classList.add('visible');
+        // Hide callback panel
+        var cbPanelIdle=document.getElementById('callback-detail-panel');
+        if(cbPanelIdle) cbPanelIdle.style.display='none';
         // Reset connect assistant
         var caNoCall = document.getElementById('ca-no-call');
         var caLive = document.getElementById('ca-live-body');
@@ -3285,22 +3290,52 @@ function onIncoming(ct,ph){
 function onAccepted(){var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Accepted';startTimer();log('Accepted','success');}
 function onConnected(){
     wasConnected=true;
+    // Remove dialling placeholder if present
+    var dialMsg=document.getElementById('dialling-msg');
+    if(dialMsg) dialMsg.remove();
+    // Hide callback panel
     var _cbP=document.getElementById('callback-detail-panel');
     if(_cbP) _cbP.style.display='none';
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
-    clearTx();setPanel('connected');showForm();
-    if(selectedCallbackIdx !== null && MOCK_CALLBACKS[selectedCallbackIdx]){
-        var _cb=MOCK_CALLBACKS[selectedCallbackIdx];
-        var _el;
-        _el=document.getElementById('cpb-name'); if(_el) _el.textContent=_cb.name.split(' ').slice(0,2).join(' ');
-        _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+_cb.nric+')';
-        _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=_cb.phone;
-        _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_cb.rank||'-';
-        _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_cb.unit||'-';
-        _el=document.getElementById('ov-fullname'); if(_el) _el.textContent=_cb.name;
-        _el=document.getElementById('ov-nric'); if(_el) _el.textContent=_cb.nric;
-        _el=document.getElementById('ov-phone'); if(_el) _el.textContent=_cb.phone;
-        _el=document.getElementById('ov-unit'); if(_el) _el.textContent=_cb.unit||'-';
+
+    // If outbound callback — profile already filled, just update status and move to incall
+    var isOutbound = (selectedCallbackIdx !== null);
+    if(isOutbound){
+        // Update status tag to Connected
+        var stTag=document.getElementById('cpb-status-tag');
+        if(stTag){stTag.textContent='● Connected';stTag.className='ptag ptag-connected';stTag.style.cssText='';}
+        // Move callback queue item to In Call section
+        var cbQItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
+        var qItem=document.getElementById('queue-item-johnny');
+        var incallList=document.getElementById('incall-list');
+        // Remove from call queue
+        if(cbQItem) cbQItem.remove();
+        // Add to in-call
+        if(incallList && selectedCallbackIdx !== null && MOCK_CALLBACKS[selectedCallbackIdx]){
+            var _cb2=MOCK_CALLBACKS[selectedCallbackIdx];
+            var incDiv=document.createElement('div');
+            incDiv.className='call-item active-item';
+            incDiv.id='incall-cb-item';
+            incDiv.innerHTML='<div class="call-item-top"><div class="call-dot call-dot-green"></div><span class="call-name">'+_cb2.name+'</span><span class="call-timer" id="dur-mini">00:00</span></div><div class="call-desc">'+_cb2.reason+'</div>';
+            incallList.appendChild(incDiv);
+        }
+        var ic=document.getElementById('incall-count'); if(ic) ic.textContent='(1)';
+        // Reduce queue count
+        var qc=document.getElementById('queue-count');
+        if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
+        // Clear transcript and show live state
+        clearTx();
+        // Make sure tx-section is visible with proper state
+        var txSec=document.getElementById('tx-section');
+        if(txSec) txSec.classList.add('visible');
+        var callBar=document.getElementById('call-controls-bar');
+        if(callBar) callBar.style.display='flex';
+        switchTab('callview');
+        startTimer();
+        showForm();
+        log('Outbound connected: '+_cb2.name,'success');
+    } else {
+        clearTx();setPanel('connected');showForm();
     }
     // Move Johnny Pang from queue to In Call
     var qItem=document.getElementById('queue-item-johnny');
@@ -3352,6 +3387,9 @@ function onEnded(){
             queueList.prepend(qItem);
         }
     }
+    // Clean up incall callback item if present
+    var incCbItem=document.getElementById('incall-cb-item');
+    if(incCbItem) incCbItem.remove();
     var ic=document.getElementById('incall-count');if(ic) ic.textContent='(0)';
 
     // Clean up callback queue item after call ends
@@ -3795,19 +3833,40 @@ function switchCbTab(tab) {
 
 function startOutboundCall(cb) {
     if (!cb) return;
-    var btn=document.getElementById('btn-callback-main');
-    if(btn){btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Dialling...';btn.disabled=true;btn.style.background='#9a6700';}
     log('Outbound call to ' + cb.name + ' (' + cb.phone + ')...', 'info');
-    // Show calling state — hide callback panel, show profile bar with status
+    // Hide callback detail panel, show main tx-section as connected
     var cbPanel=document.getElementById('callback-detail-panel');
     if(cbPanel) cbPanel.style.display='none';
-    var cpb=document.getElementById('cpb'); if(cpb){cpb.classList.remove('ringing');cpb.classList.add('active');}
-    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
-    var callBar=document.getElementById('call-controls-bar'); if(callBar) callBar.style.display='flex';
-    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
+    // Pre-fill profile bar
+    var _el;
+    _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
+    _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
+    _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
+    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=cb.rank||'-';
+    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=cb.unit||'-';
+    // Show calling state via tx-section
+    clearTx();
+    setPanel('connected');
     var stTag=document.getElementById('cpb-status-tag');
     if(stTag){stTag.textContent='⟳ Calling...';stTag.className='ptag';stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;animation:pulse 1.5s infinite;';}
+    // Replace End Call button to also show "Calling..." state
+    var callBar=document.getElementById('call-controls-bar');
+    if(callBar){
+        var endBtn=callBar.querySelector('.ctrl-btn-end');
+        if(endBtn){endBtn.textContent='✕ End Call';endBtn.disabled=false;}
+    }
+    // Add "Dialling..." message in transcript area
+    var txMsgs=document.getElementById('tx-msgs');
+    if(txMsgs){
+        var dialDiv=document.createElement('div');
+        dialDiv.id='dialling-msg';
+        dialDiv.style.cssText='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#8c959f;padding:40px;';
+        dialDiv.innerHTML='<div style="font-size:36px;">📞</div><div style="font-size:13px;font-weight:600;">Calling '+cb.name+'...</div><div style="font-size:11px;">Waiting for caller to pick up</div>';
+        txMsgs.appendChild(dialDiv);
+    }
     switchTab('callview');
+    initProcedureThread('Disruption & Deferment Procedure');
+    addProcStep('step1');
     if (agent) {
         try {
             agent.connect(connect.Endpoint.byPhoneNumber('+6593749945'), {
