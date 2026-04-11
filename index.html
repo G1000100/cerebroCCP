@@ -3699,22 +3699,16 @@ function startOutboundCall(cb) {
 }
 
 function _onOutboundConnected(cb) {
-    var cbPanel=document.getElementById('callback-detail-panel'); if(cbPanel) cbPanel.style.display='none';
-    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.add('active');
+    // Pre-fill profile bar — Connect Streams onConnected will handle UI
     var el;
     el=document.getElementById('cpb-name'); if(el) el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
     el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
-    el=document.getElementById('cpb-status-tag'); if(el){el.textContent='Connected';el.className='ptag ptag-connected';}
-    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
-    var callBar=document.getElementById('call-controls-bar'); if(callBar) callBar.style.display='flex';
-    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
-    if (selectedCallbackIdx !== null) {
-        var qItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
-        if(qItem){qItem.style.opacity='0.5';qItem.style.pointerEvents='none';}
-    }
-    switchTab('callview'); startTimer();
-    log('Outbound connected: '+cb.name,'success');
+    // Hide callback detail panel
+    var cbPanel=document.getElementById('callback-detail-panel');
+    if(cbPanel) cbPanel.style.display='none';
+    _resetCbButton();
+    log('Outbound dialling: '+cb.name,'success');
 }
 
 function _resetCbButton() {
