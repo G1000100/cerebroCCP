@@ -3298,44 +3298,40 @@ function onConnected(){
     if(_cbP) _cbP.style.display='none';
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
 
-    // If outbound callback — profile already filled, just update status and move to incall
-    var isOutbound = (selectedCallbackIdx !== null);
-    if(isOutbound){
-        // Update status tag to Connected
-        var stTag=document.getElementById('cpb-status-tag');
-        if(stTag){stTag.textContent='● Connected';stTag.className='ptag ptag-connected';stTag.style.cssText='';}
-        // Move callback queue item to In Call section
-        var cbQItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
-        var qItem=document.getElementById('queue-item-johnny');
-        var incallList=document.getElementById('incall-list');
-        // Remove from call queue
+    // Save callback ref before clearing
+    var _cbIdx = selectedCallbackIdx;
+    var _cbData = (_cbIdx !== null && MOCK_CALLBACKS[_cbIdx]) ? MOCK_CALLBACKS[_cbIdx] : null;
+
+    // Use same setPanel('connected') for both inbound and outbound
+    clearTx(); setPanel('connected'); showForm();
+
+    // For outbound callback — re-fill profile (setPanel may reset some fields)
+    if(_cbData){
+        var _el;
+        _el=document.getElementById('cpb-name'); if(_el) _el.textContent=_cbData.name.split(' ').slice(0,2).join(' ');
+        _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+_cbData.nric+')';
+        _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=_cbData.phone;
+        _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_cbData.rank||'-';
+        _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_cbData.unit||'-';
+        _el=document.getElementById('ov-fullname'); if(_el) _el.textContent=_cbData.name;
+        _el=document.getElementById('ov-nric'); if(_el) _el.textContent=_cbData.nric;
+        _el=document.getElementById('ov-phone'); if(_el) _el.textContent=_cbData.phone;
+        _el=document.getElementById('ov-unit'); if(_el) _el.textContent=_cbData.unit||'-';
+        // Move callback queue item to In Call
+        var cbQItem=document.getElementById('cb-queue-item-'+_cbIdx);
         if(cbQItem) cbQItem.remove();
-        // Add to in-call
-        if(incallList && selectedCallbackIdx !== null && MOCK_CALLBACKS[selectedCallbackIdx]){
-            var _cb2=MOCK_CALLBACKS[selectedCallbackIdx];
+        var incallList=document.getElementById('incall-list');
+        if(incallList){
             var incDiv=document.createElement('div');
             incDiv.className='call-item active-item';
             incDiv.id='incall-cb-item';
-            incDiv.innerHTML='<div class="call-item-top"><div class="call-dot call-dot-green"></div><span class="call-name">'+_cb2.name+'</span><span class="call-timer" id="dur-mini">00:00</span></div><div class="call-desc">'+_cb2.reason+'</div>';
+            incDiv.innerHTML='<div class="call-item-top"><div class="call-dot call-dot-green"></div><span class="call-name">'+_cbData.name+'</span><span class="call-timer" id="dur-mini">00:00</span></div><div class="call-desc">'+_cbData.reason+'</div>';
             incallList.appendChild(incDiv);
+            var ic=document.getElementById('incall-count'); if(ic) ic.textContent='(1)';
         }
-        var ic=document.getElementById('incall-count'); if(ic) ic.textContent='(1)';
-        // Reduce queue count
         var qc=document.getElementById('queue-count');
         if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
-        // Clear transcript and show live state
-        clearTx();
-        // Make sure tx-section is visible with proper state
-        var txSec=document.getElementById('tx-section');
-        if(txSec) txSec.classList.add('visible');
-        var callBar=document.getElementById('call-controls-bar');
-        if(callBar) callBar.style.display='flex';
-        switchTab('callview');
-        startTimer();
-        showForm();
-        log('Outbound connected: '+_cb2.name,'success');
-    } else {
-        clearTx();setPanel('connected');showForm();
+        log('Outbound connected: '+_cbData.name,'success');
     }
     // Move Johnny Pang from queue to In Call
     var qItem=document.getElementById('queue-item-johnny');
