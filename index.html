@@ -559,42 +559,6 @@
 
         .call-tab .tab-close { margin-left:6px; font-size:13px; font-weight:400; color:#8c959f; cursor:pointer; }
         .call-tab .tab-close:hover { color:#d73a49; }
-
-        /* ═══ SCHEDULED CALLBACKS ═══════════════════════════════════════ */
-        .sb-callbacks { flex-shrink:0; border-top:1px solid var(--border); display:none; }
-        .sb-callbacks.visible { display:block; }
-        .sb-cb-hdr { padding:8px 12px 4px; display:flex; align-items:center; justify-content:space-between; }
-        .sb-cb-title { font-size:14px; font-weight:700; color:#001f5f; display:flex; align-items:center; gap:6px; }
-        .sb-cb-count { font-size:11px; font-weight:400; color:#57606a; }
-        .cb-list { max-height:220px; overflow-y:auto; }
-        .cb-list::-webkit-scrollbar { width:3px; }
-        .cb-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-        .cb-item { padding:8px 12px; border-bottom:1px solid #e8ecf0; cursor:pointer; transition:background 0.15s; display:flex; align-items:center; gap:8px; }
-        .cb-item:hover { background:#f0f4f8; }
-        .cb-item.cb-active { background:#e8f1ff; border-left:2px solid var(--accent); }
-        .cb-item.cb-moved { background:#f0fff4; border-left:3px solid #2ea043; opacity:0.65; pointer-events:none; }
-        .cb-item-info { flex:1; min-width:0; }
-        .cb-item-name { font-size:12px; font-weight:600; color:#1c2432; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .cb-item-name.moved { color:#1a7f37; }
-        .cb-item-time { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; margin-top:1px; }
-        .cb-item-time.moved { color:#1a7f37; }
-        .cb-item-reason { font-size:10px; color:#8c959f; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .cb-countdown { font-size:9px; font-weight:700; padding:2px 6px; border-radius:8px; white-space:nowrap; flex-shrink:0; }
-        .cb-countdown-amber { background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
-        .cb-countdown-red   { background:rgba(215,58,73,0.08); color:#cf222e; border:1px solid rgba(215,58,73,0.3); animation:cdPulse 1.2s infinite; }
-        .cb-countdown-green { background:rgba(46,160,67,0.1); color:#1a7f37; border:1px solid rgba(46,160,67,0.3); }
-        @keyframes cdPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        .cb-call-btn { width:28px; height:28px; border-radius:50%; background:#2ea043; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
-        .cb-call-btn:hover { background:#1a7f37; transform:scale(1.08); box-shadow:0 2px 8px rgba(46,160,67,0.4); }
-        .cb-call-btn svg { width:13px; height:13px; color:#fff; }
-        .cb-call-btn:disabled { opacity:0.35; cursor:default; pointer-events:none; }
-        .call-badge-cb { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; flex-shrink:0; white-space:nowrap; background:rgba(9,105,218,0.08); color:#0969da; border:1px solid rgba(9,105,218,0.25); }
-        .call-item.is-callback { background:#f5f8ff; border-left:2px solid #0969da; }
-        .call-item.is-callback:hover { background:#edf2ff; }
-        .callback-action-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px; background:#fff; display:flex; align-items:center; justify-content:space-between; }
-        .btn-callback-main { padding:8px 20px; background:#2ea043; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:6px; transition:all 0.15s; }
-        .btn-callback-main:hover { background:#1a7f37; box-shadow:0 2px 8px rgba(46,160,67,0.35); }
-        .cb-status-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:8px; background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
     </style>
 </head>
 <body>
@@ -759,16 +723,7 @@
         </div>
     </div>
 
-    
-    <!-- Scheduled Callbacks — shown only to STGPriya -->
-    <div class="sb-callbacks" id="sb-callbacks">
-        <div class="sb-cb-hdr">
-            <span class="sb-cb-title">Scheduled Call Back <span class="sb-cb-count" id="cb-count">(3)</span></span>
-        </div>
-        <div class="cb-list" id="cb-list"></div>
-    </div>
-
-<!-- Activity Log -->
+    <!-- Activity Log -->
     <div class="sb-alog" style="display:none;">
         <div class="sb-alog-hdr">Activity Log</div>
         <div class="alog" id="activity-log"><div class="li">System initialized</div></div>
@@ -1137,63 +1092,6 @@
         </div>
     </div><!-- /tx-section -->
 
-
-    <!-- Callback Detail Panel -->
-    <div id="callback-detail-panel" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;">
-            <div>
-                <div style="font-size:13px;font-weight:700;color:var(--navy);">Scheduled Callback</div>
-                <div style="font-size:11px;color:#57606a;margin-top:2px;" id="cb-detail-subtitle">Today 3:00 PM &middot; Extension of Disruption</div>
-            </div>
-            <span class="cb-status-tag" id="cb-detail-tag">&#128337; Scheduled</span>
-        </div>
-        <div style="flex:1;overflow-y:auto;padding:16px;background:#f6f8fa;">
-            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">
-                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">Serviceman details</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;">
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Full name</div><div style="font-size:12px;font-weight:600;color:var(--text);" id="cb-detail-name">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">NRIC</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--navy);" id="cb-detail-nric">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Phone</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;" id="cb-detail-phone">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Email</div><div style="font-size:12px;" id="cb-detail-email">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Rank</div><div style="font-size:12px;" id="cb-detail-rank">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Unit</div><div style="font-size:12px;" id="cb-detail-unit">-</div></div>
-                </div>
-            </div>
-            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">
-                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Call tree summary</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Call Classification</div><div style="font-size:12px;" id="cb-detail-reason">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Singpass Authentication</div><div style="font-size:12px;color:#1a7f37;font-weight:600;">&#10003; Verified</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Booked Slot</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;" id="cb-detail-slot">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Status</div><div style="font-size:12px;font-weight:600;color:#9a6700;" id="cb-detail-status">Pending</div></div>
-                </div>
-            </div>
-            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;">
-                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Recent transactions</div>
-                <table style="width:100%;border-collapse:collapse;font-size:12px;">
-                    <thead><tr>
-                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Date</th>
-                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Time</th>
-                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Case ID</th>
-                        <th style="font-size:10px;font-weight:700;color:#57606a;text-transform:uppercase;padding:6px 8px;border-bottom:2px solid var(--border);text-align:left;">Description</th>
-                    </tr></thead>
-                    <tbody>
-                        <tr><td style="padding:8px;border-bottom:1px solid #e8ecf0;">12/01/2026</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">12:34</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">NS001</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">Enquiry about IPPT</td></tr>
-                        <tr><td style="padding:8px;border-bottom:1px solid #e8ecf0;">15/01/2026</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">13:45</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">NS002</td><td style="padding:8px;border-bottom:1px solid #e8ecf0;">Deferment request</td></tr>
-                        <tr><td style="padding:8px;">31/01/2026</td><td style="padding:8px;">09:30</td><td style="padding:8px;">NS003</td><td style="padding:8px;">Enquiry about IPPT</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="callback-action-bar">
-            <span style="font-size:11px;color:#57606a;" id="cb-detail-time-label">-</span>
-            <button class="btn-callback-main" id="btn-callback-main" onclick="initiateCallbackFromPanel()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                &#128222; Call Back
-            </button>
-        </div>
-    </div>
-
 </div><!-- /center-left -->
 
 <!-- POST-CALL AI SUMMARY (inside ccp-area, beside center-left) -->
@@ -1278,7 +1176,7 @@
 <script>(function(){emailjs.init("ItJ4M1IyoBtKI7RZ8");})()</script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const ccpUrl      = "https://cerebrosg.my.connect.aws/ccp-v2";
+const ccpUrl      = "https://cerebro.my.connect.aws/ccp-v2";
 const APPSYNC_WS  = "wss://oya5jdgo4nauphhubeisoaqre4.appsync-realtime-api.us-west-2.amazonaws.com/graphql";
 const APPSYNC_HOST = "oya5jdgo4nauphhubeisoaqre4.appsync-api.us-west-2.amazonaws.com";
 const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2channel(name:$name){name data}}";
@@ -1868,7 +1766,7 @@ function switchTab(tab) {
     var maView  = document.getElementById('tx-view-moreactions');
     var fmView  = document.getElementById('tx-view-form');
     var sentBar = document.getElementById('sentbar');
-   var dbgBar  = document.getElementById('dbgbar');
+    var dbgBar  = document.getElementById('dbgbar');
     var ctrlDiv = document.getElementById('callview-controls');
 
     // Hide all panels first
@@ -3111,7 +3009,6 @@ function showAgentCard(){
     var agentCard = document.getElementById('sb-agent-card');
     if(loginArea) loginArea.style.display = 'none';
     if(agentCard) agentCard.style.display = '';
-    if(agent){ loadCallbacksForAgent(agent.getName()); }
 }
 
 // ── AMAZON CONNECT ────────────────────────────────────────────────────────────
@@ -3157,6 +3054,39 @@ function initConnect(){
                 else{log('⚠️ No auth token — transcript disabled','error');}
                 onConnected();
                 fillCallId(ct.getContactId());
+                // ── Pre-load bot/caller conversation from Lex session ──────
+                try {
+                    var attrs = ct.getAttributes();
+                    var logAttr = attrs['_conversation_log'];
+                    if (logAttr && logAttr.value) {
+                        var turns = JSON.parse(logAttr.value);
+                        if (Array.isArray(turns) && turns.length > 0) {
+                            var txMsgs = document.getElementById('tx-msgs');
+                            var empty = document.getElementById('empty-s');
+                            if (empty) empty.remove();
+                            // Pre-call divider
+                            var divider = document.createElement('div');
+                            divider.style.cssText = 'display:flex;justify-content:center;padding:6px 12px;';
+                            divider.innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:4px 14px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:12px;font-size:10px;color:#8c959f;font-weight:600;letter-spacing:0.5px;">PRE-CALL CONVERSATION WITH BOT</div>';
+                            if (txMsgs) txMsgs.appendChild(divider);
+                            // Render each turn
+                            turns.forEach(function(turn) {
+                                addMsg({
+                                    text: turn.text,
+                                    role: turn.role === 'BOT' ? 'AGENT' : 'CUSTOMER',
+                                    sent: null,
+                                    partial: false
+                                });
+                            });
+                            // Live call divider
+                            var liveDivider = document.createElement('div');
+                            liveDivider.style.cssText = 'display:flex;justify-content:center;padding:6px 12px;';
+                            liveDivider.innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:4px 14px;background:#e8f1ff;border:1px solid #b3d0ff;border-radius:12px;font-size:10px;color:#0969da;font-weight:600;letter-spacing:0.5px;">&#9679; LIVE CALL STARTED</div>';
+                            if (txMsgs) txMsgs.appendChild(liveDivider);
+                            log('Pre-loaded ' + turns.length + ' turns from bot conversation', 'success');
+                        }
+                    }
+                } catch(preErr) { log('Pre-load error: ' + preErr.message, 'warning'); }
             } catch(e){ log('onConnected error: '+e.message,'error'); }
         });
         ct.onEnded(()=>{
@@ -3508,183 +3438,5 @@ window.addEventListener('load', () => {
         if(fill) fill.style.width = Math.max(0, (slaLeft/slaTotal)*100) + '%';
     }, 1000);
 });
-
-// =============================================================================
-// SCHEDULED CALLBACKS — STGPriya only
-// =============================================================================
-// Demo offset constants — change to 30/60 for production
-var DEMO_SLOT_1_MINUTES = 5;
-var DEMO_SLOT_2_MINUTES = 10;
-var CB_WARN_MINUTES = 5;
-
-var CB_BY_AGENT = {
-    'stgpriya': [
-        { id:'cb-0', name:'Jonny Pang Jun Jie', nric:'S0012345A', phone:'+65 9123 4567', email:'jonny.pang@example.com', reason:'Extension of Disruption', rank:'Corporal', unit:'Central Police Division', slotOffsetMinutes:DEMO_SLOT_1_MINUTES },
-        { id:'cb-1', name:'Ahmad Hassan', nric:'T0012345B', phone:'+65 9123 4568', email:'ahmad.hassan@example.com', reason:'Apply for Disruption', rank:'Private', unit:'Tanglin NPC', slotOffsetMinutes:DEMO_SLOT_2_MINUTES },
-        { id:'cb-2', name:'Benjamin Tan Jia Jun', nric:'S0087654C', phone:'+65 9123 4569', email:'benjamin.tan@example.com', reason:'Training & Posting', rank:'Private', unit:'Bedok NPC', slotOffsetMinutes:DEMO_SLOT_2_MINUTES + 3 }
-    ]
-};
-
-var MOCK_CALLBACKS = [];
-var selectedCallbackIdx = null;
-var _cbTickInterval = null;
-
-function _formatSlotTime(offsetMinutes) {
-    var d = new Date(Date.now() + offsetMinutes * 60000);
-    var h = d.getHours(), m = d.getMinutes();
-    var ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return 'today at ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
-}
-function _minutesUntil(slotTime) { return Math.round((slotTime - Date.now()) / 60000); }
-function _buildPhoneIcon() {
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
-}
-
-function loadCallbacksForAgent(agentName) {
-    var key = (agentName || '').toLowerCase().replace(/\s+/g, '');
-    var defs = CB_BY_AGENT[key] || CB_BY_AGENT['stgpriya'];
-    var section = document.getElementById('sb-callbacks');
-    if (!defs || defs.length === 0) { if (section) section.classList.remove('visible'); return; }
-    MOCK_CALLBACKS = defs.map(function(cb) {
-        var copy = Object.assign({}, cb);
-        copy.slotTime = Date.now() + cb.slotOffsetMinutes * 60000;
-        copy.slotDisplay = _formatSlotTime(cb.slotOffsetMinutes);
-        copy.movedToQueue = false;
-        return copy;
-    });
-    _renderCbList();
-    if (section) section.classList.add('visible');
-    if (_cbTickInterval) clearInterval(_cbTickInterval);
-    _cbTickInterval = setInterval(_tickCountdowns, 30000);
-    log('Loaded ' + MOCK_CALLBACKS.length + ' callbacks for ' + agentName, 'success');
-}
-
-function _renderCbList() {
-    var list = document.getElementById('cb-list');
-    if (!list) return;
-    list.innerHTML = '';
-    var pending = 0;
-    MOCK_CALLBACKS.forEach(function(cb, idx) {
-        var div = document.createElement('div');
-        if (cb.movedToQueue) {
-            div.className = 'cb-item cb-moved';
-            div.id = 'cb-item-' + idx;
-            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name moved">&#8593; ' + cb.name + '</div><div class="cb-item-time moved">Moved to call queue</div><div class="cb-item-reason">' + cb.reason + '</div></div><span class="cb-countdown cb-countdown-green">Now</span><button class="cb-call-btn" disabled>' + _buildPhoneIcon() + '</button>';
-        } else {
-            pending++;
-            var mins = _minutesUntil(cb.slotTime);
-            var cdClass = mins <= CB_WARN_MINUTES ? 'cb-countdown-red' : 'cb-countdown-amber';
-            var cdText  = mins <= 0 ? 'Now' : 'In ' + mins + ' min';
-            div.className = 'cb-item';
-            div.id = 'cb-item-' + idx;
-            div.setAttribute('onclick', 'selectCallback(' + idx + ')');
-            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name">' + cb.name + '</div><div class="cb-item-time">&#128337; ' + cb.slotDisplay + '</div><div class="cb-item-reason">' + cb.reason + '</div></div><span class="cb-countdown ' + cdClass + '" id="cd-' + idx + '">' + cdText + '</span><button class="cb-call-btn" onclick="event.stopPropagation();initiateCallback(' + idx + ')">' + _buildPhoneIcon() + '</button>';
-        }
-        list.appendChild(div);
-    });
-    var countEl = document.getElementById('cb-count');
-    if (countEl) countEl.textContent = '(' + pending + ')';
-}
-
-function _tickCountdowns() {
-    var moved = false;
-    MOCK_CALLBACKS.forEach(function(cb, idx) {
-        if (cb.movedToQueue) return;
-        var mins = _minutesUntil(cb.slotTime);
-        if (mins <= 0) {
-            cb.movedToQueue = true;
-            moved = true;
-            _moveToCallQueue(cb, idx);
-            log('Callback due: moving ' + cb.name + ' to call queue', 'warning');
-        } else {
-            var pill = document.getElementById('cd-' + idx);
-            if (pill) {
-                pill.textContent = 'In ' + mins + ' min';
-                pill.className = 'cb-countdown ' + (mins <= CB_WARN_MINUTES ? 'cb-countdown-red' : 'cb-countdown-amber');
-            }
-        }
-    });
-    if (moved) _renderCbList();
-}
-
-function _moveToCallQueue(cb, idx) {
-    var queueList = document.querySelector('#queue-section .sb-calls');
-    if (!queueList) return;
-    var div = document.createElement('div');
-    div.className = 'call-item is-callback';
-    div.id = 'cb-queue-item-' + idx;
-    div.setAttribute('onclick', 'selectCallback(' + idx + ')');
-    div.innerHTML = '<div class="call-item-top"><div class="call-dot" style="width:8px;height:8px;border-radius:50%;background:#0969da;box-shadow:0 0 5px rgba(9,105,218,0.6);flex-shrink:0;animation:pulse 1.5s infinite;"></div><span class="call-name">' + cb.name + '</span><span class="call-badge-cb">&#128222; Callback</span></div><div class="call-desc" style="display:flex;justify-content:space-between;padding-left:15px;"><span>' + cb.reason + '</span><span style="font-size:9px;color:#0969da;font-weight:600;">Click to call</span></div>';
-    queueList.insertBefore(div, queueList.firstChild);
-    var qc = document.getElementById('queue-count');
-    if (qc) { var n = parseInt(qc.textContent.replace(/[()]/g, '')) || 0; qc.textContent = '(' + (n + 1) + ')'; }
-}
-
-function selectCallback(idx) {
-    document.querySelectorAll('.cb-item').forEach(function(el) { el.classList.remove('cb-active'); });
-    var item = document.getElementById('cb-item-' + idx) || document.getElementById('cb-queue-item-' + idx);
-    if (item) item.classList.add('cb-active');
-    selectedCallbackIdx = idx;
-    var cb = MOCK_CALLBACKS[idx];
-    if (!cb) return;
-    var fields = { 'cb-detail-name':cb.name, 'cb-detail-nric':cb.nric, 'cb-detail-phone':cb.phone, 'cb-detail-email':cb.email, 'cb-detail-reason':cb.reason, 'cb-detail-slot':cb.slotDisplay, 'cb-detail-rank':cb.rank||'-', 'cb-detail-unit':cb.unit||'-', 'cb-detail-time-label':cb.slotDisplay, 'cb-detail-subtitle':cb.slotDisplay+' \u00b7 '+cb.reason, 'cb-detail-status':cb.movedToQueue?'Due Now':'Pending' };
-    Object.keys(fields).forEach(function(id) { var el=document.getElementById(id); if(el) el.textContent=fields[id]; });
-    var tagEl = document.getElementById('cb-detail-tag');
-    if (tagEl) { tagEl.textContent = cb.movedToQueue ? '\u2705 Due Now' : '\u231f Scheduled'; tagEl.style.cssText = cb.movedToQueue ? 'font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(46,160,67,0.1);color:#1a7f37;border:1px solid rgba(46,160,67,0.3);' : 'font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);'; }
-    var btn = document.getElementById('btn-callback-main');
-    if (btn) { btn.disabled=false; btn.style.background='#2ea043'; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> &#128222; Call Back'; }
-    ['prelogin-panel','idle-loggedin','tx-section','inc-panel'].forEach(function(id) { var el=document.getElementById(id); if(el){el.style.display='none';el.classList.remove('visible');} });
-    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.remove('active','ringing');
-    var cbPanel=document.getElementById('callback-detail-panel');
-    if (cbPanel) { cbPanel.style.display='flex'; cbPanel.style.flexDirection='column'; }
-    log('Callback selected: ' + cb.name + ' -- ' + cb.slotDisplay, 'info');
-}
-
-function initiateCallback(idx) { selectCallback(idx); startOutboundCall(MOCK_CALLBACKS[idx]); }
-function initiateCallbackFromPanel() { if (selectedCallbackIdx === null) return; startOutboundCall(MOCK_CALLBACKS[selectedCallbackIdx]); }
-
-function startOutboundCall(cb) {
-    if (!cb) return;
-    var btn=document.getElementById('btn-callback-main');
-    var tag=document.getElementById('cb-detail-tag');
-    if(btn){btn.textContent='Dialling...';btn.disabled=true;btn.style.background='#9a6700';}
-    if(tag){tag.textContent='Calling...';tag.style.cssText='font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(46,160,67,0.1);color:#1a7f37;border:1px solid rgba(46,160,67,0.3);animation:pulse 1.5s infinite;';}
-    log('Outbound call to ' + cb.name + ' (' + cb.phone + ')...', 'info');
-    if (agent) {
-        try {
-            agent.connect(connect.Endpoint.byPhoneNumber(cb.phone), {
-                success: function() { _onOutboundConnected(cb); },
-                failure: function(err) { log('Outbound failed: '+(err&&err.message?err.message:'error'),'error'); _resetCbButton(); }
-            }); return;
-        } catch(e) { log('Connect API: '+e.message+' -- demo mode','warning'); }
-    }
-    setTimeout(function() { log('Demo: connected to '+cb.name,'success'); _onOutboundConnected(cb); }, 1500);
-}
-
-function _onOutboundConnected(cb) {
-    var cbPanel=document.getElementById('callback-detail-panel'); if(cbPanel) cbPanel.style.display='none';
-    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.add('active');
-    var el;
-    el=document.getElementById('cpb-name'); if(el) el.textContent=cb.name.split(' ').slice(0,2).join(' ');
-    el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
-    el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
-    el=document.getElementById('cpb-status-tag'); if(el){el.textContent='Connected';el.className='ptag ptag-connected';}
-    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
-    var callBar=document.getElementById('call-controls-bar'); if(callBar) callBar.style.display='flex';
-    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
-    if (selectedCallbackIdx !== null) {
-        var qItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
-        if(qItem){qItem.style.opacity='0.5';qItem.style.pointerEvents='none';var badge=qItem.querySelector('.call-badge-cb');if(badge)badge.textContent='Called';}
-    }
-    switchTab('callview'); startTimer();
-    log('Outbound connected: '+cb.name,'success');
-}
-
-function _resetCbButton() {
-    var btn=document.getElementById('btn-callback-main');
-    if(btn){btn.disabled=false;btn.style.background='#2ea043';btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> &#128222; Call Back';}
-}
-
 </script>
 </html>
