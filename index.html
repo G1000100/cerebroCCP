@@ -1138,39 +1138,85 @@
     </div><!-- /tx-section -->
 
 
-    <!-- Callback Detail Panel -->
+    <!-- Callback Detail Panel — uses tx-section Overview layout -->
     <div id="callback-detail-panel" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff;">
-            <div>
-                <div style="font-size:13px;font-weight:700;color:var(--navy);">Scheduled Callback</div>
-                <div style="font-size:11px;color:#57606a;margin-top:2px;" id="cb-detail-subtitle">-</div>
-            </div>
-            <span class="cb-status-tag" id="cb-detail-tag">&#128337; Scheduled</span>
+        <!-- Profile bar reuses #cpb — already shown above -->
+        <!-- Tabs -->
+        <div class="call-tabs" id="cb-tabs">
+            <button class="call-tab active" id="cb-tab-overview" onclick="switchCbTab('overview')">Overview</button>
+            <button class="call-tab" id="cb-tab-callview" onclick="switchCbTab('callview')">Call View</button>
+            <button class="call-tab" id="cb-tab-moreactions" onclick="switchCbTab('moreactions')">More Actions</button>
         </div>
-        <div style="flex:1;overflow-y:auto;padding:16px;background:#f6f8fa;">
-            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">
-                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;">Serviceman details</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;">
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Full name</div><div style="font-size:12px;font-weight:600;color:var(--text);" id="cb-detail-name">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">NRIC</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--navy);" id="cb-detail-nric">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Phone</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;" id="cb-detail-phone">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Email</div><div style="font-size:12px;" id="cb-detail-email">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Rank</div><div style="font-size:12px;" id="cb-detail-rank">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Unit</div><div style="font-size:12px;" id="cb-detail-unit">-</div></div>
+        <!-- Overview tab -->
+        <div id="cb-view-overview" style="flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:16px 16px 80px;gap:12px;">
+            <div class="ov-two-col">
+                <!-- Serviceman details card -->
+                <div class="ov-card" style="margin-bottom:0">
+                    <div class="ov-card-hdr">
+                        <span class="ov-card-title">Serviceman details</span>
+                        <a class="ov-card-action">View detail</a>
+                    </div>
+                    <div class="ov-grid-2col">
+                        <div class="ov-field"><label>Full name</label><span id="cbd-fullname">-</span></div>
+                        <div class="ov-field"><label>Email</label><span id="cbd-email">-</span></div>
+                        <div class="ov-field"><label>NRIC</label><span id="cbd-nric">-</span></div>
+                        <div class="ov-field"><label>Phone</label><span id="cbd-phone">-</span></div>
+                    </div>
+                    <div class="ov-grid" style="grid-template-columns:repeat(2,1fr);margin-top:8px;">
+                        <div class="ov-field"><label>Rank</label><span id="cbd-rank">-</span></div>
+                        <div class="ov-field"><label>Unit</label><span id="cbd-unit">-</span></div>
+                    </div>
+                </div>
+                <!-- AI summary card -->
+                <div class="ov-ai-card">
+                    <div class="ov-ai-title">&#10022; Customer Interaction Summary</div>
+                    <div class="ov-ai-text" id="cbd-ai-summary">Caller contacted the Support Line and selected NS Administrative Matters, followed by Disruption &amp; Deferment. Identity was successfully verified via Singpass. Caller indicated intent to apply for disruption and the case has been routed to an officer for further assistance.</div>
                 </div>
             </div>
-            <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;">
-                <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Call classification</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;">
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Reason</div><div style="font-size:12px;" id="cb-detail-reason">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Singpass</div><div style="font-size:12px;color:#1a7f37;font-weight:600;">&#10003; Verified</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Booked Slot</div><div style="font-size:12px;font-family:'IBM Plex Mono',monospace;" id="cb-detail-slot">-</div></div>
-                    <div><div style="font-size:9.5px;color:#8c959f;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Status</div><div style="font-size:12px;font-weight:600;color:#9a6700;" id="cb-detail-status">Pending</div></div>
+            <!-- Call tree summary card -->
+            <div class="ov-card">
+                <div class="ov-card-hdr">
+                    <span class="ov-card-title">Call tree summary</span>
+                    <span style="font-size:11px;color:#9a6700;background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);padding:2px 8px;border-radius:8px;font-weight:600;" id="cbd-slot-tag">⏰ Scheduled</span>
+                </div>
+                <div class="ov-grid">
+                    <div class="ov-field"><label>Level 1 - Main Category</label><span>NS Administrative Matters</span></div>
+                    <div class="ov-field"><label>Level 2 - Subcategory</label><span>Disruption &amp; Deferment</span></div>
+                    <div class="ov-field"><label>Level 3 - Request Type</label><span id="cbd-reason">-</span></div>
+                    <div class="ov-field"><label>Singpass Authentication</label><span style="color:#1a7f37;font-weight:600;">&#10003; Verified</span></div>
+                </div>
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div class="ov-field"><label>Scheduled Callback</label><span id="cbd-slot-display" style="font-family:'IBM Plex Mono',monospace;color:var(--navy);">-</span></div>
+                    <div class="ov-field"><label>Status</label><span id="cbd-status" style="font-weight:600;color:#9a6700;">Pending</span></div>
                 </div>
             </div>
+            <!-- Recent transactions -->
+            <div class="ov-card">
+                <div class="ov-card-hdr">
+                    <span class="ov-card-title">Recent transactions <span class="ov-info-badge">Info</span></span>
+                </div>
+                <table class="ov-tx-table">
+                    <thead><tr><th>Date</th><th>Time</th><th>Case ID</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td>12/01/2026</td><td>12:34</td><td>NS001</td><td>Enquiry about IPPT</td></tr>
+                        <tr><td>15/01/2026</td><td>13:45</td><td>NS002</td><td>Deferment request</td></tr>
+                        <tr><td>31/01/2026</td><td>09:30</td><td>NS003</td><td>Enquiry about IPPT</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="callback-action-bar">
-            <span style="font-size:11px;color:#57606a;" id="cb-detail-time-label">-</span>
+        <!-- Call View tab (empty until connected) -->
+        <div id="cb-view-callview" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#8c959f;">
+                <div style="font-size:30px;opacity:0.4;">📞</div>
+                <p style="font-size:12.5px;">Transcript will appear once call connects</p>
+            </div>
+        </div>
+        <!-- More Actions tab -->
+        <div id="cb-view-moreactions" style="flex:1;display:none;overflow-y:auto;padding:16px;"></div>
+        <!-- Call Back action bar — always visible at bottom -->
+        <div style="position:sticky;bottom:0;padding:10px 16px;border-top:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10;">
+            <span style="font-size:11px;color:#57606a;" id="cbd-time-label">Scheduled callback</span>
             <button class="btn-callback-main" id="btn-callback-main" onclick="initiateCallbackFromPanel()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                 &#128222; Call Back
@@ -3239,11 +3285,23 @@ function onIncoming(ct,ph){
 function onAccepted(){var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Accepted';startTimer();log('Accepted','success');}
 function onConnected(){
     wasConnected=true;
-    // Hide callback panel if showing (outbound callback flow)
     var _cbP=document.getElementById('callback-detail-panel');
     if(_cbP) _cbP.style.display='none';
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
     clearTx();setPanel('connected');showForm();
+    if(selectedCallbackIdx !== null && MOCK_CALLBACKS[selectedCallbackIdx]){
+        var _cb=MOCK_CALLBACKS[selectedCallbackIdx];
+        var _el;
+        _el=document.getElementById('cpb-name'); if(_el) _el.textContent=_cb.name.split(' ').slice(0,2).join(' ');
+        _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+_cb.nric+')';
+        _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=_cb.phone;
+        _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_cb.rank||'-';
+        _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_cb.unit||'-';
+        _el=document.getElementById('ov-fullname'); if(_el) _el.textContent=_cb.name;
+        _el=document.getElementById('ov-nric'); if(_el) _el.textContent=_cb.nric;
+        _el=document.getElementById('ov-phone'); if(_el) _el.textContent=_cb.phone;
+        _el=document.getElementById('ov-unit'); if(_el) _el.textContent=_cb.unit||'-';
+    }
     // Move Johnny Pang from queue to In Call
     var qItem=document.getElementById('queue-item-johnny');
     var incallList=document.getElementById('incall-list');
@@ -3687,28 +3745,53 @@ function selectCallback(idx) {
     if (btn) { btn.disabled=false; btn.style.background='#2ea043'; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> &#128222; Call Back'; }
     ['prelogin-panel','idle-loggedin','tx-section','inc-panel'].forEach(function(id) { var el=document.getElementById(id); if(el){el.style.display='none';el.classList.remove('visible');} });
     var cpb=document.getElementById('cpb'); if(cpb) { cpb.classList.remove('ringing'); cpb.classList.add('active'); }
-    // Pre-fill profile bar with callback details
+    // Pre-fill profile bar
     var _el;
     _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
     _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=cb.rank||'-';
-    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=cb.unit||'-';
-    _el=document.getElementById('ov-fullname'); if(_el) _el.textContent=cb.name;
-    _el=document.getElementById('ov-nric'); if(_el) _el.textContent=cb.nric;
-    _el=document.getElementById('ov-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('ov-unit'); if(_el) _el.textContent=cb.unit||'-';
     _el=document.getElementById('cpb-status-tag'); if(_el){_el.textContent='⏰ Scheduled Callback';_el.className='ptag';_el.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;';}
     // Open profile accordion
     var acc=document.getElementById('cpb-acc'); if(acc) acc.classList.add('open');
     var vdBtn=document.getElementById('btn-vd'); if(vdBtn){vdBtn.classList.add('open');vdBtn.innerHTML='Hide Details <i class="chev">▾</i>';}
+    // Populate callback overview fields
+    var isDue = cb.movedToQueue || _minutesUntil(cb.slotTime) <= 0;
+    _el=document.getElementById('cbd-fullname'); if(_el) _el.textContent=cb.name;
+    _el=document.getElementById('cbd-email'); if(_el) _el.textContent=cb.email||'-';
+    _el=document.getElementById('cbd-nric'); if(_el) _el.textContent=cb.nric;
+    _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=cb.phone;
+    _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=cb.rank||'-';
+    _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('cbd-reason'); if(_el) _el.textContent=cb.reason||'-';
+    _el=document.getElementById('cbd-slot-display'); if(_el) _el.textContent=cb.slotDisplay||'-';
+    _el=document.getElementById('cbd-time-label'); if(_el) _el.textContent=cb.slotDisplay||'Scheduled callback';
+    _el=document.getElementById('cbd-status'); if(_el){ _el.textContent=isDue?'Due Now':'Pending'; _el.style.color=isDue?'#cf222e':'#9a6700'; }
+    _el=document.getElementById('cbd-slot-tag'); if(_el){ _el.textContent=isDue?'🔴 Due Now':'⏰ Scheduled'; _el.style.cssText=isDue?'font-size:11px;color:#cf222e;background:rgba(215,58,73,0.08);border:1px solid rgba(215,58,73,0.3);padding:2px 8px;border-radius:8px;font-weight:600;':'font-size:11px;color:#9a6700;background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);padding:2px 8px;border-radius:8px;font-weight:600;'; }
+    // Also populate right panel case classification
+    var rpClass = document.getElementById('rp-case-class'); if(rpClass) rpClass.value='disruption';
+    // Show callback panel
     var cbPanel=document.getElementById('callback-detail-panel');
     if (cbPanel) { cbPanel.style.display='flex'; cbPanel.style.flexDirection='column'; }
+    switchCbTab('overview');
     log('Callback selected: ' + cb.name, 'info');
 }
 
 function initiateCallback(idx) { selectCallback(idx); startOutboundCall(MOCK_CALLBACKS[idx]); }
 function initiateCallbackFromPanel() { if (selectedCallbackIdx === null) return; startOutboundCall(MOCK_CALLBACKS[selectedCallbackIdx]); }
+
+
+function switchCbTab(tab) {
+    ['overview','callview','moreactions'].forEach(function(t) {
+        var el = document.getElementById('cb-tab-' + t);
+        var view = document.getElementById('cb-view-' + t);
+        if(el) el.classList.remove('active');
+        if(view) view.style.display = 'none';
+    });
+    var activeTab = document.getElementById('cb-tab-' + tab);
+    var activeView = document.getElementById('cb-view-' + tab);
+    if(activeTab) activeTab.classList.add('active');
+    if(activeView) { activeView.style.display = 'flex'; activeView.style.flexDirection = 'column'; }
+}
 
 function startOutboundCall(cb) {
     if (!cb) return;
