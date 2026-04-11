@@ -592,8 +592,8 @@
         .call-item.is-callback { background:#f5f8ff; border-left:2px solid #0969da; }
         .call-item.is-callback:hover { background:#edf2ff; }
         .callback-action-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px; background:#fff; display:flex; align-items:center; justify-content:space-between; }
-        .btn-callback-main { padding:8px 20px; background:#2ea043; color:#fff; border:none; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:6px; transition:all 0.15s; }
-        .btn-callback-main:hover { background:#1a7f37; box-shadow:0 2px 8px rgba(46,160,67,0.35); }
+        .btn-callback-main { padding:10px 24px; background:linear-gradient(135deg,#1a7f37,#2ea043); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 2px 8px rgba(46,160,67,0.25); }
+        .btn-callback-main:hover { background:linear-gradient(135deg,#166d2f,#1a7f37); box-shadow:0 4px 16px rgba(46,160,67,0.45); transform:translateY(-1px); }
         .cb-status-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:8px; background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
     </style>
 </head>
@@ -1268,7 +1268,7 @@ const APPSYNC_HOST = "oya5jdgo4nauphhubeisoaqre4.appsync-api.us-west-2.amazonaws
 const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2channel(name:$name){name data}}";
 const TOKEN_ATTR  = "token";
 const PROFILE_API = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/profile";
-const NS_CALLBACKS_API = "https://rr208r6wxd.execute-api.ap-southeast-1.amazonaws.com/callbacks";
+const NS_CALLBACKS_API = "PLACEHOLDER_CALLBACKS_URL";
 const JIRA_API    = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/create";
 
 // ── COURSE LISTS PER UNIVERSITY ───────────────────────────────────────────────
@@ -3118,14 +3118,7 @@ function initConnect(){
         const ini=a.getName().charAt(0).toUpperCase();
         document.getElementById('agent-avatar').textContent=ini;
         document.getElementById('hdr-av').textContent=ini;
-        a.onStateChange(s=>{
-    updateStatus(s.newState);
-    log('State: '+s.newState);
-    if(s.newState === 'Available'){
-        loadCallbacksForAgent(agent.getName());
-        log('Refreshed callbacks on Available', 'success');
-    }
-});
+        a.onStateChange(s=>{updateStatus(s.newState);log('State: '+s.newState);});
     });
 
     connect.contact(ct=>{
@@ -3239,6 +3232,9 @@ function onIncoming(ct,ph){
 function onAccepted(){var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Accepted';startTimer();log('Accepted','success');}
 function onConnected(){
     wasConnected=true;
+    // Hide callback panel if showing (outbound callback flow)
+    var _cbP=document.getElementById('callback-detail-panel');
+    if(_cbP) _cbP.style.display='none';
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
     clearTx();setPanel('connected');showForm();
     // Move Johnny Pang from queue to In Call
@@ -3292,6 +3288,16 @@ function onEnded(){
         }
     }
     var ic=document.getElementById('incall-count');if(ic) ic.textContent='(0)';
+
+    // Clean up callback queue item after call ends
+    if(selectedCallbackIdx !== null){
+        var cbQItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
+        if(cbQItem) cbQItem.remove();
+        // Also remove from call queue count
+        var qc=document.getElementById('queue-count');
+        if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
+        selectedCallbackIdx=null;
+    }
 
     if(wasConnected){
         // Inject "Call has ended" pill into transcript
@@ -3534,10 +3540,10 @@ var CB_WARN_MINUTES = 5;
 // Static mock callbacks — Ahmad (60 min) and Benjamin (90 min)
 // Always in the future; recalculate on every page load
 var CB_MOCK_STATIC = [
-    { id:'mock-0', name:'Ahmad Hassan', nric:'T0012345B', phone:'+65 9374 9945',
+    { id:'mock-0', name:'Ahmad Hassan', nric:'T0012345B', phone:'+65 9123 4568',
       email:'ahmad.hassan@example.com', reason:'Apply for Disruption',
       rank:'Private', unit:'Tanglin NPC', slotOffsetMinutes:60 },
-    { id:'mock-1', name:'Benjamin Tan Jia Jun', nric:'S0087654C', phone:'+65 9374 9945',
+    { id:'mock-1', name:'Benjamin Tan Jia Jun', nric:'S0087654C', phone:'+65 9123 4569',
       email:'benjamin.tan@example.com', reason:'Training & Posting',
       rank:'Private', unit:'Bedok NPC', slotOffsetMinutes:90 }
 ];
@@ -3673,7 +3679,22 @@ function selectCallback(idx) {
     var btn = document.getElementById('btn-callback-main');
     if (btn) { btn.disabled=false; btn.style.background='#2ea043'; btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> &#128222; Call Back'; }
     ['prelogin-panel','idle-loggedin','tx-section','inc-panel'].forEach(function(id) { var el=document.getElementById(id); if(el){el.style.display='none';el.classList.remove('visible');} });
-    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.remove('active','ringing');
+    var cpb=document.getElementById('cpb'); if(cpb) { cpb.classList.remove('ringing'); cpb.classList.add('active'); }
+    // Pre-fill profile bar with callback details
+    var _el;
+    _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
+    _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
+    _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
+    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=cb.rank||'-';
+    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('ov-fullname'); if(_el) _el.textContent=cb.name;
+    _el=document.getElementById('ov-nric'); if(_el) _el.textContent=cb.nric;
+    _el=document.getElementById('ov-phone'); if(_el) _el.textContent=cb.phone;
+    _el=document.getElementById('ov-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('cpb-status-tag'); if(_el){_el.textContent='⏰ Scheduled Callback';_el.className='ptag';_el.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;';}
+    // Open profile accordion
+    var acc=document.getElementById('cpb-acc'); if(acc) acc.classList.add('open');
+    var vdBtn=document.getElementById('btn-vd'); if(vdBtn){vdBtn.classList.add('open');vdBtn.innerHTML='Hide Details <i class="chev">▾</i>';}
     var cbPanel=document.getElementById('callback-detail-panel');
     if (cbPanel) { cbPanel.style.display='flex'; cbPanel.style.flexDirection='column'; }
     log('Callback selected: ' + cb.name, 'info');
@@ -3685,8 +3706,18 @@ function initiateCallbackFromPanel() { if (selectedCallbackIdx === null) return;
 function startOutboundCall(cb) {
     if (!cb) return;
     var btn=document.getElementById('btn-callback-main');
-    if(btn){btn.textContent='Dialling...';btn.disabled=true;btn.style.background='#9a6700';}
+    if(btn){btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Dialling...';btn.disabled=true;btn.style.background='#9a6700';}
     log('Outbound call to ' + cb.name + ' (' + cb.phone + ')...', 'info');
+    // Show calling state — hide callback panel, show profile bar with status
+    var cbPanel=document.getElementById('callback-detail-panel');
+    if(cbPanel) cbPanel.style.display='none';
+    var cpb=document.getElementById('cpb'); if(cpb){cpb.classList.remove('ringing');cpb.classList.add('active');}
+    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
+    var callBar=document.getElementById('call-controls-bar'); if(callBar) callBar.style.display='flex';
+    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
+    var stTag=document.getElementById('cpb-status-tag');
+    if(stTag){stTag.textContent='⟳ Calling...';stTag.className='ptag';stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;animation:pulse 1.5s infinite;';}
+    switchTab('callview');
     if (agent) {
         try {
             agent.connect(connect.Endpoint.byPhoneNumber(cb.phone), {
@@ -3699,16 +3730,58 @@ function startOutboundCall(cb) {
 }
 
 function _onOutboundConnected(cb) {
-    // Pre-fill profile bar — Connect Streams onConnected will handle UI
+    var cbPanel=document.getElementById('callback-detail-panel'); if(cbPanel) cbPanel.style.display='none';
+
+    // Populate customer profile bar
+    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.add('active');
     var el;
     el=document.getElementById('cpb-name'); if(el) el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
     el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
-    // Hide callback detail panel
-    var cbPanel=document.getElementById('callback-detail-panel');
-    if(cbPanel) cbPanel.style.display='none';
-    _resetCbButton();
-    log('Outbound dialling: '+cb.name,'success');
+    el=document.getElementById('cpb-email'); if(el) el.textContent=cb.email||'-';
+    el=document.getElementById('pf-rank'); if(el) el.textContent=cb.rank||'-';
+    el=document.getElementById('pf-unit'); if(el) el.textContent=cb.unit||'-';
+    el=document.getElementById('cpb-status-tag'); if(el){el.textContent='● Connected';el.className='ptag ptag-connected';}
+
+    // Show transcript section
+    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
+
+    // Hide ring bar
+    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
+
+    // Replace call controls bar with callback-specific bar
+    var callBar=document.getElementById('call-controls-bar');
+    if(callBar){
+        callBar.style.display='flex';
+        callBar.innerHTML=
+            '<div class="audio-indicator">' +
+                '<div class="audio-waves"><span></span><span></span><span></span><span></span><span></span></div>' +
+                '<span style="margin-left:6px;font-size:11px;color:#57606a">Callback call in progress</span>' +
+            '</div>' +
+            '<div class="call-ctrl-btns">' +
+                '<span class="dur-badge" id="dur-badge">00:00</span>' +
+                '<button id="btn-hold" class="ctrl-btn" onclick="holdCall()">⏸ Hold</button>' +
+                '<button id="btn-mute" class="ctrl-btn" onclick="muteCall()">🔇 Mute</button>' +
+                '<button class="ctrl-btn ctrl-btn-end" onclick="endCall()">✕ End Call</button>' +
+            '</div>';
+    }
+
+    // Show connect assistant
+    var caNoCall=document.getElementById('ca-no-call'); if(caNoCall) caNoCall.style.display='none';
+    var caLive=document.getElementById('ca-live-body'); if(caLive){caLive.style.display='flex';caLive.style.flexDirection='column';}
+    initProcedureThread('Callback — '+cb.reason);
+    addProcStep('step1');
+
+    if (selectedCallbackIdx !== null) {
+        var qItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
+        if(qItem){qItem.style.opacity='0.5';qItem.style.pointerEvents='none';}
+    }
+
+    clearTx();
+    switchTab('callview');
+    startTimer();
+    wasConnected = true;
+    log('Outbound callback connected: '+cb.name,'success');
 }
 
 function _resetCbButton() {
