@@ -1731,6 +1731,9 @@ const PROCEDURE_STEPS = {
       { text: 'Confirm the caller\'s intent (e.g., applying for disruption, checking application status)', subs: [] }
     ],
     kb: {
+      searchQuery: 'apply application form',
+      searchQuery: 'disruption apply',
+      searchQuery: 'disruption deferment',
       title: 'Deferment & Disruption Information',
       url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900545/What+is+NS+Disruption',
       summary: 'Summary:',
@@ -1790,6 +1793,8 @@ const PROCEDURE_STEPS = {
       { text: 'Confirm that application is saved as draft and provide instructions for submitting certifying documents.', subs: ['"Thank you. I will save your application as a draft. I will now send you a link to your email to upload your certifying document. Please request it from the Office of Admissions and submit within 10 working days, or the application will lapse."'] }
     ],
     kb: {
+      searchQuery: 'apply submit form process',
+      searchQuery: 'conditions obligations requirements',
       title: 'Documents to submit, timeframe required for NSF, protocol for agent',
       url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption',
       summary: 'Summary:',
@@ -1878,6 +1883,7 @@ function setPanel(state) {
     } else if (state === 'connected') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
+        txSec.style.display = 'flex'; // Force override inline display:none
         // Close accordion so tx-section is visible
         var accC = document.getElementById('cpb-acc');
         var vdBtnC = document.getElementById('btn-vd');
@@ -2557,6 +2563,59 @@ function initProcedureThread(procedureName) {
     procStepCount = 0;
 }
 
+
+    // ── KB card builder helpers ──────────────────────────────────────────────
+    function _buildKbArticleHtml(kbId, title, url, summary) {
+        return '<div class="ca-kb-article-item" style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">' +
+            '<a href="' + url + '" class="ca-kb-link" target="_blank">' + title +
+                ' <svg class="ca-kb-link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+            '</a>' +
+            '<div class="ca-kb-summary" style="margin-top:4px;">' + (summary || '') + '</div>' +
+            '<div class="kb-feedback-bar" style="margin-top:6px;">' +
+                '<span class="kb-feedback-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>' +
+                '<div class="kb-feedback-btns">' +
+                    '<button class="kbfb-btn" id="kbfb-up-' + kbId + '" title="Helpful" onclick="kbThumbsUp(\'' + kbId + '\')">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>' +
+                    '</button>' +
+                    '<button class="kbfb-btn" id="kbfb-dn-' + kbId + '" title="Not helpful" onclick="kbThumbsDown(\'' + kbId + '\',\'' + title.replace(/'/g,"\\'") + '\',\'' + url + '\')">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>' +
+                    '</button>' +
+                '</div>' +
+            '</div>' +
+            '<div class="kb-feedback-form" id="kbff-' + kbId + '" style="display:none;">' +
+                '<div class="kbff-title">⚠️ What was the issue?</div>' +
+                '<div class="kbff-options">' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="missing"> Missing information</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="none"> No information found</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="other"> Other</label>' +
+                '</div>' +
+                '<textarea class="kbff-comment" id="kbff-cmt-' + kbId + '" rows="2" placeholder="Add a comment (optional)…"></textarea>' +
+                '<div class="kbff-actions">' +
+                    '<button class="kbff-cancel" onclick="kbCancelFeedback(\'' + kbId + '\')">Cancel</button>' +
+                    '<button class="kbff-submit" onclick="kbSubmitFeedback(\'' + kbId + '\',\'' + title.replace(/'/g,"\\'") + '\',\'' + url + '\')">Submit</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function _buildKbCardHtml(kbId, title, url, summary, bullets, footer) {
+        var bulletsHtml = (bullets || []).map(function(b){ return '<li>' + b + '</li>'; }).join('');
+        var footerHtml  = footer ? '<div style="font-size:12px;font-weight:700;color:#24292f;margin-top:8px;padding-top:6px;border-top:1px solid #e1e4e8;">' + footer + '</div>' : '';
+        return '<div class="ca-kb-section" id="' + kbId + '">' +
+            '<div class="ca-kb-hdr" onclick="toggleKb(this)">' +
+                '<span class="ca-kb-hdr-icon">▼</span>' +
+                '<span class="ca-kb-hdr-title">Knowledge Base</span>' +
+            '</div>' +
+            '<div class="ca-kb-body">' +
+                '<div id="kb-inner-' + kbId + '">' +
+                    _buildKbArticleHtml(kbId, title, url, summary) +
+                    (bulletsHtml ? '<ul class="ca-kb-bullets">' + bulletsHtml + '</ul>' : '') +
+                    footerHtml +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
 function addProcStep(stepKey) {
     var stepData = PROCEDURE_STEPS[stepKey];
     if (!stepData) return;
@@ -2599,51 +2658,32 @@ function addProcStep(stepKey) {
 
     // Build KB section
     var kbHtml = '';
+    var kbId = 'kb-' + Date.now();
     if (stepData.kb) {
         var kb = stepData.kb;
-        var bulletsHtml = (kb.bullets || []).map(function(b) { return '<li>' + b + '</li>'; }).join('');
-        var footerHtml = kb.footer ? '<div style="font-size:12px;font-weight:700;color:#24292f;margin-top:8px;padding-top:6px;border-top:1px solid #e1e4e8;">' + kb.footer + '</div>' : '';
-        var kbId = 'kb-' + Date.now();
-        kbHtml =
-            '<div class="ca-kb-section" id="' + kbId + '">' +
-                '<div class="ca-kb-hdr" onclick="toggleKb(this)">' +
-                    '<span class="ca-kb-hdr-icon">▼</span>' +
-                    '<span class="ca-kb-hdr-title">Knowledge Base</span>' +
-                '</div>' +
-                '<div class="ca-kb-body">' +
-                    '<a href="' + kb.url + '" class="ca-kb-link" target="_blank">' + kb.title +
-                        ' <svg class="ca-kb-link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-                    '</a>' +
-                    '<div class="ca-kb-summary">' + kb.summary + '</div>' +
-                    '<ul class="ca-kb-bullets">' + bulletsHtml + '</ul>' +
-                    footerHtml +
-                '</div>' +
-                '<div class="kb-feedback-bar">' +
-                    '<span class="kb-feedback-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>' +
-                    '<div class="kb-feedback-btns">' +
-                        '<button class="kbfb-btn" id="kbfb-up-' + kbId + '" title="Helpful" onclick="kbThumbsUp(\'' + kbId + '\')">' +
-                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>' +
-                        '</button>' +
-                        '<button class="kbfb-btn" id="kbfb-dn-' + kbId + '" title="Not helpful" onclick="kbThumbsDown(\'' + kbId + '\',\'' + kb.title + '\',\'' + kb.url + '\')">' +
-                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>' +
-                        '</button>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="kb-feedback-form" id="kbff-' + kbId + '" style="display:none;">' +
-                    '<div class="kbff-title">⚠️ What was the issue?</div>' +
-                    '<div class="kbff-options">' +
-                        '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="missing"> Missing information</label>' +
-                        '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="none"> No information found</label>' +
-                        '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="other"> Other</label>' +
-                    '</div>' +
-                    '<textarea class="kbff-comment" id="kbff-cmt-' + kbId + '" rows="2" placeholder="Add a comment (optional)…"></textarea>' +
-                    '<div class="kbff-actions">' +
-                        '<button class="kbff-cancel" onclick="kbCancelFeedback(\'' + kbId + '\')" >Cancel</button>' +
-                        '<button class="kbff-submit" onclick="kbSubmitFeedback(\'' + kbId + '\',\'' + kb.title + '\',\'' + kb.url + '\')" >Submit</button>' +
-                    '</div>' +
-                '</div>' +
-            '</div>';
+        kbHtml = _buildKbCardHtml(kbId, kb.title, kb.url, kb.summary, kb.bullets, kb.footer);
+        // If searchQuery defined and API available — fetch dynamic content
+        if (kb.searchQuery && NS_CONFLUENCE_API && NS_CONFLUENCE_API.indexOf('PLACEHOLDER') === -1) {
+            setTimeout(function() {
+                fetch(NS_CONFLUENCE_API + '/search?query=' + encodeURIComponent(kb.searchQuery))
+                .then(function(r){ return r.json(); })
+                .then(function(data){
+                    var articles = data.articles || [];
+                    if (!articles.length) return;
+                    var container = document.getElementById('kb-inner-' + kbId);
+                    if (!container) return;
+                    var newHtml = '';
+                    articles.forEach(function(a) {
+                        newHtml += _buildKbArticleHtml(kbId + '-' + a.id, a.title, a.url, a.summary);
+                    });
+                    container.innerHTML = newHtml;
+                    log('[KB] Dynamic articles loaded for: ' + kb.searchQuery, 'success');
+                })
+                .catch(function(e){ log('[KB] Search failed: ' + e.message, 'warning'); });
+            }, 300);
+        }
     }
+
 
     // Build body: for sendPortal step, KB goes below buttons
     var bodyContent = '';
@@ -3254,8 +3294,23 @@ function initConnect(){
         ct.onConnected(()=>{
             try {
                 const tok=getToken(ct);
-                if(tok&&tok!=='unknown'){connectWS(ct.getContactId(),tok);}
-                else{log('⚠️ No auth token — transcript disabled','error');}
+                if(tok&&tok!=='unknown'){
+                    connectWS(ct.getContactId(),tok);
+                } else {
+                    // Outbound: whisper flow may not have set token yet — retry after delay
+                    log('⚠️ Token not found on connect — retrying in 2s for outbound…','warning');
+                    setTimeout(function(){
+                        try {
+                            var retryTok = getToken(ct);
+                            if(retryTok && retryTok!=='unknown'){
+                                log('Token found on retry — connecting AppSync','success');
+                                connectWS(ct.getContactId(), retryTok);
+                            } else {
+                                log('⚠️ No auth token after retry — transcript disabled','error');
+                            }
+                        } catch(e){ log('Token retry error: '+e.message,'error'); }
+                    }, 2000);
+                }
                 onConnected();
                 fillCallId(ct.getContactId());
                 // ── Pre-load bot/caller conversation ──────────────────────
