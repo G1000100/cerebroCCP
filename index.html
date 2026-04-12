@@ -3863,15 +3863,16 @@ function startOutboundCall(cb) {
     switchTab('callview');
     initProcedureThread('Disruption & Deferment Procedure');
     addProcStep('step1');
-    if (agent) {
-        try {
-            agent.connect(connect.Endpoint.byPhoneNumber('+6593749945'), {
-                success: function() { _onOutboundConnected(cb); },
-                failure: function(err) { log('Outbound failed: '+(err&&err.message?err.message:'error'),'error'); _resetCbButton(); }
-            }); return;
-        } catch(e) { log('Connect API: '+e.message+' -- demo mode','warning'); }
-    }
-    setTimeout(function() { _onOutboundConnected(cb); }, 1500);
+if (agent) {
+    try {
+        agent.connect(connect.Endpoint.byPhoneNumber('+6593749945'), {
+            queueARN: 'arn:aws:connect:ap-southeast-1:278029780183:instance/4b964cd5-c343-467e-9021-dc290013d7c8/queue/6dba34d7-9698-409b-8cf1-1062c5d30528',
+            success: function() { _onOutboundConnected(cb); },
+            failure: function(err) { log('Outbound failed: '+(err&&err.message?err.message:'error'),'error'); _resetCbButton(); }
+        }); return;
+    } catch(e) { log('Connect API: '+e.message+' -- demo mode','warning'); }
+}
+setTimeout(function() { _onOutboundConnected(cb); }, 1500);
 }
 
 function _onOutboundConnected(cb) {
