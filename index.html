@@ -3281,6 +3281,8 @@ function initConnect(){
     connect.contact(ct=>{
         contact=ct;
         ct.onIncoming(()=>{
+            // Skip for outbound callbacks — selectedCallbackIdx is set when agent clicks Call Back
+            if(selectedCallbackIdx !== null) return;
             const ph=ct.getInitialConnection()?.getEndpoint()?.phoneNumber||'Unknown';
             onIncoming(ct,ph);
         });
