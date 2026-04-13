@@ -3468,6 +3468,9 @@ function onConnected(){
     log('Connected','success');
 }
 function onEnded(){
+    // Hide callback detail panel so only "No active call" shows
+    var _cbEnd=document.getElementById('callback-detail-panel');
+    if(_cbEnd) _cbEnd.style.display='none';
     var _ci=document.getElementById('call-info');if(_ci)_ci.classList.remove('active');
     var _nm=document.getElementById('no-call-msg');if(_nm)_nm.style.display='block';
     var _cn=document.getElementById('caller-number');if(_cn)_cn.textContent='—';
@@ -3763,6 +3766,12 @@ var CB_MOCK_STATIC = [
       rank:'Private', unit:'Bedok NPC', slotOffsetMinutes:90 }
 ];
 
+var MOCK_CUSTOMERS = {
+    'S0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com' },
+    'T0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com' },
+    'T0012345B': { rank:'Private',  unit:'Tanglin NPC', phone:'+65 9374 9945', email:'ahmad.hassan@example.com' },
+    'S0087654C': { rank:'Private',  unit:'Bedok NPC',   phone:'+65 9374 9945', email:'benjamin.tan@example.com' },
+};
 var MOCK_CALLBACKS    = [];
 var selectedCallbackIdx = null;
 var _cbTickInterval   = null;
@@ -3906,12 +3915,17 @@ function selectCallback(idx) {
     var vdBtn=document.getElementById('btn-vd'); if(vdBtn){vdBtn.classList.add('open');vdBtn.innerHTML='Hide Details <i class="chev">▾</i>';}
     // Populate callback overview fields
     var isDue = cb.movedToQueue || _minutesUntil(cb.slotTime) <= 0;
+    var _mc = MOCK_CUSTOMERS[cb.nric] || {};
+    var _cbRank  = (cb.rank  && cb.rank  !== '-') ? cb.rank  : (_mc.rank  || '-');
+    var _cbUnit  = (cb.unit  && cb.unit  !== '-') ? cb.unit  : (_mc.unit  || '-');
+    var _cbPhone = (cb.phone && cb.phone !== '-' && cb.phone !== '+65 0000 0000') ? cb.phone : (_mc.phone || cb.phone);
+    var _cbEmail = (cb.email && cb.email !== '-') ? cb.email : (_mc.email || '-');
     _el=document.getElementById('cbd-fullname'); if(_el) _el.textContent=cb.name;
-    _el=document.getElementById('cbd-email'); if(_el) _el.textContent=cb.email||'-';
+    _el=document.getElementById('cbd-email'); if(_el) _el.textContent=_cbEmail;
     _el=document.getElementById('cbd-nric'); if(_el) _el.textContent=cb.nric;
-    _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=cb.rank||'-';
-    _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=_cbPhone;
+    _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=_cbRank;
+    _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=_cbUnit;
     _el=document.getElementById('cbd-reason'); if(_el) _el.textContent=cb.reason||'-';
     _el=document.getElementById('cbd-slot-display'); if(_el) _el.textContent=cb.slotDisplay||'-';
     _el=document.getElementById('cbd-time-label'); if(_el) _el.textContent=cb.slotDisplay||'Scheduled callback';
@@ -3954,8 +3968,8 @@ function startOutboundCall(cb) {
     _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
     _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=cb.rank||'-';
-    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_cbRank;
+    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_cbUnit;
     // Show calling state via tx-section
     clearTx();
     setPanel('connected');
@@ -4000,8 +4014,9 @@ function _onOutboundConnected(cb) {
     el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
     el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
     el=document.getElementById('cpb-email'); if(el) el.textContent=cb.email||'-';
-    el=document.getElementById('pf-rank'); if(el) el.textContent=cb.rank||'-';
-    el=document.getElementById('pf-unit'); if(el) el.textContent=cb.unit||'-';
+    var _obMc=MOCK_CUSTOMERS[cb.nric]||{};
+    el=document.getElementById('pf-rank'); if(el) el.textContent=(cb.rank&&cb.rank!=='-')?cb.rank:(_obMc.rank||'-');
+    el=document.getElementById('pf-unit'); if(el) el.textContent=(cb.unit&&cb.unit!=='-')?cb.unit:(_obMc.unit||'-');
     el=document.getElementById('cpb-status-tag'); if(el){el.textContent='● Connected';el.className='ptag ptag-connected';}
 
     // Show transcript section
