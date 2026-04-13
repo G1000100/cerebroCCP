@@ -3280,6 +3280,8 @@ function initConnect(){
     connect.contact(ct=>{
         contact=ct;
         ct.onIncoming(()=>{
+            // Skip for outbound callback contacts (selectedCallbackIdx is set when agent initiates callback)
+            if(selectedCallbackIdx !== null) return;
             const ph=ct.getInitialConnection()?.getEndpoint()?.phoneNumber||'Unknown';
             onIncoming(ct,ph);
         });
@@ -3465,6 +3467,9 @@ function onConnected(){
     log('Connected','success');
 }
 function onEnded(){
+    // Always hide callback detail panel on call end
+    var _cbEnd=document.getElementById('callback-detail-panel');
+    if(_cbEnd) _cbEnd.style.display='none';
     var _ci=document.getElementById('call-info');if(_ci)_ci.classList.remove('active');
     var _nm=document.getElementById('no-call-msg');if(_nm)_nm.style.display='block';
     var _cn=document.getElementById('caller-number');if(_cn)_cn.textContent='—';
@@ -3760,6 +3765,14 @@ var CB_MOCK_STATIC = [
       rank:'Private', unit:'Bedok NPC', slotOffsetMinutes:90 }
 ];
 
+// Customer lookup table for enriching DynamoDB callbacks that have missing data
+var MOCK_CUSTOMERS = {
+    'S0012345A': { name:'Jonny Pang',      rank:'Corporal', unit:'3 SIR',        phone:'+65 9374 9945', email:'jonny.pang@example.com' },
+    'T0012345A': { name:'Jonny Pang',      rank:'Corporal', unit:'3 SIR',        phone:'+65 9374 9945', email:'jonny.pang@example.com' },
+    'T0012345B': { name:'Ahmad Hassan',    rank:'Private',  unit:'Tanglin NPC',  phone:'+65 9374 9945', email:'ahmad.hassan@example.com' },
+    'S0087654C': { name:'Benjamin Tan',    rank:'Private',  unit:'Bedok NPC',    phone:'+65 9374 9945', email:'benjamin.tan@example.com' },
+};
+
 var MOCK_CALLBACKS    = [];
 var selectedCallbackIdx = null;
 var _cbTickInterval   = null;
@@ -3903,12 +3916,17 @@ function selectCallback(idx) {
     var vdBtn=document.getElementById('btn-vd'); if(vdBtn){vdBtn.classList.add('open');vdBtn.innerHTML='Hide Details <i class="chev">▾</i>';}
     // Populate callback overview fields
     var isDue = cb.movedToQueue || _minutesUntil(cb.slotTime) <= 0;
+    // Enrich callback data from MOCK_CUSTOMERS if rank/unit missing
+    var _custData = MOCK_CUSTOMERS ? MOCK_CUSTOMERS[cb.nric] : null;
+    var _rank = (cb.rank && cb.rank !== '-') ? cb.rank : (_custData ? _custData.rank||'-' : '-');
+    var _unit = (cb.unit && cb.unit !== '-') ? cb.unit : (_custData ? _custData.unit||'-' : '-');
+    var _phone = (cb.phone && cb.phone !== '+65 0000 0000' && cb.phone !== '-') ? cb.phone : (_custData ? _custData.phone||cb.phone : cb.phone);
     _el=document.getElementById('cbd-fullname'); if(_el) _el.textContent=cb.name;
-    _el=document.getElementById('cbd-email'); if(_el) _el.textContent=cb.email||'-';
+    _el=document.getElementById('cbd-email'); if(_el) _el.textContent=cb.email||(_custData?_custData.email||'-':'-');
     _el=document.getElementById('cbd-nric'); if(_el) _el.textContent=cb.nric;
-    _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=cb.rank||'-';
-    _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=_phone;
+    _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=_rank;
+    _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=_unit;
     _el=document.getElementById('cbd-reason'); if(_el) _el.textContent=cb.reason||'-';
     _el=document.getElementById('cbd-slot-display'); if(_el) _el.textContent=cb.slotDisplay||'-';
     _el=document.getElementById('cbd-time-label'); if(_el) _el.textContent=cb.slotDisplay||'Scheduled callback';
@@ -3951,8 +3969,8 @@ function startOutboundCall(cb) {
     _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
     _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=cb.rank||'-';
-    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=cb.unit||'-';
+    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_rank;
+    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_unit;
     // Show calling state via tx-section
     clearTx();
     setPanel('connected');
