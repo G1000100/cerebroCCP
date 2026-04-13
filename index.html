@@ -3968,8 +3968,9 @@ function startOutboundCall(cb) {
     _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
     _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
-    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_cbRank;
-    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_cbUnit;
+    var _obMc = (typeof MOCK_CUSTOMERS !== 'undefined') ? (MOCK_CUSTOMERS[cb.nric]||{}) : {};
+    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=(cb.rank&&cb.rank!=='-')?cb.rank:(_obMc.rank||'-');
+    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=(cb.unit&&cb.unit!=='-')?cb.unit:(_obMc.unit||'-');
     // Show calling state via tx-section
     clearTx();
     setPanel('connected');
