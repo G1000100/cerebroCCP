@@ -1508,6 +1508,18 @@ const KW_RULES = [
       'disrupting'
     ]
   },
+  {
+    id: 'extension_step1',
+    label: 'Extension of Disruption',
+    keywords: [
+      'extend my disruption',
+      'extend disruption',
+      'extension of disruption',
+      'continue my disruption',
+      'continue disruption',
+      'extension'
+    ]
+  },
   // ── original SPF rules retained below ──
   {
     id: 'fraud',
@@ -1764,6 +1776,69 @@ const PROCEDURE_STEPS = {
       footer: 'Service man is <strong>ELIGIBLE</strong> for disruption application'
     }
   },
+  // Extension of Disruption flow — triggered by "extension" keyword
+  extension_step1: {
+    title: 'Greet & Confirm Extension Intent',
+    instructions: [
+      { text: 'Greet caller and confirm they are a current disruptee seeking extension.', subs: ['"Hi [Rank + Name], I understand you're looking to extend your current NS disruption. Let me help you with that."'] },
+      { text: 'Confirm their current disruption end date.', subs: [] }
+    ],
+    aiNote: 'NSF is currently a disruptee. Original disruption ends on <strong>30 Apr 2026</strong>. Extension application must be submitted at least 3 months before end date.',
+    kb: {
+      searchQuery: 'extension extend disruption',
+      title: 'Extension of Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
+      summary: 'An extension of disruption may be granted if the NSF continues in an approved programme.',
+      bullets: ['Application must be submitted at least 3 months before current disruption end date.','NSF must still be enrolled in an approved university programme.','Supporting documents from the university are required.']
+    }
+  },
+  extension_step2: {
+    title: 'Check Eligibility & Timeline',
+    instructions: [
+      { text: 'Confirm NSF is still enrolled in approved programme.', subs: [] },
+      { text: 'Check if application is at least 3 months before disruption end date.', subs: ['"Your disruption ends on 30 Apr 2026. Application should be submitted by 30 Jan 2026."'] }
+    ],
+    aiNote: 'Verify that NSF\'s university enrolment is still active and programme is still approved under MINDEF guidelines.',
+    kb: {
+      searchQuery: 'eligibility extension conditions',
+      title: 'Conditions & Service Obligations',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900559/Conditions+Service+Obligations',
+      summary: 'NSFs on disruption must maintain satisfactory academic performance and keep MINDEF updated.',
+      bullets: ['Must be in good academic standing.','Programme must still be approved by MINDEF.','Any changes to course or university must be reported immediately.']
+    }
+  },
+  extension_step3: {
+    title: 'Document Requirements',
+    instructions: [
+      { text: 'Advise caller on documents required for extension application.', subs: [] },
+      { text: 'Ask caller to prepare and submit via NS Portal.', subs: ['"Please prepare your updated university enrolment letter and submit via the NS Portal as soon as possible."'] }
+    ],
+    aiNote: '<span style="color:#d97706;font-weight:700;">⚠️ KB Gap</span> — No specific document requirements article found for Extension of Disruption.<br>Based on general disruption guidelines, documents typically required include:<br>• Updated university enrolment letter or confirmation of course extension<br>• Academic transcript showing satisfactory performance<br>• Official letter from university confirming continuation of studies<br><br><span style="color:#9a6700;">Please submit feedback via 👎 to request KB team to add this article.</span>',
+    kbGap: true,
+    kb: {
+      searchQuery: 'extension documents apply',
+      title: 'Applying for Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption',
+      summary: 'Documents typically required: updated university enrolment letter and confirmation of course extension.',
+      bullets: ['⚠️ No specific extension document requirements found in KB.','Based on general disruption: updated university letter required.','Submit 👎 feedback to request KB team to add this article.']
+    }
+  },
+  extension_step4: {
+    title: 'Resolution & Follow Up',
+    instructions: [
+      { text: 'Summarise the call and confirm next steps with caller.', subs: ['"To confirm, you're enquiring about documents required for extension of disruption. I'll follow up within 2-3 working days."'] },
+      { text: 'Obtain caller\'s email address for follow-up.', subs: [] },
+      { text: 'Log the case and escalate if needed.', subs: [] }
+    ],
+    kb: {
+      searchQuery: 'extension disruption',
+      title: 'Extension of Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
+      summary: 'Extension may be granted if NSF continues in an approved programme.',
+      bullets: []
+    }
+  },
+
   // Step 3 shows when consent is given
   consent: {
     title: 'Explain Required Next Steps and Obtain Consent',
@@ -3767,10 +3842,10 @@ var CB_MOCK_STATIC = [
 ];
 
 var MOCK_CUSTOMERS = {
-    'S0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com' },
-    'T0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com' },
-    'T0012345B': { rank:'Private',  unit:'Tanglin NPC', phone:'+65 9374 9945', email:'ahmad.hassan@example.com' },
-    'S0087654C': { rank:'Private',  unit:'Bedok NPC',   phone:'+65 9374 9945', email:'benjamin.tan@example.com' },
+    'S0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com',   disruption_end:'30 Apr 2026' },
+    'T0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com',   disruption_end:'30 Apr 2026' },
+    'T0012345B': { rank:'Private',  unit:'Tanglin NPC', phone:'+65 9374 9945', email:'ahmad.hassan@example.com', disruption_end:null },
+    'S0087654C': { rank:'Private',  unit:'Bedok NPC',   phone:'+65 9374 9945', email:'benjamin.tan@example.com', disruption_end:null },
 };
 var MOCK_CALLBACKS    = [];
 var selectedCallbackIdx = null;
