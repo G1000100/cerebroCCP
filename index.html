@@ -2473,6 +2473,12 @@ function scanKw(text) {
 
     // Check longest keywords first (rules already ordered: no_offer before offer)
     KW_RULES.forEach(function(rule) {
+        // Skip disruption rule if any extension step already matched
+        if (rule.id === 'disruption' &&
+            (kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+             kwShown.has('extension_step3') || kwShown.has('extension_step4'))) {
+            return;
+        }
         rule.keywords.forEach(function(kw) {
             if (lower.indexOf(kw.toLowerCase()) >= 0 && !kwDetected.has(kw)) {
                 kwDetected.add(kw);
@@ -2585,8 +2591,15 @@ function addSysMsg(t) {
 
 // Inject AI NOTE inline into transcript after keyword detected
 function injectAiNote(ruleId, triggeredKw) {
+    // Check KB_SUGGESTIONS first, then PROCEDURE_STEPS for extension steps
     var suggestion = KB_SUGGESTIONS[ruleId];
-    if (!suggestion || !suggestion.aiNote) return;
+    var aiNoteText = suggestion ? suggestion.aiNote : null;
+    if (!aiNoteText && PROCEDURE_STEPS[ruleId] && PROCEDURE_STEPS[ruleId].aiNote) {
+        aiNoteText = PROCEDURE_STEPS[ruleId].aiNote;
+    }
+    if (!aiNoteText) return;
+    // Create a temporary suggestion-like object
+    suggestion = { aiNote: aiNoteText };
 
     var c = document.getElementById('tx-msgs');
     var wrap = document.createElement('div');
