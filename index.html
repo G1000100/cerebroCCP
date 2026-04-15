@@ -628,7 +628,7 @@
     /* ── AI Notes inside procedure steps ─────────────────────────────────── */
     .ca-ai-note { border-radius:6px; padding:8px 10px; font-size:11.5px; margin:8px 0; line-height:1.6; }
     .ca-ai-note-amber { background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.35); color:#713f12; }
-    .ca-ai-note-gap { background:rgba(234,88,12,0.08); border:1px solid rgba(234,88,12,0.35); color:#7c2d12; }
+    .ca-ai-note-gap { background:rgba(234,88,12,0.12); border:2px solid rgba(234,88,12,0.5); color:#7c2d12; }
     .ca-ai-note-label { font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
     .ca-ai-note-body { font-size:11.5px; line-height:1.6; }
     </style>
@@ -1793,6 +1793,7 @@ const PROCEDURE_STEPS = {
     aiNote: 'NSF is currently a disruptee. Original disruption ends on <strong>30 May 2026</strong>. Extension application must be submitted at least 3 months before end date.',
     kb: {
       searchQuery: 'extension extend disruption',
+      articleId: 'extension',
       title: 'Extension of Disruption',
       url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
       summary: 'An extension of disruption may be granted if the NSF continues in an approved programme.',
@@ -1803,11 +1804,12 @@ const PROCEDURE_STEPS = {
     title: 'Check Eligibility & Timeline',
     instructions: [
       { text: 'Confirm NSF is still enrolled in approved programme.', subs: [] },
-      { text: 'Check if application is at least 3 months before disruption end date.', subs: ['"Your disruption ends on 30 May 2026. Application should be submitted by 30 Jan 2026."'] }
+      { text: 'Check if application is at least 3 months before disruption end date.', subs: ['"Your disruption ends on 30 May 2026. Application should be submitted by 28 Feb 2026."'] }
     ],
     aiNote: 'Verify that NSF\'s university enrolment is still active and programme is still approved under MINDEF guidelines.',
     kb: {
       searchQuery: 'eligibility extension conditions',
+      articleId: 'conditions',
       title: 'Conditions & Service Obligations',
       url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900559/Conditions+Service+Obligations',
       summary: 'NSFs on disruption must maintain satisfactory academic performance and keep MINDEF updated.',
@@ -1824,6 +1826,7 @@ const PROCEDURE_STEPS = {
     kbGap: true,
     kb: {
       searchQuery: 'extension documents apply',
+      articleId: 'applying',
       title: 'Applying for Disruption',
       url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption',
       summary: 'Documents typically required: updated university enrolment letter and confirmation of course extension.',
@@ -1839,6 +1842,7 @@ const PROCEDURE_STEPS = {
     ],
     kb: {
       searchQuery: 'extension disruption',
+      articleId: 'extension',
       title: 'Extension of Disruption',
       url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
       summary: 'Extension may be granted if NSF continues in an approved programme.',
@@ -2761,7 +2765,11 @@ function addProcStep(stepKey) {
         // If searchQuery defined and API available — fetch dynamic content
         if (kb.searchQuery && NS_CONFLUENCE_API && NS_CONFLUENCE_API.indexOf('PLACEHOLDER') === -1) {
             setTimeout(function() {
-                fetch(NS_CONFLUENCE_API + '/search?query=' + encodeURIComponent(kb.searchQuery))
+                // Use article_id if defined for precise fetch, otherwise use keyword search
+                var fetchUrl = kb.articleId
+                    ? NS_CONFLUENCE_API + '/search?query=' + encodeURIComponent(kb.articleId)
+                    : NS_CONFLUENCE_API + '/search?query=' + encodeURIComponent(kb.searchQuery);
+                fetch(fetchUrl)
                 .then(function(r){ return r.json(); })
                 .then(function(data){
                     var articles = data.articles || [];
@@ -2773,7 +2781,7 @@ function addProcStep(stepKey) {
                         newHtml += _buildKbArticleHtml(kbId + '-' + a.id, a.title, a.url, a.summary);
                     });
                     container.innerHTML = newHtml;
-                    log('[KB] Dynamic articles loaded for: ' + kb.searchQuery, 'success');
+                    log('[KB] Dynamic articles loaded for: ' + (kb.articleId || kb.searchQuery), 'success');
                 })
                 .catch(function(e){ log('[KB] Search failed: ' + e.message, 'warning'); });
             }, 300);
@@ -2846,12 +2854,13 @@ function toggleKb(hdr) {
 
 // Old function kept as wrapper — now adds procedure step instead of card
 function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
-    // If extension step triggered and it is the FIRST extension step, clear disruption steps
-    if (ruleId === 'extension_step1') {
+    // If extension_step1 triggered, clear disruption steps and start fresh
+    // Guard: only clear if no extension steps already loaded (prevent double-clear)
+    if (ruleId === 'extension_step1' && !kwShown.has('extension_step2')) {
         var cont = document.getElementById('ca-steps-container');
         if (cont) {
-            cont.innerHTML = '';   // clear all existing steps
-            procStepCount = 0;     // reset counter so extension starts at Step 1
+            cont.innerHTML = '';
+            procStepCount = 0;
         }
     }
     // Add matching procedure step if one exists for this rule
