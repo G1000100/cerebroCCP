@@ -2909,20 +2909,53 @@ function addProcStep(stepKey) {
                 if (!stepEl) return;
                 var noteClass = data.kb_gap ? 'ca-ai-note ca-ai-note-gap' : 'ca-ai-note ca-ai-note-amber';
                 var noteLabel = data.kb_gap ? '⚠️ KB Gap — No Matching Article Found' : '⚠️ AI Note';
+                // Format response: convert • bullets to HTML list
+                var _r = data.response;
+                var _ls = _r.split('\n');
+                var _fmtd = '';
+                var _inL = false;
+                _ls.forEach(function(line) {
+                    var tr = line.trim();
+                    if (tr.startsWith('•') || tr.startsWith('-')) {
+                        if (!_inL) { _fmtd += '<ul style="margin:4px 0 4px 14px;padding:0;">'; _inL = true; }
+                        _fmtd += '<li style="margin:2px 0;">' + tr.replace(/^[•-]\s*/,'') + '</li>';
+                    } else if (tr) {
+                        if (_inL) { _fmtd += '</ul>'; _inL = false; }
+                        _fmtd += '<div style="margin-bottom:4px;">' + tr + '</div>';
+                    }
+                });
+                if (_inL) _fmtd += '</ul>';
+
                 var noteHtml = '<div class="' + noteClass + ' dynamic-ai-note">' +
                     '<div class="ca-ai-note-label">' + noteLabel + '</div>' +
-                    '<div class="ca-ai-note-body">' + data.response +
-                    (data.kb_gap ? '<br><br><strong>Please submit feedback via 👎 to request KB team to add this article.</strong>' : '') +
+                    '<div class="ca-ai-note-body">' + _fmtd +
+                    (data.kb_gap ? '<div style="margin-top:8px;font-weight:600;">Please submit feedback via 👎 to request KB team to add this article.</div>' : '') +
                     '</div></div>';
                 // Also inject into transcript
                 var txMsgs = document.getElementById('tx-msgs');
                 if (txMsgs) {
+                    // Format bullets for transcript note
+                    var _txResp = data.response;
+                    var _txLines = _txResp.split('\n');
+                    var _txFmt = '';
+                    var _txInList = false;
+                    _txLines.forEach(function(line) {
+                        var tr = line.trim();
+                        if (tr.charAt(0) === '•' || tr.charAt(0) === '-') {
+                            if (!_txInList) { _txFmt += '<ul style="margin:4px 0 4px 14px;padding:0;">'; _txInList = true; }
+                            _txFmt += '<li style="margin:2px 0;font-size:11.5px;">' + tr.substring(1).trim() + '</li>';
+                        } else if (tr) {
+                            if (_txInList) { _txFmt += '</ul>'; _txInList = false; }
+                            _txFmt += '<div style="margin-bottom:4px;">' + tr + '</div>';
+                        }
+                    });
+                    if (_txInList) _txFmt += '</ul>';
                     var txNote = document.createElement('div');
                     txNote.className = data.kb_gap ? 'tx-ai-note tx-ai-note-gap' : 'tx-ai-note';
                     txNote.innerHTML = '<div class="tx-ai-note-inner">' +
                         '<span class="ai-note-icon">⚠️</span>' +
                         '<span class="ai-note-label">' + (data.kb_gap ? 'KB Gap:' : 'AI Note:') + '</span>' +
-                        '<span class="ai-note-text">' + data.response + '</span>' +
+                        '<div class="ai-note-text" style="margin-top:4px;">' + _txFmt + '</div>' +
                         '</div>';
                     txMsgs.appendChild(txNote);
                     txMsgs.scrollTop = txMsgs.scrollHeight;
