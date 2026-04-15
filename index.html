@@ -1871,6 +1871,7 @@ const PROCEDURE_STEPS = {
     aiNote: null,
     kbGap: false,
     dynamicNote: true,
+    dynamicQuery: 'What documents are required for extension of disruption?',
     kb: {
       searchQuery: 'extension documents apply',
       articleId: 'applying',
@@ -2881,7 +2882,8 @@ function addProcStep(stepKey) {
     if (stepData.dynamicNote && NS_CONFLUENCE_API && NS_CONFLUENCE_API.indexOf('PLACEHOLDER') === -1) {
         var noteStepId = stepId;
         var noteArticleId = stepData.kb ? (stepData.kb.articleId || '') : '';
-        var noteQuery = stepData.kb ? stepData.kb.searchQuery : stepKey;
+        // Use natural language query for better Claude response
+        var noteQuery = stepData.dynamicQuery || (stepData.kb ? stepData.kb.searchQuery : stepKey);
         setTimeout(function() {
             fetch(NS_CONFLUENCE_API + '/generate', {
                 method: 'POST',
