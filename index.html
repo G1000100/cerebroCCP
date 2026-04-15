@@ -2538,8 +2538,12 @@ function scanKw(text) {
                     flashKwAlert(rule.label + ' keyword detected: "' + kw + '"');
                     log('🔍 Keyword [' + rule.label + ']: ' + kw, 'warning');
                     renderKbSuggestions(rule.id, rule.label, kw);
-                    // Insert AI note into transcript
-                    injectAiNote(rule.id, kw);
+                    // Insert AI note — skip disruption note if extension already active
+                    var extensionActive = kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+                                         kwShown.has('extension_step3') || kwShown.has('extension_step4');
+                    if (!(rule.id === 'disruption' && extensionActive)) {
+                        injectAiNote(rule.id, kw);
+                    }
                 }
             }
         });
