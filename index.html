@@ -1510,9 +1510,11 @@ const KW_RULES = [
     id: 'disruption',
     label: 'Disruption',
     keywords: [
-      'disruption',
-      'disrupted',
-      'disrupting'
+      'apply for disruption',
+      'applying for disruption',
+      'want to apply for disruption',
+      'i want to apply',
+      'need to apply for disruption'
     ]
   },
   {
@@ -1873,12 +1875,12 @@ const PROCEDURE_STEPS = {
     dynamicNote: true,
     dynamicQuery: 'What documents are required for extension of disruption?',
     kb: {
-      searchQuery: 'extension documents apply',
-      articleId: 'applying',
-      title: 'Applying for Disruption',
-      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption',
-      summary: 'Documents typically required: updated university enrolment letter and confirmation of course extension.',
-      bullets: ['⚠️ No specific extension document requirements found in KB.','Based on general disruption: updated university letter required.','Submit 👎 feedback to request KB team to add this article.']
+      searchQuery: 'extension documents',
+      articleId: 'extension',
+      title: 'Extension of Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
+      summary: 'Documents required for extension of disruption.',
+      bullets: []
     }
   },
   extension_step4: {
@@ -2531,11 +2533,21 @@ function scanKw(text) {
     var lower = text.toLowerCase();
 
     // Check longest keywords first (rules already ordered: no_offer before offer)
+    // Pre-scan: check if any extension keywords exist in this utterance first
+    var hasExtensionKw = false;
+    KW_RULES.forEach(function(r) {
+        if (r.id && r.id.indexOf('extension_') === 0) {
+            r.keywords.forEach(function(kw) {
+                if (lower.indexOf(kw.toLowerCase()) >= 0) hasExtensionKw = true;
+            });
+        }
+    });
+
     KW_RULES.forEach(function(rule) {
-        // Skip disruption rule if any extension step already matched
-        if (rule.id === 'disruption' &&
-            (kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
-             kwShown.has('extension_step3') || kwShown.has('extension_step4'))) {
+        // Skip disruption rule if extension keyword found in same utterance or already active
+        if (rule.id === 'disruption' && (hasExtensionKw ||
+            kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+            kwShown.has('extension_step3') || kwShown.has('extension_step4'))) {
             return;
         }
         rule.keywords.forEach(function(kw) {
