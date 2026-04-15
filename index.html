@@ -624,7 +624,14 @@
         .kbff-cancel  { padding:4px 10px; border:1px solid var(--border); border-radius:4px; font-size:11px; color:#57606a; background:#fff; cursor:pointer; font-family:var(--font); }
         .kbff-submit  { padding:4px 10px; border:none; border-radius:4px; font-size:11px; color:#fff; background:var(--navy); cursor:pointer; font-family:var(--font); font-weight:600; }
         .kbff-submit:hover { background:#0a3080; }
-</style>
+
+    /* ── AI Notes inside procedure steps ─────────────────────────────────── */
+    .ca-ai-note { border-radius:6px; padding:8px 10px; font-size:11.5px; margin:8px 0; line-height:1.6; }
+    .ca-ai-note-amber { background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.35); color:#713f12; }
+    .ca-ai-note-gap { background:rgba(234,88,12,0.08); border:1px solid rgba(234,88,12,0.35); color:#7c2d12; }
+    .ca-ai-note-label { font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
+    .ca-ai-note-body { font-size:11.5px; line-height:1.6; }
+    </style>
 </head>
 <body>
 
@@ -2774,14 +2781,23 @@ function addProcStep(stepKey) {
     }
 
 
+    // Build AI note HTML if defined on step
+    var aiNoteHtml = '';
+    if (stepData.aiNote) {
+        var noteClass = stepData.kbGap ? 'ca-ai-note ca-ai-note-gap' : 'ca-ai-note ca-ai-note-amber';
+        aiNoteHtml = '<div class="' + noteClass + '"><div class="ca-ai-note-label">⚠️ ' +
+            (stepData.kbGap ? 'KB Gap' : 'AI Note') +
+            '</div><div class="ca-ai-note-body">' + stepData.aiNote + '</div></div>';
+    }
+
     // Build body: for sendPortal step, KB goes below buttons
     var bodyContent = '';
     if (stepData.sendPortalBtn) {
-        bodyContent = olHtml +
+        bodyContent = olHtml + aiNoteHtml +
             '<button class="consent-create-btn" id="send-portal-btn" style="margin-top:10px" onclick="sendPortalLink()">Send portal link</button><div id="resend-portal-container"></div>' +
             kbHtml;
     } else {
-        bodyContent = olHtml + kbHtml +
+        bodyContent = olHtml + aiNoteHtml + kbHtml +
             (stepData.createBtn ? '<button class="consent-create-btn" id="create-app-btn" style="margin-top:10px" onclick="onCreateApplication()">Create Application</button>' : '');
     }
 
@@ -2830,6 +2846,14 @@ function toggleKb(hdr) {
 
 // Old function kept as wrapper — now adds procedure step instead of card
 function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
+    // If extension step triggered and it is the FIRST extension step, clear disruption steps
+    if (ruleId === 'extension_step1') {
+        var cont = document.getElementById('ca-steps-container');
+        if (cont) {
+            cont.innerHTML = '';   // clear all existing steps
+            procStepCount = 0;     // reset counter so extension starts at Step 1
+        }
+    }
     // Add matching procedure step if one exists for this rule
     if (PROCEDURE_STEPS[ruleId]) {
         addProcStep(ruleId);
