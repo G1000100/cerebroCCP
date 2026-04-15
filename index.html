@@ -630,7 +630,32 @@
     .ca-ai-note-amber { background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.35); color:#713f12; }
     .ca-ai-note-gap { background:rgba(234,88,12,0.08); border:2px solid rgba(234,88,12,0.5); color:#7c2d12; }
     .ca-ai-note-label { font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
-    .ca-ai-note-body { font-size:11.5px; line-height:1.7; white-space:pre-line; }.6; }
+    .ca-ai-note-body { font-size:11.5px; line-height:1.7; white-space:pre-line; }
+    
+    /* ── NEW AI CARD (replaces KB section) ─────────────────────────────── */
+    .ca-ai-card { border-radius:8px; margin-top:8px; overflow:hidden; border:1px solid rgba(234,179,8,0.3); }
+    .ca-ai-card-gap { border-color:rgba(234,88,12,0.4); }
+    .ca-ai-card-hdr { padding:6px 10px; display:flex; align-items:center; justify-content:space-between; background:rgba(234,179,8,0.07); }
+    .ca-ai-card-hdr-gap { background:rgba(234,88,12,0.07); }
+    .ca-ai-card-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:#92400e; }
+    .ca-ai-card-label-gap { color:#b45309; }
+    .ca-ai-card-link { font-size:10px; color:#0969da; text-decoration:none; font-weight:600; }
+    .ca-ai-card-link:hover { text-decoration:underline; }
+    .ca-ai-card-link-gap { color:#ea580c; }
+    .ca-ai-card-body { padding:8px 10px; background:rgba(234,179,8,0.04); font-size:11.5px; color:#713f12; line-height:1.7; }
+    .ca-ai-card-body-gap { background:rgba(234,88,12,0.04); color:#7c2d12; }
+    .ca-ai-card-body ul { padding-left:14px; margin:4px 0; }
+    .ca-ai-card-body li { margin-bottom:2px; }
+    .ca-ai-card-ftr { padding:5px 10px; border-top:1px solid rgba(234,179,8,0.15); background:rgba(234,179,8,0.03); display:flex; align-items:center; justify-content:space-between; }
+    .ca-ai-card-ftr-gap { border-top-color:rgba(234,88,12,0.15); background:rgba(234,88,12,0.03); }
+    .ca-ai-fb-label { font-size:10px; color:#8c959f; }
+    .ca-ai-fb-label-gap { font-size:10px; color:#c2410c; font-weight:600; }
+    .ca-ai-fb-btns { display:flex; gap:4px; }
+    .ca-ai-fb-btn { width:22px; height:22px; border:1px solid #d0d7de; border-radius:4px; background:#fff; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; }
+    .ca-ai-fb-btn:hover { background:#f6f8fa; }
+    .ca-ai-fb-btn-pulse { border-color:#c2410c; background:rgba(234,88,12,0.05); animation:fb-pulse 1.5s infinite; }
+    @keyframes fb-pulse { 0%,100%{border-color:#c2410c;} 50%{border-color:#f97316;} }
+
     </style>
 </head>
 <body>
@@ -2762,23 +2787,47 @@ function initProcedureThread(procedureName) {
         '</div>';
     }
 
-    function _buildKbCardHtml(kbId, title, url, summary, bullets, footer) {
-        var bulletsHtml = (bullets || []).map(function(b){ return '<li>' + b + '</li>'; }).join('');
-        var footerHtml  = footer ? '<div style="font-size:12px;font-weight:700;color:#24292f;margin-top:8px;padding-top:6px;border-top:1px solid #e1e4e8;">' + footer + '</div>' : '';
-        return '<div class="ca-kb-section" id="' + kbId + '">' +
-            '<div class="ca-kb-hdr" onclick="toggleKb(this)">' +
-                '<span class="ca-kb-hdr-icon">▼</span>' +
-                '<span class="ca-kb-hdr-title">Knowledge Base</span>' +
+    function _buildKbCardHtml(kbId, title, url, summary, bullets, footer, isGap) {
+        // New AI card design - combines AI note + KB link + thumbs in one block
+        var cardClass = isGap ? 'ca-ai-card ca-ai-card-gap' : 'ca-ai-card';
+        var hdrClass  = isGap ? 'ca-ai-card-hdr ca-ai-card-hdr-gap' : 'ca-ai-card-hdr';
+        var lblClass  = isGap ? 'ca-ai-card-label ca-ai-card-label-gap' : 'ca-ai-card-label';
+        var bodyClass = isGap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
+        var ftrClass  = isGap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
+        var noteLabel = isGap ? '⚠️ KB Gap' : '⚠️ AI Note';
+        var fbLabel   = isGap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
+        var thumbDown = isGap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse" onclick="kbThumbsDown(\'' + kbId + '\')">👎</button>' : '<button class="ca-ai-fb-btn" onclick="kbThumbsDown(\'' + kbId + '\')">👎</button>';
+        var bulletsHtml = '';
+        if (bullets && bullets.length) {
+            bulletsHtml = '<ul style="margin:4px 0 0 14px;padding:0;">' + bullets.map(function(b){ return '<li style="margin:2px 0;">' + b + '</li>'; }).join('') + '</ul>';
+        }
+        var summaryHtml = summary ? '<div style="margin-bottom:' + (bulletsHtml ? '4px' : '0') + ';">' + summary + '</div>' : '';
+        return '<div class="' + cardClass + '" id="' + kbId + '">' +
+            '<div class="' + hdrClass + '">' +
+                '<span class="' + lblClass + '">' + noteLabel + '</span>' +
+                (url ? '<a href="' + url + '" class="ca-ai-card-link' + (isGap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + title + ' ↗</a>' : '') +
             '</div>' +
-            '<div class="ca-kb-body">' +
-                '<div id="kb-inner-' + kbId + '">' +
-                    _buildKbArticleHtml(kbId, title, url, summary) +
-                    (bulletsHtml ? '<ul class="ca-kb-bullets">' + bulletsHtml + '</ul>' : '') +
-                    footerHtml +
+            '<div class="' + bodyClass + '" id="kb-inner-' + kbId + '">' +
+                summaryHtml + bulletsHtml +
+            '</div>' +
+            '<div class="' + ftrClass + '">' +
+                fbLabel +
+                '<div class="ca-ai-fb-btns">' +
+                    '<button class="ca-ai-fb-btn" onclick="kbThumbsUp(\'' + kbId + '\')">👍</button>' +
+                    thumbDown +
                 '</div>' +
             '</div>' +
         '</div>';
     }
+
+    function _buildKbArticleHtml(kbId, title, url, summary) {
+        // Used for dynamic search results - updates kb-inner div
+        return '<div style="margin-bottom:4px;">' +
+            '<a href="' + url + '" style="font-size:11px;font-weight:700;color:#0969da;text-decoration:none;" target="_blank">📚 ' + title + ' ↗</a>' +
+            '</div>' +
+            '<div style="font-size:11px;color:#57606a;line-height:1.6;">' + summary + '</div>';
+    }
+
 
 function addProcStep(stepKey) {
     var stepData = PROCEDURE_STEPS[stepKey];
@@ -2926,11 +2975,26 @@ function addProcStep(stepKey) {
                 });
                 if (_inL) _fmtd += '</ul>';
 
-                var noteHtml = '<div class="' + noteClass + ' dynamic-ai-note">' +
-                    '<div class="ca-ai-note-label">' + noteLabel + '</div>' +
-                    '<div class="ca-ai-note-body">' + _fmtd +
-                    (data.kb_gap ? '<div style="margin-top:8px;font-weight:600;">Please submit feedback via 👎 to request KB team to add this article.</div>' : '') +
-                    '</div></div>';
+                var _dynCardClass = data.kb_gap ? 'ca-ai-card ca-ai-card-gap' : 'ca-ai-card';
+                var _dynHdrClass  = data.kb_gap ? 'ca-ai-card-hdr ca-ai-card-hdr-gap' : 'ca-ai-card-hdr';
+                var _dynLblClass  = data.kb_gap ? 'ca-ai-card-label ca-ai-card-label-gap' : 'ca-ai-card-label';
+                var _dynBodyClass = data.kb_gap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
+                var _dynFtrClass  = data.kb_gap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
+                var _dynLabel     = data.kb_gap ? '⚠️ KB Gap' : '⚠️ AI Note';
+                var _dynFbLabel   = data.kb_gap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
+                var _dynThumbDown = data.kb_gap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse">👎</button>' : '<button class="ca-ai-fb-btn">👎</button>';
+                var _dynLink      = data.article ? '<a href="' + data.article.url + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
+                var noteHtml = '<div class="' + _dynCardClass + ' dynamic-ai-note">' +
+                    '<div class="' + _dynHdrClass + '">' +
+                        '<span class="' + _dynLblClass + '">' + _dynLabel + '</span>' +
+                        _dynLink +
+                    '</div>' +
+                    '<div class="' + _dynBodyClass + '">' + _fmtd + '</div>' +
+                    '<div class="' + _dynFtrClass + '">' +
+                        _dynFbLabel +
+                        '<div class="ca-ai-fb-btns"><button class="ca-ai-fb-btn">👍</button>' + _dynThumbDown + '</div>' +
+                    '</div>' +
+                '</div>';
                 // Also inject into transcript
                 var txMsgs = document.getElementById('tx-msgs');
                 if (txMsgs) {
