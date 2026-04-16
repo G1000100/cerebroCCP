@@ -656,6 +656,34 @@
     .ca-ai-fb-btn-pulse { border-color:#c2410c; background:rgba(234,88,12,0.05); animation:fb-pulse 1.5s infinite; }
     @keyframes fb-pulse { 0%,100%{border-color:#c2410c;} 50%{border-color:#f97316;} }
 
+    
+    /* KB Gap transcript note */
+    .tx-kb-gap { padding:6px 12px; }
+    .tx-kb-gap-inner { display:flex; flex-direction:column; gap:6px; padding:8px 12px; background:rgba(234,88,12,0.07); border:1px solid rgba(234,88,12,0.35); border-radius:6px; width:100%; }
+    .tx-kb-gap-hdr { display:flex; align-items:center; gap:7px; }
+    .tx-kb-gap-icon { font-size:12px; flex-shrink:0; }
+    .tx-kb-gap-label { font-size:10.5px; font-weight:700; color:#c2410c; letter-spacing:0.3px; }
+    .tx-kb-gap-text { font-size:11.5px; color:#7c2d12; line-height:1.5; }
+    /* KB Gap report buttons */
+    .tx-kb-gap-btn {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:5px 12px; background:#7c2d12; color:#fff;
+        border:none; border-radius:5px; font-size:11px; font-weight:600;
+        cursor:pointer; margin-top:4px;
+    }
+    .tx-kb-gap-btn:hover { background:#991b1b; }
+    .tx-kb-gap-btn:disabled { opacity:0.7; cursor:default; }
+    .ca-kb-gap-report-btn {
+        display:flex; align-items:center; gap:5px;
+        padding:6px 12px; background:#7c2d12; color:#fff;
+        border:none; border-radius:5px; font-size:11px; font-weight:600;
+        cursor:pointer; width:100%;
+    }
+    .ca-kb-gap-report-btn:hover { background:#991b1b; }
+    .ca-kb-gap-report-btn:disabled { opacity:0.7; cursor:default; }
+    /* tx-kb-gap handles KB gap transcript styling */
+
+
     </style>
 </head>
 <body>
@@ -3002,16 +3030,38 @@ function addProcStep(stepKey) {
                 var _dynFbLabel   = data.kb_gap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
                 var _dynThumbDown = data.kb_gap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse">👎</button>' : '<button class="ca-ai-fb-btn">👎</button>';
                 var _dynLink      = data.article ? '<a href="' + data.article.url + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
+                var _noteFooter = '';
+                if (data.kb_gap && data.article) {
+                    var _nt = data.article.title || 'KB Article';
+                    var _nu = data.article.url || '';
+                    var _nc = 'KB Gap detected during live call. No information found for: ' + _nt + '. Please create or update the KB article.';
+                    // Use data attributes to avoid complex escaping
+                    var _rptBtn = document.createElement('button');
+                    _rptBtn.className = 'ca-kb-gap-report-btn';
+                    _rptBtn.textContent = '📋 Report to KB Team';
+                    _rptBtn.setAttribute('data-title', _nt);
+                    _rptBtn.setAttribute('data-url', _nu);
+                    _rptBtn.setAttribute('data-comment', _nc);
+                    _rptBtn.onclick = function() {
+                        kbDirectReport(this.getAttribute('data-title'), this.getAttribute('data-url'), this.getAttribute('data-comment'));
+                    };
+                    var _rptDiv = document.createElement('div');
+                    _rptDiv.className = _dynFtrClass;
+                    _rptDiv.appendChild(_rptBtn);
+                    _noteFooter = _rptDiv.outerHTML;
+                } else {
+                    _noteFooter = '<div class="' + _dynFtrClass + '">' +
+                        _dynFbLabel +
+                        '<div class="ca-ai-fb-btns"><button class="ca-ai-fb-btn">👍</button>' + _dynThumbDown + '</div>' +
+                        '</div>';
+                }
                 var noteHtml = '<div class="' + _dynCardClass + ' dynamic-ai-note">' +
                     '<div class="' + _dynHdrClass + '">' +
                         '<span class="' + _dynLblClass + '">' + _dynLabel + '</span>' +
                         _dynLink +
                     '</div>' +
                     '<div class="' + _dynBodyClass + '">' + _fmtd + '</div>' +
-                    '<div class="' + _dynFtrClass + '">' +
-                        _dynFbLabel +
-                        '<div class="ca-ai-fb-btns"><button class="ca-ai-fb-btn">👍</button>' + _dynThumbDown + '</div>' +
-                    '</div>' +
+                    _noteFooter +
                 '</div>';
                 // Also inject into transcript
                 var txMsgs = document.getElementById('tx-msgs');
@@ -3034,21 +3084,51 @@ function addProcStep(stepKey) {
                     if (_txInList) _txFmt += '</ul>';
                     var txNote = document.createElement('div');
                     txNote.className = data.kb_gap ? 'tx-ai-note tx-ai-note-gap' : 'tx-ai-note';
-                    txNote.innerHTML = '<div class="tx-ai-note-inner">' +
-                        '<span class="ai-note-icon">⚠️</span>' +
-                        '<span class="ai-note-label">' + (data.kb_gap ? 'KB Gap:' : 'AI Note:') + '</span>' +
-                        '<div class="ai-note-text" style="margin-top:4px;">' + _txFmt + '</div>' +
+                    if (data.kb_gap && data.article) {
+                        // KB Gap — orange distinct style with Report button
+                        var _artTitle = data.article.title || 'KB Article';
+                        var _artUrl   = data.article.url || '';
+                        var _jsmComment = 'KB Gap detected during live call. No information found for: ' + _artTitle + '. Please create or update the KB article.';
+                        txNote.className = 'tx-kb-gap';
+                        txNote.innerHTML = '<div class="tx-kb-gap-inner">' +
+                            '<div class="tx-kb-gap-hdr">' +
+                                '<span class="tx-kb-gap-icon">⚠️</span>' +
+                                '<span class="tx-kb-gap-label">KB Gap — No Matching Article Found</span>' +
+                            '</div>' +
+                            '<div class="tx-kb-gap-text">' + _txFmt + '</div>' +
                         '</div>';
+                        // Add report button separately to avoid escaping issues
+                        var _txRptBtn = document.createElement('button');
+                        _txRptBtn.className = 'tx-kb-gap-btn';
+                        _txRptBtn.textContent = '📋 Report to KB Team';
+                        _txRptBtn.setAttribute('data-title', _artTitle);
+                        _txRptBtn.setAttribute('data-url', _artUrl);
+                        _txRptBtn.setAttribute('data-comment', _jsmComment);
+                        _txRptBtn.onclick = function() {
+                            kbDirectReport(this.getAttribute('data-title'), this.getAttribute('data-url'), this.getAttribute('data-comment'));
+                        };
+                        txNote.querySelector('.tx-kb-gap-inner').appendChild(_txRptBtn);
+                    } else {
+                        // Regular AI note — existing purple CSS
+                        txNote.className = 'tx-ai-note';
+                        txNote.innerHTML = '<div class="tx-ai-note-inner">' +
+                            '<span class="ai-note-icon">⚠️</span>' +
+                            '<span class="ai-note-label">AI Note:</span>' +
+                            '<div class="ai-note-text">' + _txFmt + '</div>' +
+                        '</div>';
+                    }
                     txMsgs.appendChild(txNote);
                     txMsgs.scrollTop = txMsgs.scrollHeight;
                 }
-                // Insert note into step body before KB section
-                var kbSection = stepEl.querySelector('.kb-section, .kb-card-wrapper');
-                if (kbSection) {
-                    kbSection.insertAdjacentHTML('beforebegin', noteHtml);
-                } else {
-                    var body = stepEl.querySelector('.ca-step-body');
-                    if (body) body.insertAdjacentHTML('beforeend', noteHtml);
+                // Only inject into step body if KB gap (not regular AI note)
+                if (data.kb_gap) {
+                    var kbSection = stepEl.querySelector('.ca-ai-card');
+                    if (kbSection) {
+                        kbSection.insertAdjacentHTML('beforebegin', noteHtml);
+                    } else {
+                        var body = stepEl.querySelector('.ca-step-body');
+                        if (body) body.insertAdjacentHTML('beforeend', noteHtml);
+                    }
                 }
                 log('[Dynamic Note] kb_gap=' + data.kb_gap + ' for step ' + noteStepId, 'success');
             })
@@ -4421,6 +4501,56 @@ function _resetCbButton() {
 
     // ── KB Feedback functions ─────────────────────────────────────────────────
     var _kbFeedbackState = {};
+
+    function kbDirectReport(title, url, comment) {
+        // Auto-populate agent and contact info
+        var agentName = (agent && agent.getName) ? agent.getName().firstName + ' ' + agent.getName().lastName : 'Agent';
+        var contactId = contact ? contact.getContactId() : 'unknown';
+        var fullComment = comment + ' | Agent: ' + agentName + ' | Contact ID: ' + contactId;
+
+        // Show loading state on all report buttons
+        document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Submitting...';
+        });
+
+        fetch(NS_CONFLUENCE_API + '/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'none',
+                article_title: title,
+                article_url: url,
+                comment: fullComment,
+                agent_name: agentName,
+                contact_id: contactId
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+                    btn.textContent = '✅ Reported to KB Team';
+                    btn.style.background = '#1a7f37';
+                    btn.style.borderColor = '#1a7f37';
+                });
+                log('[KB Gap] JSM ticket created successfully', 'success');
+            } else {
+                document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+                    btn.disabled = false;
+                    btn.textContent = '📋 Report to KB Team';
+                });
+                log('[KB Gap] Failed to create JSM ticket: ' + (data.error || 'unknown'), 'error');
+            }
+        })
+        .catch(function(e) {
+            document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+                btn.disabled = false;
+                btn.textContent = '📋 Report to KB Team';
+            });
+            log('[KB Gap] Error: ' + e.message, 'error');
+        });
+    }
 
     function kbThumbsUp(kbId) {
         _kbFeedbackState[kbId] = 'up';
