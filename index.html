@@ -2822,7 +2822,7 @@ function initProcedureThread(procedureName) {
         var lblClass  = isGap ? 'ca-ai-card-label ca-ai-card-label-gap' : 'ca-ai-card-label';
         var bodyClass = isGap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
         var ftrClass  = isGap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
-        var noteLabel = isGap ? '⚠️ KB Gap' : '⚠️ AI Note';
+        var noteLabel = isGap ? '⚠️ KB Gap' : '📚 Knowledge Base';
         var fbLabel   = isGap ? '<span class="ca-ai-fb-label-gap" id="kbfb-lbl-' + kbId + '">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>';
         var thumbUpBtn = '<button class="ca-ai-fb-btn" id="kbfb-up-' + kbId + '" onclick="kbThumbsUp(\''+kbId+'\')">👍</button>';
         var safeTitle = (title||'').replace(/"/g,'&quot;');
@@ -2948,14 +2948,8 @@ function addProcStep(stepKey) {
     }
 
 
-    // Build AI note HTML if defined on step
+    // aiNote is shown in transcript only — not in Connect Assistant step card
     var aiNoteHtml = '';
-    if (stepData.aiNote) {
-        var noteClass = stepData.kbGap ? 'ca-ai-note ca-ai-note-gap' : 'ca-ai-note ca-ai-note-amber';
-        aiNoteHtml = '<div class="' + noteClass + '"><div class="ca-ai-note-label">⚠️ ' +
-            (stepData.kbGap ? 'KB Gap' : 'AI Note') +
-            '</div><div class="ca-ai-note-body">' + stepData.aiNote + '</div></div>';
-    }
 
     // Build body: for sendPortal step, KB goes below buttons
     var bodyContent = '';
@@ -3026,7 +3020,7 @@ function addProcStep(stepKey) {
                 var _dynLblClass  = data.kb_gap ? 'ca-ai-card-label ca-ai-card-label-gap' : 'ca-ai-card-label';
                 var _dynBodyClass = data.kb_gap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
                 var _dynFtrClass  = data.kb_gap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
-                var _dynLabel     = data.kb_gap ? '⚠️ KB Gap' : '⚠️ AI Note';
+                var _dynLabel     = data.kb_gap ? '⚠️ KB Gap' : '📚 Knowledge Base';
                 var _dynFbLabel   = data.kb_gap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
                 var _dynThumbDown = data.kb_gap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse">👎</button>' : '<button class="ca-ai-fb-btn">👎</button>';
                 var _dynLink      = data.article ? '<a href="' + data.article.url + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
