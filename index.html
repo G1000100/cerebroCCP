@@ -559,6 +559,131 @@
 
         .call-tab .tab-close { margin-left:6px; font-size:13px; font-weight:400; color:#8c959f; cursor:pointer; }
         .call-tab .tab-close:hover { color:#d73a49; }
+
+        /* ═══ SCHEDULED CALLBACKS ═══════════════════════════════════════ */
+        .sb-callbacks { flex-shrink:0; border-top:1px solid var(--border); display:none; }
+        .sb-callbacks.visible { display:block; }
+        .sb-cb-hdr { padding:8px 12px 4px; display:flex; align-items:center; justify-content:space-between; }
+        .sb-cb-title { font-size:14px; font-weight:700; color:#001f5f; display:flex; align-items:center; gap:6px; }
+        .sb-cb-count { font-size:11px; font-weight:400; color:#57606a; }
+        .cb-list { max-height:220px; overflow-y:auto; }
+        .cb-list::-webkit-scrollbar { width:3px; }
+        .cb-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+        .cb-item { padding:8px 12px; border-bottom:1px solid #e8ecf0; cursor:pointer; transition:background 0.15s; display:flex; align-items:center; gap:8px; }
+        .cb-item:hover { background:#f0f4f8; }
+        .cb-item.cb-active { background:#e8f1ff; border-left:2px solid var(--accent); }
+        .cb-item.cb-moved { background:#f0fff4; border-left:3px solid #2ea043; opacity:0.65; pointer-events:none; }
+        .cb-item-info { flex:1; min-width:0; }
+        .cb-item-name { font-size:12px; font-weight:600; color:#1c2432; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .cb-item-name.moved { color:#1a7f37; }
+        .cb-item-time { font-size:11px; color:#57606a; font-family:'IBM Plex Mono',monospace; margin-top:1px; }
+        .cb-item-time.moved { color:#1a7f37; }
+        .cb-item-reason { font-size:10px; color:#8c959f; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .cb-countdown { font-size:9px; font-weight:700; padding:2px 6px; border-radius:8px; white-space:nowrap; flex-shrink:0; }
+        .cb-countdown-amber { background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
+        .cb-countdown-red   { background:rgba(215,58,73,0.08); color:#cf222e; border:1px solid rgba(215,58,73,0.3); animation:cdPulse 1.2s infinite; }
+        .cb-countdown-green { background:rgba(46,160,67,0.1); color:#1a7f37; border:1px solid rgba(46,160,67,0.3); }
+        @keyframes cdPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .cb-call-btn { width:28px; height:28px; border-radius:50%; background:#2ea043; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+        .cb-call-btn:hover { background:#1a7f37; transform:scale(1.08); box-shadow:0 2px 8px rgba(46,160,67,0.4); }
+        .cb-call-btn svg { width:13px; height:13px; color:#fff; }
+        .cb-call-btn:disabled { opacity:0.35; cursor:default; pointer-events:none; }
+        .call-badge-cb { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; flex-shrink:0; white-space:nowrap; background:rgba(9,105,218,0.08); color:#0969da; border:1px solid rgba(9,105,218,0.25); }
+        .call-item.is-callback { background:#f5f8ff; border-left:2px solid #0969da; }
+        .call-item.is-callback:hover { background:#edf2ff; }
+        .callback-action-bar { flex-shrink:0; border-top:1px solid var(--border); padding:10px 16px; background:#fff; display:flex; align-items:center; justify-content:space-between; }
+        .btn-callback-main { padding:10px 24px; background:linear-gradient(135deg,#1a7f37,#2ea043); color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; display:flex; align-items:center; gap:8px; transition:all 0.2s; box-shadow:0 2px 8px rgba(46,160,67,0.25); }
+        .btn-callback-main:hover { background:linear-gradient(135deg,#166d2f,#1a7f37); box-shadow:0 4px 16px rgba(46,160,67,0.45); transform:translateY(-1px); }
+        .cb-status-tag { font-size:10px; font-weight:600; padding:2px 8px; border-radius:8px; background:rgba(210,153,34,0.1); color:#9a6700; border:1px solid rgba(210,153,34,0.3); }
+        /* Hide callback action bar when not in callback detail view */
+        #callback-detail-panel { display:none; }
+    
+        /* KB article cards + feedback */
+        .kb-article-card { border:1px solid var(--border); border-radius:7px; overflow:hidden; margin-bottom:8px; background:#fff; }
+        .kb-article-hdr  { padding:7px 10px; background:#f6f8fa; border-bottom:1px solid var(--border); }
+        .kb-article-link { font-size:11px; font-weight:700; color:#0969da; text-decoration:none; }
+        .kb-article-link:hover { text-decoration:underline; }
+        .kb-article-summary { font-size:11px; color:#57606a; padding:8px 10px; line-height:1.55; }
+        .kb-feedback-bar { padding:6px 10px; border-top:1px solid var(--border); background:#fafbfc; display:flex; align-items:center; justify-content:space-between; }
+        .kb-feedback-label { font-size:10px; color:#8c959f; font-weight:500; }
+        .kb-feedback-btns { display:flex; gap:4px; }
+        .kbfb-btn { width:24px; height:24px; border:1px solid var(--border); border-radius:4px; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; padding:0; }
+        .kbfb-btn:hover { background:#f0f3f6; }
+        .kbfb-btn svg { width:12px; height:12px; }
+        .kbfb-up-active   { background:rgba(46,160,67,0.08) !important; border-color:#2ea043 !important; }
+        .kbfb-down-active { background:rgba(215,58,73,0.06) !important; border-color:#d73a49 !important; }
+        .kb-feedback-form { padding:10px; border-top:1px solid rgba(210,153,34,0.3); background:#fffbf0; }
+        .kbff-title   { font-size:11px; font-weight:700; color:#9a6700; margin-bottom:7px; }
+        .kbff-options { display:flex; flex-direction:column; gap:5px; margin-bottom:8px; }
+        .kbff-option  { display:flex; align-items:center; gap:6px; font-size:11px; color:#1c2432; cursor:pointer; }
+        .kbff-option input { accent-color:#001F5F; }
+        .kbff-input   { width:100%; padding:5px 8px; border:1px solid var(--border); border-radius:4px; font-size:11px; font-family:var(--font); outline:none; margin-bottom:6px; }
+        .kbff-comment { width:100%; padding:5px 8px; border:1px solid var(--border); border-radius:4px; font-size:11px; font-family:var(--font); resize:none; outline:none; margin-bottom:8px; }
+        .kbff-comment:focus, .kbff-input:focus { border-color:var(--navy); }
+        .kbff-actions { display:flex; gap:6px; justify-content:flex-end; }
+        .kbff-cancel  { padding:4px 10px; border:1px solid var(--border); border-radius:4px; font-size:11px; color:#57606a; background:#fff; cursor:pointer; font-family:var(--font); }
+        .kbff-submit  { padding:4px 10px; border:none; border-radius:4px; font-size:11px; color:#fff; background:var(--navy); cursor:pointer; font-family:var(--font); font-weight:600; }
+        .kbff-submit:hover { background:#0a3080; }
+
+    /* ── AI Notes inside procedure steps ─────────────────────────────────── */
+    .ca-ai-note { border-radius:6px; padding:10px 12px; font-size:11.5px; margin:8px 0; line-height:1.7; }
+    .ca-ai-note-amber { background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.35); color:#713f12; }
+    .ca-ai-note-gap { background:rgba(234,88,12,0.08); border:2px solid rgba(234,88,12,0.5); color:#7c2d12; }
+    .ca-ai-note-label { font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
+    .ca-ai-note-body { font-size:11.5px; line-height:1.7; white-space:pre-line; }
+    
+    /* ── NEW AI CARD (replaces KB section) ─────────────────────────────── */
+    .ca-ai-card { border-radius:8px; margin-top:8px; overflow:hidden; border:1px solid rgba(234,179,8,0.3); }
+    .ca-ai-card-gap { border-color:rgba(234,88,12,0.4); }
+    .ca-ai-card-hdr { padding:6px 10px; display:flex; align-items:center; justify-content:space-between; background:rgba(234,179,8,0.07); }
+    .ca-ai-card-hdr-gap { background:rgba(234,88,12,0.07); }
+    .ca-ai-card-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:#92400e; }
+    .ca-ai-card-label-gap { color:#b45309; }
+    .ca-ai-card-link { font-size:10px; color:#0969da; text-decoration:none; font-weight:600; }
+    .ca-ai-card-link:hover { text-decoration:underline; }
+    .ca-ai-card-link-gap { color:#ea580c; }
+    .ca-ai-card-body { padding:8px 10px; background:rgba(234,179,8,0.04); font-size:11.5px; color:#713f12; line-height:1.7; }
+    .ca-ai-card-body-gap { background:rgba(234,88,12,0.04); color:#7c2d12; }
+    .ca-ai-card-body ul { padding-left:14px; margin:4px 0; }
+    .ca-ai-card-body li { margin-bottom:2px; }
+    .ca-ai-card-ftr { padding:5px 10px; border-top:1px solid rgba(234,179,8,0.15); background:rgba(234,179,8,0.03); display:flex; align-items:center; justify-content:space-between; }
+    .ca-ai-card-ftr-gap { border-top-color:rgba(234,88,12,0.15); background:rgba(234,88,12,0.03); }
+    .ca-ai-fb-label { font-size:10px; color:#8c959f; }
+    .ca-ai-fb-label-gap { font-size:10px; color:#c2410c; font-weight:600; }
+    .ca-ai-fb-btns { display:flex; gap:4px; }
+    .ca-ai-fb-btn { width:22px; height:22px; border:1px solid #d0d7de; border-radius:4px; background:#fff; cursor:pointer; font-size:11px; display:flex; align-items:center; justify-content:center; }
+    .ca-ai-fb-btn:hover { background:#f6f8fa; }
+    .ca-ai-fb-btn-pulse { border-color:#c2410c; background:rgba(234,88,12,0.05); animation:fb-pulse 1.5s infinite; }
+    @keyframes fb-pulse { 0%,100%{border-color:#c2410c;} 50%{border-color:#f97316;} }
+
+    
+    /* KB Gap transcript note */
+    .tx-kb-gap { padding:6px 12px; }
+    .tx-kb-gap-inner { display:flex; flex-direction:column; gap:6px; padding:8px 12px; background:rgba(234,88,12,0.07); border:1px solid rgba(234,88,12,0.35); border-radius:6px; width:100%; }
+    .tx-kb-gap-hdr { display:flex; align-items:center; gap:7px; }
+    .tx-kb-gap-icon { font-size:12px; flex-shrink:0; }
+    .tx-kb-gap-label { font-size:10.5px; font-weight:700; color:#c2410c; letter-spacing:0.3px; }
+    .tx-kb-gap-text { font-size:11.5px; color:#7c2d12; line-height:1.5; }
+    /* KB Gap report buttons */
+    .tx-kb-gap-btn {
+        display:inline-flex; align-items:center; gap:5px;
+        padding:5px 12px; background:#7c2d12; color:#fff;
+        border:none; border-radius:5px; font-size:11px; font-weight:600;
+        cursor:pointer; margin-top:4px; width:auto; align-self:flex-start;
+    }
+    .tx-kb-gap-btn:hover { background:#991b1b; }
+    .tx-kb-gap-btn:disabled { opacity:0.7; cursor:default; }
+    .ca-kb-gap-report-btn {
+        display:flex; align-items:center; gap:5px;
+        padding:6px 12px; background:#7c2d12; color:#fff;
+        border:none; border-radius:5px; font-size:11px; font-weight:600;
+        cursor:pointer; width:100%;
+    }
+    .ca-kb-gap-report-btn:hover { background:#991b1b; }
+    .ca-kb-gap-report-btn:disabled { opacity:0.7; cursor:default; }
+    /* tx-kb-gap handles KB gap transcript styling */
+
+
     </style>
 </head>
 <body>
@@ -570,7 +695,7 @@
              onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
         <div class="hdr-logo-fallback" id="logo-fb">🛡️</div>
         <div class="hdr-divider"></div>
-        <div class="hdr-title" onclick="resetToIdle()" title="Click to reset workspace" style="cursor:pointer;">MHA Intelligent Contact Centre</div>
+        <div class="hdr-title">MHA Intelligent Contact Centre</div>
     </div>
     <div class="hdr-center">
         <span class="srch-ico">🔍</span>
@@ -723,7 +848,16 @@
         </div>
     </div>
 
-    <!-- Activity Log -->
+    
+    <!-- Scheduled Callbacks -->
+    <div class="sb-callbacks" id="sb-callbacks">
+        <div class="sb-cb-hdr">
+            <span class="sb-cb-title">Scheduled Call Back <span class="sb-cb-count" id="cb-count">(0)</span></span>
+        </div>
+        <div class="cb-list" id="cb-list"></div>
+    </div>
+
+<!-- Activity Log -->
     <div class="sb-alog" style="display:none;">
         <div class="sb-alog-hdr">Activity Log</div>
         <div class="alog" id="activity-log"><div class="li">System initialized</div></div>
@@ -1092,6 +1226,92 @@
         </div>
     </div><!-- /tx-section -->
 
+
+    <!-- Callback Detail Panel — uses tx-section Overview layout -->
+    <div id="callback-detail-panel" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+        <!-- Profile bar reuses #cpb — already shown above -->
+        <!-- Tabs -->
+        <div class="call-tabs" id="cb-tabs">
+            <button class="call-tab active" id="cb-tab-overview" onclick="switchCbTab('overview')">Overview</button>
+            <button class="call-tab" id="cb-tab-callview" onclick="switchCbTab('callview')">Call View</button>
+            <button class="call-tab" id="cb-tab-moreactions" onclick="switchCbTab('moreactions')">More Actions</button>
+        </div>
+        <!-- Overview tab -->
+        <div id="cb-view-overview" style="flex:1;display:flex;flex-direction:column;overflow-y:auto;padding:16px 16px 80px;gap:12px;">
+            <div class="ov-two-col">
+                <!-- Serviceman details card -->
+                <div class="ov-card" style="margin-bottom:0">
+                    <div class="ov-card-hdr">
+                        <span class="ov-card-title">Serviceman details</span>
+                        <a class="ov-card-action">View detail</a>
+                    </div>
+                    <div class="ov-grid-2col">
+                        <div class="ov-field"><label>Full name</label><span id="cbd-fullname">-</span></div>
+                        <div class="ov-field"><label>Email</label><span id="cbd-email">-</span></div>
+                        <div class="ov-field"><label>NRIC</label><span id="cbd-nric">-</span></div>
+                        <div class="ov-field"><label>Phone</label><span id="cbd-phone">-</span></div>
+                    </div>
+                    <div class="ov-grid" style="grid-template-columns:repeat(2,1fr);margin-top:8px;">
+                        <div class="ov-field"><label>Rank</label><span id="cbd-rank">-</span></div>
+                        <div class="ov-field"><label>Unit</label><span id="cbd-unit">-</span></div>
+                    </div>
+                </div>
+                <!-- AI summary card -->
+                <div class="ov-ai-card">
+                    <div class="ov-ai-title">&#10022; Customer Interaction Summary</div>
+                    <div class="ov-ai-text" id="cbd-ai-summary">Caller contacted the Support Line and selected NS Administrative Matters, followed by Disruption &amp; Deferment. Identity was successfully verified via Singpass. Caller indicated intent to apply for disruption and the case has been routed to an officer for further assistance.</div>
+                </div>
+            </div>
+            <!-- Call tree summary card -->
+            <div class="ov-card">
+                <div class="ov-card-hdr">
+                    <span class="ov-card-title">Call tree summary</span>
+                    <span style="font-size:11px;color:#9a6700;background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);padding:2px 8px;border-radius:8px;font-weight:600;" id="cbd-slot-tag">⏰ Scheduled</span>
+                </div>
+                <div class="ov-grid">
+                    <div class="ov-field"><label>Level 1 - Main Category</label><span>NS Administrative Matters</span></div>
+                    <div class="ov-field"><label>Level 2 - Subcategory</label><span>Disruption &amp; Deferment</span></div>
+                    <div class="ov-field"><label>Level 3 - Request Type</label><span id="cbd-reason">-</span></div>
+                    <div class="ov-field"><label>Singpass Authentication</label><span style="color:#1a7f37;font-weight:600;">&#10003; Verified</span></div>
+                </div>
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div class="ov-field"><label>Scheduled Callback</label><span id="cbd-slot-display" style="font-family:'IBM Plex Mono',monospace;color:var(--navy);">-</span></div>
+                    <div class="ov-field"><label>Status</label><span id="cbd-status" style="font-weight:600;color:#9a6700;">Pending</span></div>
+                </div>
+            </div>
+            <!-- Recent transactions -->
+            <div class="ov-card">
+                <div class="ov-card-hdr">
+                    <span class="ov-card-title">Recent transactions <span class="ov-info-badge">Info</span></span>
+                </div>
+                <table class="ov-tx-table">
+                    <thead><tr><th>Date</th><th>Time</th><th>Case ID</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td>12/01/2026</td><td>12:34</td><td>NS001</td><td>Enquiry about IPPT</td></tr>
+                        <tr><td>15/01/2026</td><td>13:45</td><td>NS002</td><td>Deferment request</td></tr>
+                        <tr><td>31/01/2026</td><td>09:30</td><td>NS003</td><td>Enquiry about IPPT</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Call View tab (empty until connected) -->
+        <div id="cb-view-callview" style="flex:1;display:none;flex-direction:column;overflow:hidden;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#8c959f;">
+                <div style="font-size:30px;opacity:0.4;">📞</div>
+                <p style="font-size:12.5px;">Transcript will appear once call connects</p>
+            </div>
+        </div>
+        <!-- More Actions tab -->
+        <div id="cb-view-moreactions" style="flex:1;display:none;overflow-y:auto;padding:16px;"></div>
+        <!-- Call Back action bar — always visible at bottom -->
+        <div style="position:sticky;bottom:0;padding:10px 16px;border-top:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10;">
+            <span style="font-size:11px;color:#57606a;" id="cbd-time-label">Scheduled callback</span>
+            <button class="btn-callback-main" id="btn-callback-main" onclick="initiateCallbackFromPanel()">
+                📞 Call Back
+            </button>
+        </div>
+    </div>
+
 </div><!-- /center-left -->
 
 <!-- POST-CALL AI SUMMARY (inside ccp-area, beside center-left) -->
@@ -1176,12 +1396,14 @@
 <script>(function(){emailjs.init("ItJ4M1IyoBtKI7RZ8");})()</script>
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const ccpUrl      = "https://cerebro.my.connect.aws/ccp-v2";
+const ccpUrl      = "https://cerebrosg.my.connect.aws/ccp-v2";
 const APPSYNC_WS  = "wss://oya5jdgo4nauphhubeisoaqre4.appsync-realtime-api.us-west-2.amazonaws.com/graphql";
 const APPSYNC_HOST = "oya5jdgo4nauphhubeisoaqre4.appsync-api.us-west-2.amazonaws.com";
 const SUB_QUERY   = "subscription Subscribe2Channel($name:String!){subscribe2channel(name:$name){name data}}";
 const TOKEN_ATTR  = "token";
 const PROFILE_API = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/profile";
+const NS_CALLBACKS_API    = "https://rr208r6wxd.execute-api.ap-southeast-1.amazonaws.com/callbacks";
+    const NS_CONFLUENCE_API   = "https://8vmq4a0qz4.execute-api.ap-southeast-1.amazonaws.com";
 const JIRA_API    = "https://qg6j7fbwfg.execute-api.us-west-2.amazonaws.com/v1/create";
 
 // ── COURSE LISTS PER UNIVERSITY ───────────────────────────────────────────────
@@ -1340,9 +1562,69 @@ const KW_RULES = [
     id: 'disruption',
     label: 'Disruption',
     keywords: [
-      'disruption',
-      'disrupted',
-      'disrupting'
+      'apply for disruption',
+      'applying for disruption',
+      'want to apply for disruption',
+      'i want to apply',
+      'need to apply for disruption'
+    ]
+  },
+  {
+    id: 'extension_step1',
+    label: 'Extension of Disruption',
+    keywords: [
+      'extend my disruption',
+      'extend disruption',
+      'extension of disruption',
+      'continue my disruption',
+      'continue disruption',
+      'extending my disruption',
+      'extending disruption',
+      'extension',
+      'extend'
+    ]
+  },
+  {
+    id: 'extension_step2',
+    label: 'Extension Eligibility',
+    keywords: [
+      'yes i want to extend',
+      'yes that is correct',
+      'yes correct',
+      'that is correct',
+      'correct i want to extend',
+      'confirm extension',
+      'still enrolled',
+      'still in university',
+      'still studying',
+      'want to extend',
+      'like to extend'
+    ]
+  },
+  {
+    id: 'extension_step3',
+    label: 'Extension Documents',
+    keywords: [
+      'what documents',
+      'documents needed',
+      'documents required',
+      'what do i need to submit',
+      'what to prepare',
+      'what to submit',
+      'requirements for extension',
+      'document requirements'
+    ]
+  },
+  {
+    id: 'extension_step4',
+    label: 'Extension Resolution',
+    keywords: [
+      'follow up',
+      'get back to me',
+      'email me',
+      'send me the details',
+      'next steps',
+      'what happens next'
     ]
   },
   // ── original SPF rules retained below ──
@@ -1403,17 +1685,17 @@ const KB_SUGGESTIONS = {
       {
         title: 'NS Deferment: Documentary Requirements (No Offer Letter)',
         summary: 'Lists accepted alternative documents when applicant does not hold an official admission offer at time of application.',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1802599/Eligibility+for+University-Related+NS+Disruption'
       },
       {
         title: 'IPA vs Official Offer — NS Deferment Policy',
         summary: 'Explains the difference between In-Principal Acceptance and an official admission offer, and the processing implications.',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles'
       },
       {
         title: 'NS Deferment Application SOP',
         summary: 'Full step-by-step procedure for processing NS deferment applications including document checklist.',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption'
       }
     ]
   },
@@ -1430,12 +1712,12 @@ const KB_SUGGESTIONS = {
       {
         title: 'NS Deferment: Admission Offer Requirements',
         summary: 'What constitutes a valid official admission offer for NS deferment purposes and accepted institutions.',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1802599/Eligibility+for+University-Related+NS+Disruption'
       },
       {
         title: 'In-Principal Acceptance (IPA) — NS Processing Guide',
         summary: 'How to process IPA-based deferment applications and additional steps required.',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles'
       }
     ]
   },
@@ -1452,12 +1734,12 @@ const KB_SUGGESTIONS = {
       {
         title: 'SOP: Public Order Disruption Response',
         summary: 'Procedures for handling reports of public disruption including escalation thresholds.',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption'
       },
       {
         title: 'Essential Services Disruption Reporting',
         summary: 'How to log and route disruption reports affecting essential services (transport, utilities, comms).',
-        url: '#'
+        url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption'
       }
     ]
   },
@@ -1471,8 +1753,8 @@ const KB_SUGGESTIONS = {
       { label: 'Log fraud report', primary: false }
     ],
     articles: [
-      { title: 'SOP: Scam / Fraud Reports', summary: 'Procedure for taking scam reports and escalating to the Anti-Scam Centre.', url: '#' },
-      { title: 'Common Scam Types 2024', summary: 'Overview of job scams, love scams, phishing and e-commerce fraud with detection tips.', url: '#' }
+      { title: 'SOP: Scam / Fraud Reports', summary: 'Procedure for taking scam reports and escalating to the Anti-Scam Centre.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' },
+      { title: 'Common Scam Types 2024', summary: 'Overview of job scams, love scams, phishing and e-commerce fraud with detection tips.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   },
   harassment: {
@@ -1485,8 +1767,8 @@ const KB_SUGGESTIONS = {
       { label: 'Refer to Community Mediation Centre', primary: false }
     ],
     articles: [
-      { title: 'SOP: Harassment & Neighbour Disputes', summary: 'Guidelines including Protection Order referrals.', url: '#' },
-      { title: 'Protection Order Application Guide', summary: 'How victims apply for PPO/EPO through Family Justice Courts.', url: '#' }
+      { title: 'SOP: Harassment & Neighbour Disputes', summary: 'Guidelines including Protection Order referrals.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' },
+      { title: 'Protection Order Application Guide', summary: 'How victims apply for PPO/EPO through Family Justice Courts.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   },
   lost_property: {
@@ -1499,8 +1781,8 @@ const KB_SUGGESTIONS = {
       { label: 'Log formal lost property report', primary: false }
     ],
     articles: [
-      { title: 'SOP: Lost Property Reporting', summary: 'Procedure for logging lost property and cross-referencing found items database.', url: '#' },
-      { title: 'MRT / Bus Lost Property Contacts', summary: 'SMRT and SBS contacts and procedures for items lost on public transport.', url: '#' }
+      { title: 'SOP: Lost Property Reporting', summary: 'Procedure for logging lost property and cross-referencing found items database.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' },
+      { title: 'MRT / Bus Lost Property Contacts', summary: 'SMRT and SBS contacts and procedures for items lost on public transport.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   },
   noise: {
@@ -1513,7 +1795,7 @@ const KB_SUGGESTIONS = {
       { label: 'Log noise complaint', primary: false }
     ],
     articles: [
-      { title: 'SOP: Noise Complaints & Public Nuisance', summary: 'SPF vs HDB/NEA jurisdiction and escalation thresholds.', url: '#' }
+      { title: 'SOP: Noise Complaints & Public Nuisance', summary: 'SPF vs HDB/NEA jurisdiction and escalation thresholds.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   },
   suspicious: {
@@ -1526,7 +1808,7 @@ const KB_SUGGESTIONS = {
       { label: 'Dispatch patrol', primary: false }
     ],
     articles: [
-      { title: 'SOP: Suspicious Person / Activity Reports', summary: 'SCONE description framework and escalation procedures.', url: '#' }
+      { title: 'SOP: Suspicious Person / Activity Reports', summary: 'SCONE description framework and escalation procedures.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   },
   accident: {
@@ -1539,7 +1821,7 @@ const KB_SUGGESTIONS = {
       { label: 'Dispatch Traffic Police', primary: false }
     ],
     articles: [
-      { title: 'SOP: Road Traffic Accident Reporting', summary: 'Vehicle details, injury status, SCDF coordination and GIA report issuance.', url: '#' }
+      { title: 'SOP: Road Traffic Accident Reporting', summary: 'Vehicle details, injury status, SCDF coordination and GIA report issuance.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   },
   assault: {
@@ -1552,7 +1834,7 @@ const KB_SUGGESTIONS = {
       { label: 'Advise on evidence preservation', primary: false }
     ],
     articles: [
-      { title: 'SOP: Assault & Voluntarily Causing Hurt', summary: 'Procedures and Penal Code sections 321–323.', url: '#' }
+      { title: 'SOP: Assault & Voluntarily Causing Hurt', summary: 'Procedures and Penal Code sections 321–323.', url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1769857/Related+Policies+and+Principles' }
     ]
   }
 };
@@ -1568,8 +1850,11 @@ const PROCEDURE_STEPS = {
       { text: 'Confirm the caller\'s intent (e.g., applying for disruption, checking application status)', subs: [] }
     ],
     kb: {
+      searchQuery: 'apply application form',
+      searchQuery: 'disruption apply',
+      searchQuery: 'disruption deferment',
       title: 'Deferment & Disruption Information',
-      url: '#',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900545/What+is+NS+Disruption',
       summary: 'Summary:',
       bullets: [
         'Deferment allows you to postpone a scheduled NS activity if you are unable to attend due to valid reasons.',
@@ -1587,7 +1872,7 @@ const PROCEDURE_STEPS = {
     ],
     kb: {
       title: 'Deferment Eligibility Criteria',
-      url: '#',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1802599/Eligibility+for+University-Related+NS+Disruption',
       summary: 'Summary:',
       bullets: [
         '✅ You enlisted later than your school cohort',
@@ -1598,6 +1883,75 @@ const PROCEDURE_STEPS = {
       footer: 'Service man is <strong>ELIGIBLE</strong> for disruption application'
     }
   },
+  // Extension of Disruption flow — triggered by "extension" keyword
+  extension_step1: {
+    title: 'Greet & Confirm Extension Intent',
+    instructions: [
+      { text: 'Greet caller and confirm they are a current disruptee seeking extension.', subs: ['"Hi [Rank + Name], I understand you\'re looking to extend your current NS disruption. Let me help you with that."'] },
+      { text: 'Confirm their current disruption end date.', subs: [] }
+    ],
+    aiNote: 'NSF is currently a disruptee. Original disruption ends on <strong>30 Nov 2026</strong>. Extension application must be submitted at least 3 months before end date.',
+    kb: {
+      searchQuery: 'extension extend disruption',
+      articleId: 'extension',
+      title: 'Extension of Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
+      summary: 'An extension of disruption may be granted if the NSF continues in an approved programme.',
+      bullets: ['Application must be submitted at least 3 months before current disruption end date.','NSF must still be enrolled in an approved university programme.','Supporting documents from the university are required.']
+    }
+  },
+  extension_step2: {
+    title: 'Check Eligibility & Timeline',
+    instructions: [
+      { text: 'Confirm NSF is still enrolled in approved programme.', subs: [] },
+      { text: 'Check if application is at least 3 months before disruption end date.', subs: ['"Your disruption ends on 30 Nov 2026. Application should be submitted by 31 Aug 2026."'] }
+    ],
+    aiNote: 'Verify that NSF\'s university enrolment is still active and programme is still approved under MINDEF guidelines.',
+    kb: {
+      searchQuery: 'eligibility extension conditions',
+      articleId: 'conditions',
+      title: 'Conditions & Service Obligations',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900559/Conditions+Service+Obligations',
+      summary: 'NSFs on disruption must maintain satisfactory academic performance and keep MINDEF updated.',
+      bullets: ['Must be in good academic standing.','Programme must still be approved by MINDEF.','Any changes to course or university must be reported immediately.']
+    }
+  },
+  extension_step3: {
+    title: 'Document Requirements',
+    instructions: [
+      { text: 'Advise caller on documents required for extension application.', subs: [] },
+      { text: 'Ask caller to prepare and submit via NS Portal.', subs: ['"Please prepare your updated university enrolment letter and submit via the NS Portal as soon as possible."'] }
+    ],
+    aiNote: null,
+    kbGap: false,
+    dynamicNote: true,
+    dynamicQuery: 'What documents are required for extension of disruption?',
+    kb: {
+      searchQuery: 'extension documents',
+      articleId: 'extension',
+      title: 'Extension of Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
+      summary: 'Documents required for extension of disruption.',
+      bullets: []
+    }
+  },
+  extension_step4: {
+    title: 'Resolution & Follow Up',
+    instructions: [
+      { text: 'Summarise the call and confirm next steps with caller.', subs: ['"To confirm, you\'re enquiring about documents required for extension of disruption. I\'ll follow up within 2-3 working days."'] },
+      { text: 'Obtain caller\'s email address for follow-up.', subs: [] },
+      { text: 'Log the case and escalate if needed.', subs: [] }
+    ],
+    kb: {
+      searchQuery: 'extension disruption',
+      articleId: 'extension',
+      title: 'Extension of Disruption',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/14057473/Extension+of+Disruption',
+      summary: 'Extension may be granted if NSF continues in an approved programme.',
+      bullets: []
+    }
+  },
+
   // Step 3 shows when consent is given
   consent: {
     title: 'Explain Required Next Steps and Obtain Consent',
@@ -1627,8 +1981,10 @@ const PROCEDURE_STEPS = {
       { text: 'Confirm that application is saved as draft and provide instructions for submitting certifying documents.', subs: ['"Thank you. I will save your application as a draft. I will now send you a link to your email to upload your certifying document. Please request it from the Office of Admissions and submit within 10 working days, or the application will lapse."'] }
     ],
     kb: {
+      searchQuery: 'apply submit form process',
+      searchQuery: 'conditions obligations requirements',
       title: 'Documents to submit, timeframe required for NSF, protocol for agent',
-      url: '#',
+      url: 'https://dttau-demo-sandbox-htx.atlassian.net/wiki/spaces/HCAD/pages/1900552/Applying+for+Disruption',
       summary: 'Summary:',
       bullets: [
         'Application draft is valid for 10 days.',
@@ -1684,6 +2040,9 @@ function setPanel(state) {
     } else if (state === 'idle') {
         idleLogin.style.display = 'flex';
         idleLogin.classList.add('visible');
+        // Hide callback panel
+        var cbPanelIdle=document.getElementById('callback-detail-panel');
+        if(cbPanelIdle) cbPanelIdle.style.display='none';
         // Reset connect assistant
         var caNoCall = document.getElementById('ca-no-call');
         var caLive = document.getElementById('ca-live-body');
@@ -1712,6 +2071,12 @@ function setPanel(state) {
     } else if (state === 'connected') {
         cpb.classList.add('active');
         txSec.classList.add('visible');
+        txSec.style.display = 'flex'; // Force override inline display:none
+        // Close accordion so tx-section is visible
+        var accC = document.getElementById('cpb-acc');
+        var vdBtnC = document.getElementById('btn-vd');
+        if(accC) accC.classList.remove('open');
+        if(vdBtnC){ vdBtnC.classList.remove('open'); vdBtnC.innerHTML='View Details <i class="chev">▾</i>'; }
         // Swap bottom bars
         var callBar = document.getElementById('call-controls-bar');
         var ringBar = document.getElementById('ring-controls-bar');
@@ -1975,6 +2340,7 @@ function submitDisruptionForm() {
         "priority": {"id": "3"},
         "project": {"id": "10000"},
         "summary": "Application for Disruption of Police National Service for University Studies",
+        "customfield_10010": "2",
         "customfield_10114": "Telephony",
         "customfield_10115": "example1234567890code",
         "customfield_10116": isoWithTz,
@@ -2219,7 +2585,23 @@ function scanKw(text) {
     var lower = text.toLowerCase();
 
     // Check longest keywords first (rules already ordered: no_offer before offer)
+    // Pre-scan: check if any extension keywords exist in this utterance first
+    var hasExtensionKw = false;
+    KW_RULES.forEach(function(r) {
+        if (r.id && r.id.indexOf('extension_') === 0) {
+            r.keywords.forEach(function(kw) {
+                if (lower.indexOf(kw.toLowerCase()) >= 0) hasExtensionKw = true;
+            });
+        }
+    });
+
     KW_RULES.forEach(function(rule) {
+        // Skip disruption rule if extension keyword found in same utterance or already active
+        if (rule.id === 'disruption' && (hasExtensionKw ||
+            kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+            kwShown.has('extension_step3') || kwShown.has('extension_step4'))) {
+            return;
+        }
         rule.keywords.forEach(function(kw) {
             if (lower.indexOf(kw.toLowerCase()) >= 0 && !kwDetected.has(kw)) {
                 kwDetected.add(kw);
@@ -2229,8 +2611,12 @@ function scanKw(text) {
                     flashKwAlert(rule.label + ' keyword detected: "' + kw + '"');
                     log('🔍 Keyword [' + rule.label + ']: ' + kw, 'warning');
                     renderKbSuggestions(rule.id, rule.label, kw);
-                    // Insert AI note into transcript
-                    injectAiNote(rule.id, kw);
+                    // Insert AI note — skip disruption note if extension already active
+                    var extensionActive = kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+                                         kwShown.has('extension_step3') || kwShown.has('extension_step4');
+                    if (!(rule.id === 'disruption' && extensionActive)) {
+                        injectAiNote(rule.id, kw);
+                    }
                 }
             }
         });
@@ -2332,8 +2718,15 @@ function addSysMsg(t) {
 
 // Inject AI NOTE inline into transcript after keyword detected
 function injectAiNote(ruleId, triggeredKw) {
+    // Check KB_SUGGESTIONS first, then PROCEDURE_STEPS for extension steps
     var suggestion = KB_SUGGESTIONS[ruleId];
-    if (!suggestion || !suggestion.aiNote) return;
+    var aiNoteText = suggestion ? suggestion.aiNote : null;
+    if (!aiNoteText && PROCEDURE_STEPS[ruleId] && PROCEDURE_STEPS[ruleId].aiNote) {
+        aiNoteText = PROCEDURE_STEPS[ruleId].aiNote;
+    }
+    if (!aiNoteText) return;
+    // Create a temporary suggestion-like object
+    suggestion = { aiNote: aiNoteText };
 
     var c = document.getElementById('tx-msgs');
     var wrap = document.createElement('div');
@@ -2341,7 +2734,7 @@ function injectAiNote(ruleId, triggeredKw) {
     wrap.innerHTML = '<div class="tx-ai-note-inner">' +
         '<span class="ai-note-icon">⚠️</span>' +
         '<span class="ai-note-label">AI Note:</span>' +
-        '<span class="ai-note-text">' + suggestion.aiNote + '</span>' +
+        '<span class="ai-note-text" style="white-space:pre-line;line-height:1.7;">' + suggestion.aiNote + '</span>' +
         '</div>';
     c.appendChild(wrap);
 
@@ -2386,6 +2779,104 @@ function initProcedureThread(procedureName) {
     procStepCount = 0;
 }
 
+
+    // ── KB card builder helpers ──────────────────────────────────────────────
+    function _buildKbArticleHtml(kbId, title, url, summary) {
+        return '<div class="ca-kb-article-item" style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">' +
+            '<a href="' + url + '" class="ca-kb-link" target="_blank">' + title +
+                ' <svg class="ca-kb-link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
+            '</a>' +
+            '<div class="ca-kb-summary" style="margin-top:4px;">' + (summary || '') + '</div>' +
+            '<div class="kb-feedback-bar" style="margin-top:6px;">' +
+                '<span class="kb-feedback-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>' +
+                '<div class="kb-feedback-btns">' +
+                    '<button class="kbfb-btn" id="kbfb-up-' + kbId + '" title="Helpful" onclick="kbThumbsUp(\'' + kbId + '\')">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>' +
+                    '</button>' +
+                    '<button class="kbfb-btn" id="kbfb-dn-' + kbId + '" title="Not helpful" onclick="kbThumbsDown(\'' + kbId + '\',\'' + title.replace(/'/g,"\\'") + '\',\'' + url + '\')">' +
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>' +
+                    '</button>' +
+                '</div>' +
+            '</div>' +
+            '<div class="kb-feedback-form" id="kbff-' + kbId + '" style="display:none;">' +
+                '<div class="kbff-title">⚠️ What was the issue?</div>' +
+                '<div class="kbff-options">' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="missing"> Missing information</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="none"> No information found</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="other"> Other</label>' +
+                '</div>' +
+                '<textarea class="kbff-comment" id="kbff-cmt-' + kbId + '" rows="2" placeholder="Add a comment (optional)…"></textarea>' +
+                '<div class="kbff-actions">' +
+                    '<button class="kbff-cancel" onclick="kbCancelFeedback(\'' + kbId + '\')">Cancel</button>' +
+                    '<button class="kbff-submit" onclick="kbSubmitFeedback(\'' + kbId + '\',\'' + title.replace(/'/g,"\\'") + '\',\'' + url + '\')">Submit</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function _buildKbCardHtml(kbId, title, url, summary, bullets, footer, isGap) {
+        // New AI card design - combines AI note + KB link + thumbs in one block
+        var cardClass = isGap ? 'ca-ai-card ca-ai-card-gap' : 'ca-ai-card';
+        var hdrClass  = isGap ? 'ca-ai-card-hdr ca-ai-card-hdr-gap' : 'ca-ai-card-hdr';
+        var lblClass  = isGap ? 'ca-ai-card-label ca-ai-card-label-gap' : 'ca-ai-card-label';
+        var bodyClass = isGap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
+        var ftrClass  = isGap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
+        var noteLabel = isGap ? '⚠️ KB Gap' : '📚 Knowledge Base';
+        var fbLabel   = isGap ? '<span class="ca-ai-fb-label-gap" id="kbfb-lbl-' + kbId + '">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>';
+        var thumbUpBtn = '<button class="ca-ai-fb-btn" id="kbfb-up-' + kbId + '" onclick="kbThumbsUp(\''+kbId+'\')">👍</button>';
+        var safeTitle = (title||'').replace(/"/g,'&quot;');
+        var safeUrl   = (url||'');
+        var thumbDown = isGap
+            ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse" id="kbfb-dn-' + kbId + '" onclick="kbThumbsDown(\''+kbId+'\',\''+safeTitle+'\',\''+safeUrl+'\')">👎</button>'
+            : '<button class="ca-ai-fb-btn" id="kbfb-dn-' + kbId + '" onclick="kbThumbsDown(\''+kbId+'\',\''+safeTitle+'\',\''+safeUrl+'\')">👎</button>';
+        var bulletsHtml = '';
+        if (bullets && bullets.length) {
+            bulletsHtml = '<ul style="margin:4px 0 0 14px;padding:0;">' + bullets.map(function(b){ return '<li style="margin:2px 0;">' + b + '</li>'; }).join('') + '</ul>';
+        }
+        var summaryHtml = summary ? '<div style="margin-bottom:' + (bulletsHtml ? '4px' : '0') + ';">' + summary + '</div>' : '';
+        // Title as link inside body
+        var titleLinkHtml = url
+            ? '<div style="margin-bottom:5px;"><a href="' + url + '" class="ca-ai-card-link' + (isGap ? ' ca-ai-card-link-gap' : '') + '" target="_blank" style="font-size:11px;font-weight:700;">📚 ' + title + ' ↗</a></div>'
+            : '';
+        return '<div class="' + cardClass + '" id="' + kbId + '">' +
+            '<div class="' + hdrClass + '">' +
+                '<span class="' + lblClass + '">' + noteLabel + '</span>' +
+            '</div>' +
+            '<div class="' + bodyClass + '" id="kb-inner-' + kbId + '">' +
+                titleLinkHtml + summaryHtml + bulletsHtml +
+            '</div>' +
+            '<div class="' + ftrClass + '">' +
+                fbLabel +
+                '<div class="ca-ai-fb-btns">' +
+                    thumbUpBtn +
+                    thumbDown +
+                '</div>' +
+            '</div>' +
+            '<div class="kb-feedback-form" id="kbff-' + kbId + '" style="display:none;">' +
+                '<div class="kbff-title">⚠️ What was the issue?</div>' +
+                '<div class="kbff-options">' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="missing"> Missing information</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="none"> No information found</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="other"> Other</label>' +
+                '</div>' +
+                '<textarea class="kbff-comment" id="kbff-cmt-' + kbId + '" placeholder="Add a comment (optional)"></textarea>' +
+                '<div class="kbff-actions">' +
+                    '<button class="kbff-cancel" onclick="kbCancelFeedback(\'' + kbId + '\')">Cancel</button>' +
+                    '<button class="kbff-submit" onclick="kbSubmitFeedback(\'' + kbId + '\', \'' + title.replace(/\'/, "\'") + '\', \'' + url + '\')">Submit</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function _buildKbArticleHtml(kbId, title, url, summary) {
+        // Used for dynamic search results - updates kb-inner div
+        return '<div style="margin-bottom:4px;">' +
+            '<a href="' + url + '" style="font-size:11px;font-weight:700;color:#0969da;text-decoration:none;" target="_blank">📚 ' + title + ' ↗</a>' +
+            '</div>' +
+            '<div style="font-size:11px;color:#57606a;line-height:1.6;">' + summary + '</div>';
+    }
+
+
 function addProcStep(stepKey) {
     var stepData = PROCEDURE_STEPS[stepKey];
     if (!stepData) return;
@@ -2428,35 +2919,48 @@ function addProcStep(stepKey) {
 
     // Build KB section
     var kbHtml = '';
+    var kbId = 'kb-' + Date.now();
     if (stepData.kb) {
         var kb = stepData.kb;
-        var bulletsHtml = (kb.bullets || []).map(function(b) { return '<li>' + b + '</li>'; }).join('');
-        var footerHtml = kb.footer ? '<div style="font-size:12px;font-weight:700;color:#24292f;margin-top:8px;padding-top:6px;border-top:1px solid #e1e4e8;">' + kb.footer + '</div>' : '';
-        kbHtml =
-            '<div class="ca-kb-section">' +
-                '<div class="ca-kb-hdr" onclick="toggleKb(this)">' +
-                    '<span class="ca-kb-hdr-icon">▼</span>' +
-                    '<span class="ca-kb-hdr-title">Knowledge Base</span>' +
-                '</div>' +
-                '<div class="ca-kb-body">' +
-                    '<a href="' + kb.url + '" class="ca-kb-link" target="_blank">' + kb.title +
-                        ' <svg class="ca-kb-link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
-                    '</a>' +
-                    '<div class="ca-kb-summary">' + kb.summary + '</div>' +
-                    '<ul class="ca-kb-bullets">' + bulletsHtml + '</ul>' +
-                    footerHtml +
-                '</div>' +
-            '</div>';
+        kbHtml = _buildKbCardHtml(kbId, kb.title, kb.url, kb.summary, kb.bullets, kb.footer);
+        // If searchQuery defined and API available — fetch dynamic content
+        if (kb.searchQuery && NS_CONFLUENCE_API && NS_CONFLUENCE_API.indexOf('PLACEHOLDER') === -1) {
+            setTimeout(function() {
+                // Use article_id if defined for precise fetch, otherwise use keyword search
+                var fetchUrl = kb.articleId
+                    ? NS_CONFLUENCE_API + '/search?query=' + encodeURIComponent(kb.articleId)
+                    : NS_CONFLUENCE_API + '/search?query=' + encodeURIComponent(kb.searchQuery);
+                fetch(fetchUrl)
+                .then(function(r){ return r.json(); })
+                .then(function(data){
+                    var articles = data.articles || [];
+                    if (!articles.length) return;
+                    var container = document.getElementById('kb-inner-' + kbId);
+                    if (!container) return;
+                    var newHtml = '';
+                    articles.forEach(function(a) {
+                        newHtml += _buildKbArticleHtml(kbId + '-' + a.id, a.title, a.url, a.summary);
+                    });
+                    container.innerHTML = newHtml;
+                    log('[KB] Dynamic articles loaded for: ' + (kb.articleId || kb.searchQuery), 'success');
+                })
+                .catch(function(e){ log('[KB] Search failed: ' + e.message, 'warning'); });
+            }, 300);
+        }
     }
+
+
+    // aiNote is shown in transcript only — not in Connect Assistant step card
+    var aiNoteHtml = '';
 
     // Build body: for sendPortal step, KB goes below buttons
     var bodyContent = '';
     if (stepData.sendPortalBtn) {
-        bodyContent = olHtml +
+        bodyContent = olHtml + aiNoteHtml +
             '<button class="consent-create-btn" id="send-portal-btn" style="margin-top:10px" onclick="sendPortalLink()">Send portal link</button><div id="resend-portal-container"></div>' +
             kbHtml;
     } else {
-        bodyContent = olHtml + kbHtml +
+        bodyContent = olHtml + aiNoteHtml + kbHtml +
             (stepData.createBtn ? '<button class="consent-create-btn" id="create-app-btn" style="margin-top:10px" onclick="onCreateApplication()">Create Application</button>' : '');
     }
 
@@ -2476,6 +2980,159 @@ function addProcStep(stepKey) {
         '<div class="ca-step-body">' + bodyContent + '</div>';
 
     container.appendChild(step);
+
+    // If dynamicNote flag set — fetch Claude-generated note from /generate
+    if (stepData.dynamicNote && NS_CONFLUENCE_API && NS_CONFLUENCE_API.indexOf('PLACEHOLDER') === -1) {
+        var noteStepId = stepId;
+        var noteArticleId = stepData.kb ? (stepData.kb.articleId || '') : '';
+        // Use natural language query for better Claude response
+        var noteQuery = stepData.dynamicQuery || (stepData.kb ? stepData.kb.searchQuery : stepKey);
+        setTimeout(function() {
+            fetch(NS_CONFLUENCE_API + '/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: noteQuery, context: 'agent', article_id: noteArticleId })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success) return;
+                var stepEl = document.getElementById(noteStepId);
+                if (!stepEl) return;
+                var noteClass = data.kb_gap ? 'ca-ai-note ca-ai-note-gap' : 'ca-ai-note ca-ai-note-amber';
+                var noteLabel = data.kb_gap ? '⚠️ KB Gap — No Matching Article Found' : '⚠️ AI Note';
+                // Format response: convert • bullets to HTML list
+                var _r = data.response;
+                var _ls = _r.split('\n');
+                var _fmtd = '';
+                var _inL = false;
+                _ls.forEach(function(line) {
+                    var tr = line.trim();
+                    if (tr.startsWith('•') || tr.startsWith('-')) {
+                        if (!_inL) { _fmtd += '<ul style="margin:4px 0 4px 14px;padding:0;">'; _inL = true; }
+                        _fmtd += '<li style="margin:2px 0;">' + tr.replace(/^[•-]\s*/,'') + '</li>';
+                    } else if (tr) {
+                        if (_inL) { _fmtd += '</ul>'; _inL = false; }
+                        _fmtd += '<div style="margin-bottom:4px;">' + tr + '</div>';
+                    }
+                });
+                if (_inL) _fmtd += '</ul>';
+
+                var _dynCardClass = data.kb_gap ? 'ca-ai-card ca-ai-card-gap' : 'ca-ai-card';
+                var _dynHdrClass  = data.kb_gap ? 'ca-ai-card-hdr ca-ai-card-hdr-gap' : 'ca-ai-card-hdr';
+                var _dynLblClass  = data.kb_gap ? 'ca-ai-card-label ca-ai-card-label-gap' : 'ca-ai-card-label';
+                var _dynBodyClass = data.kb_gap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
+                var _dynFtrClass  = data.kb_gap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
+                var _dynLabel     = data.kb_gap ? '⚠️ KB Gap' : '📚 Knowledge Base';
+                var _dynFbLabel   = data.kb_gap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
+                var _dynThumbDown = data.kb_gap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse">👎</button>' : '<button class="ca-ai-fb-btn">👎</button>';
+                var _dynLink      = data.article ? '<a href="' + data.article.url + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
+                var _noteFooter = '';
+                if (data.kb_gap && data.article) {
+                    var _nt = data.article.title || 'KB Article';
+                    var _nu = data.article.url || '';
+                    var _nc = 'KB Gap detected during live call. No information found for: ' + _nt + '. Please create or update the KB article.';
+                    // Use data attributes to avoid complex escaping
+                    var _rptBtn = document.createElement('button');
+                    _rptBtn.className = 'ca-kb-gap-report-btn';
+                    _rptBtn.textContent = '📋 Report to KB Team';
+                    _rptBtn.setAttribute('data-title', _nt);
+                    _rptBtn.setAttribute('data-url', _nu);
+                    _rptBtn.setAttribute('data-comment', _nc);
+                    _rptBtn.onclick = function() {
+                        kbDirectReport(this.getAttribute('data-title'), this.getAttribute('data-url'), this.getAttribute('data-comment'));
+                    };
+                    var _rptDiv = document.createElement('div');
+                    _rptDiv.className = _dynFtrClass;
+                    _rptDiv.appendChild(_rptBtn);
+                    _noteFooter = _rptDiv.outerHTML;
+                } else {
+                    _noteFooter = '<div class="' + _dynFtrClass + '">' +
+                        _dynFbLabel +
+                        '<div class="ca-ai-fb-btns"><button class="ca-ai-fb-btn">👍</button>' + _dynThumbDown + '</div>' +
+                        '</div>';
+                }
+                var _dynTitleLink = _dynLink
+                    ? '<div style="margin-bottom:5px;">' + _dynLink + '</div>'
+                    : '';
+                var noteHtml = '<div class="' + _dynCardClass + ' dynamic-ai-note">' +
+                    '<div class="' + _dynHdrClass + '">' +
+                        '<span class="' + _dynLblClass + '">' + _dynLabel + '</span>' +
+                    '</div>' +
+                    '<div class="' + _dynBodyClass + '">' + _dynTitleLink + _fmtd + '</div>' +
+                    _noteFooter +
+                '</div>';
+                // Also inject into transcript
+                var txMsgs = document.getElementById('tx-msgs');
+                if (txMsgs) {
+                    // Format bullets for transcript note
+                    var _txResp = data.response;
+                    var _txLines = _txResp.split('\n');
+                    var _txFmt = '';
+                    var _txInList = false;
+                    _txLines.forEach(function(line) {
+                        var tr = line.trim();
+                        if (tr.charAt(0) === '•' || tr.charAt(0) === '-') {
+                            if (!_txInList) { _txFmt += '<ul style="margin:4px 0 4px 14px;padding:0;">'; _txInList = true; }
+                            _txFmt += '<li style="margin:2px 0;font-size:11.5px;">' + tr.substring(1).trim() + '</li>';
+                        } else if (tr) {
+                            if (_txInList) { _txFmt += '</ul>'; _txInList = false; }
+                            _txFmt += '<div style="margin-bottom:4px;">' + tr + '</div>';
+                        }
+                    });
+                    if (_txInList) _txFmt += '</ul>';
+                    var txNote = document.createElement('div');
+                    txNote.className = data.kb_gap ? 'tx-ai-note tx-ai-note-gap' : 'tx-ai-note';
+                    if (data.kb_gap && data.article) {
+                        // KB Gap — orange distinct style with Report button
+                        var _artTitle = data.article.title || 'KB Article';
+                        var _artUrl   = data.article.url || '';
+                        var _jsmComment = 'KB Gap detected during live call. No information found for: ' + _artTitle + '. Please create or update the KB article.';
+                        txNote.className = 'tx-kb-gap';
+                        txNote.innerHTML = '<div class="tx-kb-gap-inner">' +
+                            '<div class="tx-kb-gap-hdr">' +
+                                '<span class="tx-kb-gap-icon">⚠️</span>' +
+                                '<span class="tx-kb-gap-label">KB Gap — No Matching Article Found</span>' +
+                            '</div>' +
+                            '<div class="tx-kb-gap-text">' + _txFmt + '</div>' +
+                        '</div>';
+                        // Add report button separately to avoid escaping issues
+                        var _txRptBtn = document.createElement('button');
+                        _txRptBtn.className = 'tx-kb-gap-btn';
+                        _txRptBtn.textContent = '📋 Report to KB Team';
+                        _txRptBtn.setAttribute('data-title', _artTitle);
+                        _txRptBtn.setAttribute('data-url', _artUrl);
+                        _txRptBtn.setAttribute('data-comment', _jsmComment);
+                        _txRptBtn.onclick = function() {
+                            kbDirectReport(this.getAttribute('data-title'), this.getAttribute('data-url'), this.getAttribute('data-comment'));
+                        };
+                        txNote.querySelector('.tx-kb-gap-inner').appendChild(_txRptBtn);
+                    } else {
+                        // Regular AI note — existing purple CSS
+                        txNote.className = 'tx-ai-note';
+                        txNote.innerHTML = '<div class="tx-ai-note-inner">' +
+                            '<span class="ai-note-icon">⚠️</span>' +
+                            '<span class="ai-note-label">AI Note:</span>' +
+                            '<div class="ai-note-text">' + _txFmt + '</div>' +
+                        '</div>';
+                    }
+                    txMsgs.appendChild(txNote);
+                    txMsgs.scrollTop = txMsgs.scrollHeight;
+                }
+                // Only inject into step body if KB gap (not regular AI note)
+                if (data.kb_gap) {
+                    var kbSection = stepEl.querySelector('.ca-ai-card');
+                    if (kbSection) {
+                        kbSection.insertAdjacentHTML('beforebegin', noteHtml);
+                    } else {
+                        var body = stepEl.querySelector('.ca-step-body');
+                        if (body) body.insertAdjacentHTML('beforeend', noteHtml);
+                    }
+                }
+                log('[Dynamic Note] kb_gap=' + data.kb_gap + ' for step ' + noteStepId, 'success');
+            })
+            .catch(function(e) { log('[Dynamic Note] Error: ' + e.message, 'warning'); });
+        }, 500);
+    }
 
     // Scroll to the new step
     var liveBody = document.getElementById('ca-live-body');
@@ -2505,6 +3162,15 @@ function toggleKb(hdr) {
 
 // Old function kept as wrapper — now adds procedure step instead of card
 function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
+    // If extension_step1 triggered, clear disruption steps and start fresh
+    // Guard: only clear if no extension steps already loaded (prevent double-clear)
+    if (ruleId === 'extension_step1' && !kwShown.has('extension_step2')) {
+        var cont = document.getElementById('ca-steps-container');
+        if (cont) {
+            cont.innerHTML = '';
+            procStepCount = 0;
+        }
+    }
     // Add matching procedure step if one exists for this rule
     if (PROCEDURE_STEPS[ruleId]) {
         addProcStep(ruleId);
@@ -3009,6 +3675,7 @@ function showAgentCard(){
     var agentCard = document.getElementById('sb-agent-card');
     if(loginArea) loginArea.style.display = 'none';
     if(agentCard) agentCard.style.display = '';
+    if(agent){ loadCallbacksForAgent(agent.getName()); }
 }
 
 // ── AMAZON CONNECT ────────────────────────────────────────────────────────────
@@ -3030,12 +3697,21 @@ function initConnect(){
         const ini=a.getName().charAt(0).toUpperCase();
         document.getElementById('agent-avatar').textContent=ini;
         document.getElementById('hdr-av').textContent=ini;
-        a.onStateChange(s=>{updateStatus(s.newState);log('State: '+s.newState);});
+        a.onStateChange(s=>{
+            updateStatus(s.newState);
+            log('State: '+s.newState);
+            if(s.newState === 'Available'){
+                loadCallbacksForAgent(agent.getName());
+                log('Refreshed callbacks on Available', 'success');
+            }
+        });
     });
 
     connect.contact(ct=>{
         contact=ct;
         ct.onIncoming(()=>{
+            // Skip for outbound callbacks — selectedCallbackIdx is set when agent clicks Call Back
+            if(selectedCallbackIdx !== null) return;
             const ph=ct.getInitialConnection()?.getEndpoint()?.phoneNumber||'Unknown';
             onIncoming(ct,ph);
         });
@@ -3050,10 +3726,50 @@ function initConnect(){
         ct.onConnected(()=>{
             try {
                 const tok=getToken(ct);
-                if(tok&&tok!=='unknown'){connectWS(ct.getContactId(),tok);}
-                else{log('⚠️ No auth token — transcript disabled','error');}
+                if(tok&&tok!=='unknown'){
+                    connectWS(ct.getContactId(),tok);
+                } else {
+                    // Outbound: whisper flow may not have set token yet — retry after delay
+                    log('⚠️ Token not found on connect — retrying in 2s for outbound…','warning');
+                    setTimeout(function(){
+                        try {
+                            var retryTok = getToken(ct);
+                            if(retryTok && retryTok!=='unknown'){
+                                log('Token found on retry — connecting AppSync','success');
+                                connectWS(ct.getContactId(), retryTok);
+                            } else {
+                                log('⚠️ No auth token after retry — transcript disabled','error');
+                            }
+                        } catch(e){ log('Token retry error: '+e.message,'error'); }
+                    }, 2000);
+                }
                 onConnected();
                 fillCallId(ct.getContactId());
+                // ── Pre-load bot/caller conversation ──────────────────────
+                try {
+                    var attrs = ct.getAttributes();
+                    var logAttr = attrs['_conversation_log'];
+                    if (logAttr && logAttr.value) {
+                        var turns = JSON.parse(logAttr.value);
+                        if (Array.isArray(turns) && turns.length > 0) {
+                            var txMsgs = document.getElementById('tx-msgs');
+                            var empty = document.getElementById('empty-s');
+                            if (empty) empty.remove();
+                            var divider = document.createElement('div');
+                            divider.style.cssText = 'display:flex;justify-content:center;padding:6px 12px;';
+                            divider.innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:4px 14px;background:#f6f8fa;border:1px solid #d0d7de;border-radius:12px;font-size:10px;color:#8c959f;font-weight:600;letter-spacing:0.5px;">PRE-CALL CONVERSATION WITH BOT</div>';
+                            if (txMsgs) txMsgs.appendChild(divider);
+                            turns.forEach(function(turn) {
+                                addMsg({ text: turn.text, role: turn.role === 'BOT' ? 'AGENT' : 'CUSTOMER', sent: null, partial: false });
+                            });
+                            var liveDivider = document.createElement('div');
+                            liveDivider.style.cssText = 'display:flex;justify-content:center;padding:6px 12px;';
+                            liveDivider.innerHTML = '<div style="display:flex;align-items:center;gap:8px;padding:4px 14px;background:#e8f1ff;border:1px solid #b3d0ff;border-radius:12px;font-size:10px;color:#0969da;font-weight:600;letter-spacing:0.5px;">&#9679; LIVE CALL STARTED</div>';
+                            if (txMsgs) txMsgs.appendChild(liveDivider);
+                            log('Pre-loaded ' + turns.length + ' turns from bot', 'success');
+                        }
+                    }
+                } catch(preErr) { log('Pre-load error: ' + preErr.message, 'warning'); }
             } catch(e){ log('onConnected error: '+e.message,'error'); }
         });
         ct.onEnded(()=>{
@@ -3119,27 +3835,71 @@ function onIncoming(ct,ph){
 function onAccepted(){var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Accepted';startTimer();log('Accepted','success');}
 function onConnected(){
     wasConnected=true;
+    // Remove dialling placeholder if present
+    var dialMsg=document.getElementById('dialling-msg');
+    if(dialMsg) dialMsg.remove();
+    // Hide callback panel
+    var _cbP=document.getElementById('callback-detail-panel');
+    if(_cbP) _cbP.style.display='none';
     var _cs=document.getElementById('call-status');if(_cs)_cs.textContent='Connected';
-    clearTx();setPanel('connected');showForm();
-    // Move Johnny Pang from queue to In Call
-    var qItem=document.getElementById('queue-item-johnny');
-    var incallList=document.getElementById('incall-list');
-    if(qItem && incallList){
-        // Reset ringing styles
-        qItem.removeAttribute('style');
-        qItem.className='call-item active-item';
-        var dot=qItem.querySelector('.call-dot');
-        if(dot) dot.removeAttribute('style');
-        var timer=qItem.querySelector('.call-timer');
-        if(timer){timer.removeAttribute('style');timer.id='dur-mini';timer.textContent='00:00';}
-        incallList.appendChild(qItem);
-        // Update counts
-        var ic=document.getElementById('incall-count');if(ic) ic.textContent='(1)';
-        var qc=document.getElementById('queue-count');if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
+
+    // Save callback ref before clearing
+    var _cbIdx = selectedCallbackIdx;
+    var _cbData = (_cbIdx !== null && MOCK_CALLBACKS[_cbIdx]) ? MOCK_CALLBACKS[_cbIdx] : null;
+
+    // Use same setPanel('connected') for both inbound and outbound
+    clearTx(); setPanel('connected'); showForm();
+
+    // For outbound callback — re-fill profile (setPanel may reset some fields)
+    if(_cbData){
+        var _el;
+        _el=document.getElementById('cpb-name'); if(_el) _el.textContent=_cbData.name.split(' ').slice(0,2).join(' ');
+        _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+_cbData.nric+')';
+        _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=_cbData.phone;
+        _el=document.getElementById('pf-rank'); if(_el) _el.textContent=_cbData.rank||'-';
+        _el=document.getElementById('pf-unit'); if(_el) _el.textContent=_cbData.unit||'-';
+        _el=document.getElementById('ov-fullname'); if(_el) _el.textContent=_cbData.name;
+        _el=document.getElementById('ov-nric'); if(_el) _el.textContent=_cbData.nric;
+        _el=document.getElementById('ov-phone'); if(_el) _el.textContent=_cbData.phone;
+        _el=document.getElementById('ov-unit'); if(_el) _el.textContent=_cbData.unit||'-';
+        // Move callback queue item to In Call
+        var cbQItem=document.getElementById('cb-queue-item-'+_cbIdx);
+        if(cbQItem) cbQItem.remove();
+        var incallList=document.getElementById('incall-list');
+        if(incallList){
+            var incDiv=document.createElement('div');
+            incDiv.className='call-item active-item';
+            incDiv.id='incall-cb-item';
+            incDiv.innerHTML='<div class="call-item-top"><div class="call-dot call-dot-green"></div><span class="call-name">'+_cbData.name+'</span><span class="call-timer" id="dur-mini">00:00</span></div><div class="call-desc">'+_cbData.reason+'</div>';
+            incallList.appendChild(incDiv);
+            var ic=document.getElementById('incall-count'); if(ic) ic.textContent='(1)';
+        }
+        var qc=document.getElementById('queue-count');
+        if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
+        log('Outbound connected: '+_cbData.name,'success');
+    }
+    // Move Johnny Pang from queue to In Call (inbound only — outbound handles its own)
+    if(selectedCallbackIdx === null){
+        var qItem=document.getElementById('queue-item-johnny');
+        var incallList=document.getElementById('incall-list');
+        if(qItem && incallList){
+            qItem.removeAttribute('style');
+            qItem.className='call-item active-item';
+            var dot=qItem.querySelector('.call-dot');
+            if(dot) dot.removeAttribute('style');
+            var timer=qItem.querySelector('.call-timer');
+            if(timer){timer.removeAttribute('style');timer.id='dur-mini';timer.textContent='00:00';}
+            incallList.appendChild(qItem);
+            var ic=document.getElementById('incall-count');if(ic) ic.textContent='(1)';
+            var qc=document.getElementById('queue-count');if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
+        }
     }
     log('Connected','success');
 }
 function onEnded(){
+    // Hide callback detail panel so only "No active call" shows
+    var _cbEnd=document.getElementById('callback-detail-panel');
+    if(_cbEnd) _cbEnd.style.display='none';
     var _ci=document.getElementById('call-info');if(_ci)_ci.classList.remove('active');
     var _nm=document.getElementById('no-call-msg');if(_nm)_nm.style.display='block';
     var _cn=document.getElementById('caller-number');if(_cn)_cn.textContent='—';
@@ -3171,7 +3931,20 @@ function onEnded(){
             queueList.prepend(qItem);
         }
     }
+    // Clean up incall callback item if present
+    var incCbItem=document.getElementById('incall-cb-item');
+    if(incCbItem) incCbItem.remove();
     var ic=document.getElementById('incall-count');if(ic) ic.textContent='(0)';
+
+    // Clean up callback queue item after call ends
+    if(selectedCallbackIdx !== null){
+        var cbQItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
+        if(cbQItem) cbQItem.remove();
+        // Also remove from call queue count
+        var qc=document.getElementById('queue-count');
+        if(qc){ var n=Math.max(0,parseInt(qc.textContent.replace(/[()]/g,''))||1)-1; qc.textContent='('+n+')'; }
+        selectedCallbackIdx=null;
+    }
 
     if(wasConnected){
         // Inject "Call has ended" pill into transcript
@@ -3388,50 +4161,6 @@ function submitForm(){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
-
-// ── HEADING CLICK — Reset workspace to idle without logging out (v4) ──────
-function resetToIdle() {
-    var txSec = document.getElementById('tx-section');
-    var isActive = txSec && txSec.classList.contains('visible');
-    var cbPanel = document.getElementById('callback-detail-panel');
-    var isCbActive = cbPanel && cbPanel.style.display !== 'none';
-    if (!isActive && !isCbActive) return;
-    if (wasConnected || contact) {
-        if (!confirm('A call is in progress. Reset workspace anyway?')) return;
-    }
-    stopTimer();
-    if (waitTimer) { clearInterval(waitTimer); waitTimer = null; }
-    if (ws) { ws.close(); ws = null; }
-    setTxStatus(false); setAps('Disconnected');
-    clearTx(); resetKwEngine();
-    if (typeof formTabOpen !== 'undefined' && formTabOpen) closeFormTab();
-    contact = null; wasConnected = false;
-    if (typeof selectedCallbackIdx !== 'undefined') selectedCallbackIdx = null;
-    if (typeof clearProfile === 'function') clearProfile();
-    var stTag = document.getElementById('cpb-status-tag');
-    if (stTag) { stTag.textContent = ''; stTag.className = 'ptag'; stTag.style.cssText = ''; }
-    var cbPanelR = document.getElementById('callback-detail-panel');
-    if (cbPanelR) cbPanelR.style.display = 'none';
-    var acwBar = document.getElementById('acw-bar');
-    if (acwBar) acwBar.classList.remove('visible');
-    var postcallP = document.getElementById('postcall-panel');
-    if (postcallP) postcallP.classList.remove('visible');
-    var qItem = document.getElementById('queue-item-johnny');
-    if (qItem) { qItem.style.display = 'none'; qItem.className = 'call-item'; }
-    var incallList = document.getElementById('incall-list');
-    if (incallList) incallList.innerHTML = '';
-    var ic = document.getElementById('incall-count'); if (ic) ic.textContent = '(0)';
-    var caNoCall = document.getElementById('ca-no-call');
-    var caLive = document.getElementById('ca-live-body');
-    if (caNoCall) caNoCall.style.display = 'flex';
-    if (caLive) caLive.style.display = 'none';
-    var procThread = document.getElementById('ca-proc-thread');
-    if (procThread) procThread.innerHTML = '';
-    if (typeof procStepCount !== 'undefined') procStepCount = 0;
-    setPanel('idle');
-    log('Workspace reset to idle', 'warning');
-}
-
 window.addEventListener('load', () => {
     log('Page loaded');
     setPanel('prelogin');
@@ -3449,5 +4178,451 @@ window.addEventListener('load', () => {
         if(fill) fill.style.width = Math.max(0, (slaLeft/slaTotal)*100) + '%';
     }, 1000);
 });
+
+// =============================================================================
+// SCHEDULED CALLBACKS — DynamoDB + Static Mock
+// =============================================================================
+var CB_WARN_MINUTES = 5;
+
+// Static mock callbacks — Ahmad (60 min) and Benjamin (90 min)
+// Always in the future; recalculate on every page load
+var CB_MOCK_STATIC = [
+    { id:'mock-0', name:'Ahmad Hassan', nric:'T0012345B', phone:'+65 9374 9945',
+      email:'ahmad.hassan@example.com', reason:'Apply for Disruption',
+      rank:'Private', unit:'Tanglin NPC', slotOffsetMinutes:60 },
+    { id:'mock-1', name:'Benjamin Tan Jia Jun', nric:'S0087654C', phone:'+65 9374 9945',
+      email:'benjamin.tan@example.com', reason:'Training & Posting',
+      rank:'Private', unit:'Bedok NPC', slotOffsetMinutes:90 }
+];
+
+var MOCK_CUSTOMERS = {
+    'S0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com',   disruption_end:'30 Nov 2026' },
+    'T0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com',   disruption_end:'30 Nov 2026' },
+    'T0012345B': { rank:'Private',  unit:'Tanglin NPC', phone:'+65 9374 9945', email:'ahmad.hassan@example.com', disruption_end:null },
+    'S0087654C': { rank:'Private',  unit:'Bedok NPC',   phone:'+65 9374 9945', email:'benjamin.tan@example.com', disruption_end:null },
+};
+var MOCK_CALLBACKS    = [];
+var selectedCallbackIdx = null;
+var _cbTickInterval   = null;
+
+function _formatSlotTime(offsetMinutes) {
+    var d = new Date(Date.now() + offsetMinutes * 60000);
+    var h = d.getHours(), m = d.getMinutes();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return 'today at ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+}
+function _minutesUntil(slotTime) { return Math.round((slotTime - Date.now()) / 60000); }
+function _buildPhoneIcon() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.59 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+}
+
+function loadCallbacksForAgent(agentName) {
+    var section = document.getElementById('sb-callbacks');
+    // Build static callbacks (always future)
+    var staticCbs = CB_MOCK_STATIC.map(function(cb) {
+        var copy = Object.assign({}, cb);
+        copy.slotTime    = Date.now() + cb.slotOffsetMinutes * 60000;
+        copy.slotDisplay = _formatSlotTime(cb.slotOffsetMinutes);
+        copy.movedToQueue = false;
+        copy.isStatic    = true;
+        return copy;
+    });
+    // Fetch real callbacks from DynamoDB via API Gateway
+    if (NS_CALLBACKS_API && NS_CALLBACKS_API !== 'PLACEHOLDER_CALLBACKS_URL') {
+        fetch(NS_CALLBACKS_API)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                var dynCbs = (data.callbacks || []).map(function(cb, idx) {
+                    return {
+                        id: 'dyn-' + idx, name: cb.name, nric: cb.nric,
+                        phone: cb.phone || '+65 0000 0000', email: cb.email || '-',
+                        reason: cb.reason, rank: cb.rank, unit: cb.unit,
+                        slotTime: new Date(cb.slot_time).getTime(),
+                        slotDisplay: cb.slot_display, movedToQueue: false, isStatic: false
+                    };
+                });
+                MOCK_CALLBACKS = dynCbs.concat(staticCbs);
+                _finishLoadCallbacks(section, agentName);
+            })
+            .catch(function(err) {
+                log('Callbacks API error — using mock only', 'warning');
+                MOCK_CALLBACKS = staticCbs;
+                _finishLoadCallbacks(section, agentName);
+            });
+    } else {
+        MOCK_CALLBACKS = staticCbs;
+        _finishLoadCallbacks(section, agentName);
+    }
+}
+
+function _finishLoadCallbacks(section, agentName) {
+    if (MOCK_CALLBACKS.length === 0) { if (section) section.classList.remove('visible'); return; }
+    _renderCbList();
+    if (section) section.classList.add('visible');
+    if (_cbTickInterval) clearInterval(_cbTickInterval);
+    _cbTickInterval = setInterval(_tickCountdowns, 30000);
+    log('Loaded ' + MOCK_CALLBACKS.length + ' callbacks for ' + agentName, 'success');
+}
+
+function _renderCbList() {
+    var list = document.getElementById('cb-list');
+    if (!list) return;
+    list.innerHTML = '';
+    var pending = 0;
+    MOCK_CALLBACKS.forEach(function(cb, idx) {
+        var div = document.createElement('div');
+        if (cb.movedToQueue) {
+            div.className = 'cb-item cb-moved'; div.id = 'cb-item-' + idx;
+            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name moved">&#8593; ' + cb.name + '</div><div class="cb-item-time moved">Moved to call queue</div><div class="cb-item-reason">' + cb.reason + '</div></div><span class="cb-countdown cb-countdown-green">Now</span><button class="cb-call-btn" disabled>' + _buildPhoneIcon() + '</button>';
+        } else {
+            pending++;
+            var mins   = _minutesUntil(cb.slotTime);
+            var cdClass = mins <= CB_WARN_MINUTES ? 'cb-countdown-red' : 'cb-countdown-amber';
+            var cdText  = mins <= 0 ? 'Now' : 'In ' + mins + ' min';
+            div.className = 'cb-item'; div.id = 'cb-item-' + idx;
+            div.setAttribute('onclick', 'selectCallback(' + idx + ')');
+            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name">' + cb.name + '</div><div class="cb-item-time">&#128337; ' + cb.slotDisplay + '</div><div class="cb-item-reason">' + cb.reason + '</div></div><span class="cb-countdown ' + cdClass + '" id="cd-' + idx + '">' + cdText + '</span><button class="cb-call-btn" onclick="event.stopPropagation();initiateCallback(' + idx + ')">' + _buildPhoneIcon() + '</button>';
+        }
+        list.appendChild(div);
+    });
+    var countEl = document.getElementById('cb-count');
+    if (countEl) countEl.textContent = '(' + pending + ')';
+}
+
+function _tickCountdowns() {
+    var moved = false;
+    MOCK_CALLBACKS.forEach(function(cb, idx) {
+        if (cb.movedToQueue) return;
+        var mins = _minutesUntil(cb.slotTime);
+        if (mins <= 0) {
+            cb.movedToQueue = true; moved = true;
+            _moveToCallQueue(cb, idx);
+            log('Callback due: moving ' + cb.name + ' to call queue', 'warning');
+        } else {
+            var pill = document.getElementById('cd-' + idx);
+            if (pill) { pill.textContent = 'In ' + mins + ' min'; pill.className = 'cb-countdown ' + (mins <= CB_WARN_MINUTES ? 'cb-countdown-red' : 'cb-countdown-amber'); }
+        }
+    });
+    if (moved) _renderCbList();
+}
+
+function _moveToCallQueue(cb, idx) {
+    var queueList = document.querySelector('#queue-section .sb-calls');
+    if (!queueList) return;
+    var div = document.createElement('div');
+    div.className = 'call-item is-callback'; div.id = 'cb-queue-item-' + idx;
+    div.setAttribute('onclick', 'selectCallback(' + idx + ')');
+    div.innerHTML = '<div class="call-item-top"><div class="call-dot" style="width:8px;height:8px;border-radius:50%;background:#0969da;box-shadow:0 0 5px rgba(9,105,218,0.6);flex-shrink:0;animation:pulse 1.5s infinite;"></div><span class="call-name">' + cb.name + '</span><span class="call-badge-cb">&#128222; Callback</span></div><div class="call-desc" style="padding-left:15px;">' + cb.reason + '</div>';
+    queueList.insertBefore(div, queueList.firstChild);
+    var qc = document.getElementById('queue-count');
+    if (qc) { var n = parseInt(qc.textContent.replace(/[()]/g, '')) || 0; qc.textContent = '(' + (n + 1) + ')'; }
+}
+
+function selectCallback(idx) {
+    document.querySelectorAll('.cb-item').forEach(function(el) { el.classList.remove('cb-active'); });
+    var item = document.getElementById('cb-item-' + idx) || document.getElementById('cb-queue-item-' + idx);
+    if (item) item.classList.add('cb-active');
+    selectedCallbackIdx = idx;
+    var cb = MOCK_CALLBACKS[idx]; if (!cb) return;
+    var fields = { 'cb-detail-name':cb.name, 'cb-detail-nric':cb.nric, 'cb-detail-phone':cb.phone, 'cb-detail-email':cb.email, 'cb-detail-reason':cb.reason, 'cb-detail-slot':cb.slotDisplay, 'cb-detail-rank':cb.rank||'-', 'cb-detail-unit':cb.unit||'-', 'cb-detail-time-label':cb.slotDisplay, 'cb-detail-subtitle':cb.slotDisplay+' \u00b7 '+cb.reason, 'cb-detail-status':cb.movedToQueue?'Due Now':'Pending' };
+    Object.keys(fields).forEach(function(id) { var el=document.getElementById(id); if(el) el.textContent=fields[id]; });
+    var tagEl = document.getElementById('cb-detail-tag');
+    if (tagEl) { tagEl.textContent = cb.movedToQueue ? '\u2705 Due Now' : '\u231f Scheduled'; tagEl.style.cssText = cb.movedToQueue ? 'font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(46,160,67,0.1);color:#1a7f37;border:1px solid rgba(46,160,67,0.3);' : 'font-size:10px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);'; }
+    var btn = document.getElementById('btn-callback-main');
+    if (btn) { btn.disabled=false; btn.style.background='#2ea043'; btn.innerHTML='📞 Call Back'; }
+    ['prelogin-panel','idle-loggedin','tx-section','inc-panel'].forEach(function(id) { var el=document.getElementById(id); if(el){el.style.display='none';el.classList.remove('visible');} });
+    var cpb=document.getElementById('cpb'); if(cpb) { cpb.classList.remove('ringing'); cpb.classList.add('active'); }
+    // Pre-fill profile bar
+    var _el;
+    _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
+    _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
+    _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
+    _el=document.getElementById('cpb-status-tag'); if(_el){_el.textContent='⏰ Scheduled Callback';_el.className='ptag';_el.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;';}
+    // Open profile accordion
+    var acc=document.getElementById('cpb-acc'); if(acc) acc.classList.add('open');
+    var vdBtn=document.getElementById('btn-vd'); if(vdBtn){vdBtn.classList.add('open');vdBtn.innerHTML='Hide Details <i class="chev">▾</i>';}
+    // Populate callback overview fields
+    var isDue = cb.movedToQueue || _minutesUntil(cb.slotTime) <= 0;
+    var _mc = MOCK_CUSTOMERS[cb.nric] || {};
+    var _cbRank  = (cb.rank  && cb.rank  !== '-') ? cb.rank  : (_mc.rank  || '-');
+    var _cbUnit  = (cb.unit  && cb.unit  !== '-') ? cb.unit  : (_mc.unit  || '-');
+    var _cbPhone = (cb.phone && cb.phone !== '-' && cb.phone !== '+65 0000 0000') ? cb.phone : (_mc.phone || cb.phone);
+    var _cbEmail = (cb.email && cb.email !== '-') ? cb.email : (_mc.email || '-');
+    _el=document.getElementById('cbd-fullname'); if(_el) _el.textContent=cb.name;
+    _el=document.getElementById('cbd-email'); if(_el) _el.textContent=_cbEmail;
+    _el=document.getElementById('cbd-nric'); if(_el) _el.textContent=cb.nric;
+    _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=_cbPhone;
+    _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=_cbRank;
+    _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=_cbUnit;
+    _el=document.getElementById('cbd-reason'); if(_el) _el.textContent=cb.reason||'-';
+    _el=document.getElementById('cbd-slot-display'); if(_el) _el.textContent=cb.slotDisplay||'-';
+    _el=document.getElementById('cbd-time-label'); if(_el) _el.textContent=cb.slotDisplay||'Scheduled callback';
+    _el=document.getElementById('cbd-status'); if(_el){ _el.textContent=isDue?'Due Now':'Pending'; _el.style.color=isDue?'#cf222e':'#9a6700'; }
+    _el=document.getElementById('cbd-slot-tag'); if(_el){ _el.textContent=isDue?'🔴 Due Now':'⏰ Scheduled'; _el.style.cssText=isDue?'font-size:11px;color:#cf222e;background:rgba(215,58,73,0.08);border:1px solid rgba(215,58,73,0.3);padding:2px 8px;border-radius:8px;font-weight:600;':'font-size:11px;color:#9a6700;background:rgba(210,153,34,0.1);border:1px solid rgba(210,153,34,0.3);padding:2px 8px;border-radius:8px;font-weight:600;'; }
+    // Also populate right panel case classification
+    var rpClass = document.getElementById('rp-case-class'); if(rpClass) rpClass.value='disruption';
+    // Show callback panel
+    var cbPanel=document.getElementById('callback-detail-panel');
+    if (cbPanel) { cbPanel.style.display='flex'; cbPanel.style.flexDirection='column'; }
+    switchCbTab('overview');
+    log('Callback selected: ' + cb.name, 'info');
+}
+
+function initiateCallback(idx) { selectCallback(idx); startOutboundCall(MOCK_CALLBACKS[idx]); }
+function initiateCallbackFromPanel() { if (selectedCallbackIdx === null) return; startOutboundCall(MOCK_CALLBACKS[selectedCallbackIdx]); }
+
+
+function switchCbTab(tab) {
+    ['overview','callview','moreactions'].forEach(function(t) {
+        var el = document.getElementById('cb-tab-' + t);
+        var view = document.getElementById('cb-view-' + t);
+        if(el) el.classList.remove('active');
+        if(view) view.style.display = 'none';
+    });
+    var activeTab = document.getElementById('cb-tab-' + tab);
+    var activeView = document.getElementById('cb-view-' + tab);
+    if(activeTab) activeTab.classList.add('active');
+    if(activeView) { activeView.style.display = 'flex'; activeView.style.flexDirection = 'column'; }
+}
+
+function startOutboundCall(cb) {
+    if (!cb) return;
+    log('Outbound call to ' + cb.name + ' (' + cb.phone + ')...', 'info');
+    // Hide callback detail panel, show main tx-section as connected
+    var cbPanel=document.getElementById('callback-detail-panel');
+    if(cbPanel) cbPanel.style.display='none';
+    // Pre-fill profile bar
+    var _el;
+    _el=document.getElementById('cpb-name'); if(_el) _el.textContent=cb.name.split(' ').slice(0,2).join(' ');
+    _el=document.getElementById('cpb-nric'); if(_el) _el.textContent='('+cb.nric+')';
+    _el=document.querySelector('.cpb-phone'); if(_el) _el.textContent=cb.phone;
+    var _obMc = (typeof MOCK_CUSTOMERS !== 'undefined') ? (MOCK_CUSTOMERS[cb.nric]||{}) : {};
+    _el=document.getElementById('pf-rank'); if(_el) _el.textContent=(cb.rank&&cb.rank!=='-')?cb.rank:(_obMc.rank||'-');
+    _el=document.getElementById('pf-unit'); if(_el) _el.textContent=(cb.unit&&cb.unit!=='-')?cb.unit:(_obMc.unit||'-');
+    // Show calling state via tx-section
+    clearTx();
+    setPanel('connected');
+    var stTag=document.getElementById('cpb-status-tag');
+    if(stTag){stTag.textContent='⟳ Calling...';stTag.className='ptag';stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;animation:pulse 1.5s infinite;';}
+    // Replace End Call button to also show "Calling..." state
+    var callBar=document.getElementById('call-controls-bar');
+    if(callBar){
+        var endBtn=callBar.querySelector('.ctrl-btn-end');
+        if(endBtn){endBtn.textContent='✕ End Call';endBtn.disabled=false;}
+    }
+    // Add "Dialling..." message in transcript area
+    var txMsgs=document.getElementById('tx-msgs');
+    if(txMsgs){
+        var dialDiv=document.createElement('div');
+        dialDiv.id='dialling-msg';
+        dialDiv.style.cssText='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#8c959f;padding:40px;';
+        dialDiv.innerHTML='<div style="font-size:36px;">📞</div><div style="font-size:13px;font-weight:600;">Calling '+cb.name+'...</div><div style="font-size:11px;">Waiting for caller to pick up</div>';
+        txMsgs.appendChild(dialDiv);
+    }
+    switchTab('callview');
+    initProcedureThread('Disruption & Deferment Procedure');
+    addProcStep('step1');
+    if (agent) {
+        try {
+            agent.connect(connect.Endpoint.byPhoneNumber('+6593749945'), {
+                success: function() { _onOutboundConnected(cb); },
+                failure: function(err) { log('Outbound failed: '+(err&&err.message?err.message:'error'),'error'); _resetCbButton(); }
+            }); return;
+        } catch(e) { log('Connect API: '+e.message+' -- demo mode','warning'); }
+    }
+    setTimeout(function() { _onOutboundConnected(cb); }, 1500);
+}
+
+function _onOutboundConnected(cb) {
+    var cbPanel=document.getElementById('callback-detail-panel'); if(cbPanel) cbPanel.style.display='none';
+
+    // Populate customer profile bar
+    var cpb=document.getElementById('cpb'); if(cpb) cpb.classList.add('active');
+    var el;
+    el=document.getElementById('cpb-name'); if(el) el.textContent=cb.name.split(' ').slice(0,2).join(' ');
+    el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
+    el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
+    el=document.getElementById('cpb-email'); if(el) el.textContent=cb.email||'-';
+    var _obMc=MOCK_CUSTOMERS[cb.nric]||{};
+    el=document.getElementById('pf-rank'); if(el) el.textContent=(cb.rank&&cb.rank!=='-')?cb.rank:(_obMc.rank||'-');
+    el=document.getElementById('pf-unit'); if(el) el.textContent=(cb.unit&&cb.unit!=='-')?cb.unit:(_obMc.unit||'-');
+    el=document.getElementById('cpb-status-tag'); if(el){el.textContent='● Connected';el.className='ptag ptag-connected';}
+
+    // Show transcript section
+    var txSec=document.getElementById('tx-section'); if(txSec) txSec.classList.add('visible');
+
+    // Hide ring bar
+    var ringBar=document.getElementById('ring-controls-bar'); if(ringBar) ringBar.classList.remove('visible');
+
+    // Replace call controls bar with callback-specific bar
+    var callBar=document.getElementById('call-controls-bar');
+    if(callBar){
+        callBar.style.display='flex';
+        callBar.innerHTML=
+            '<div class="audio-indicator">' +
+                '<div class="audio-waves"><span></span><span></span><span></span><span></span><span></span></div>' +
+                '<span style="margin-left:6px;font-size:11px;color:#57606a">Callback call in progress</span>' +
+            '</div>' +
+            '<div class="call-ctrl-btns">' +
+                '<span class="dur-badge" id="dur-badge">00:00</span>' +
+                '<button id="btn-hold" class="ctrl-btn" onclick="holdCall()">⏸ Hold</button>' +
+                '<button id="btn-mute" class="ctrl-btn" onclick="muteCall()">🔇 Mute</button>' +
+                '<button class="ctrl-btn ctrl-btn-end" onclick="endCall()">✕ End Call</button>' +
+            '</div>';
+    }
+
+    // Show connect assistant
+    var caNoCall=document.getElementById('ca-no-call'); if(caNoCall) caNoCall.style.display='none';
+    var caLive=document.getElementById('ca-live-body'); if(caLive){caLive.style.display='flex';caLive.style.flexDirection='column';}
+    initProcedureThread('Callback — '+cb.reason);
+    addProcStep('step1');
+
+    if (selectedCallbackIdx !== null) {
+        var qItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
+        if(qItem){qItem.style.opacity='0.5';qItem.style.pointerEvents='none';}
+    }
+
+    clearTx();
+    switchTab('callview');
+    startTimer();
+    wasConnected = true;
+    log('Outbound callback connected: '+cb.name,'success');
+}
+
+function _resetCbButton() {
+    var btn=document.getElementById('btn-callback-main');
+    if(btn){btn.disabled=false;btn.style.background='#2ea043';btn.innerHTML='📞 Call Back';}
+}
+
+
+
+    // ── KB Feedback functions ─────────────────────────────────────────────────
+    var _kbFeedbackState = {};
+
+    function kbDirectReport(title, url, comment) {
+        // Auto-populate agent and contact info
+        var agentName = (agent && agent.getName) ? agent.getName().firstName + ' ' + agent.getName().lastName : 'Agent';
+        var contactId = contact ? contact.getContactId() : 'unknown';
+        var fullComment = comment + ' | Agent: ' + agentName + ' | Contact ID: ' + contactId;
+
+        // Show loading state on all report buttons
+        document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Submitting...';
+        });
+
+        fetch(NS_CONFLUENCE_API + '/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'none',
+                article_title: title,
+                article_url: url,
+                comment: fullComment,
+                agent_name: agentName,
+                contact_id: contactId
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+                    btn.textContent = '✅ Reported to KB Team';
+                    btn.style.background = '#1a7f37';
+                    btn.style.borderColor = '#1a7f37';
+                });
+                log('[KB Gap] JSM ticket created successfully', 'success');
+            } else {
+                document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+                    btn.disabled = false;
+                    btn.textContent = '📋 Report to KB Team';
+                });
+                log('[KB Gap] Failed to create JSM ticket: ' + (data.error || 'unknown'), 'error');
+            }
+        })
+        .catch(function(e) {
+            document.querySelectorAll('.tx-kb-gap-btn, .ca-kb-gap-report-btn').forEach(function(btn) {
+                btn.disabled = false;
+                btn.textContent = '📋 Report to KB Team';
+            });
+            log('[KB Gap] Error: ' + e.message, 'error');
+        });
+    }
+
+    function kbThumbsUp(kbId) {
+        _kbFeedbackState[kbId] = 'up';
+        var upBtn = document.getElementById('kbfb-up-'+kbId);
+        var dnBtn = document.getElementById('kbfb-dn-'+kbId);
+        var lbl   = document.getElementById('kbfb-lbl-'+kbId);
+        var form  = document.getElementById('kbff-'+kbId);
+        if(upBtn){ upBtn.classList.add('kbfb-up-active'); upBtn.style.background='#e6f4ea'; upBtn.style.borderColor='#1a7f37'; var _svg=upBtn.querySelector('svg'); if(_svg) _svg.setAttribute('stroke','#2ea043'); }
+        if(dnBtn){ dnBtn.classList.remove('kbfb-down-active'); dnBtn.disabled=false; dnBtn.style.opacity='1'; dnBtn.style.background=''; dnBtn.style.borderColor=''; }
+        if(lbl){ lbl.textContent='Thanks for the feedback!'; lbl.style.color='#1a7f37'; }
+        if(form) form.style.display='none';
+        log('[KB] Positive feedback logged','success');
+    }
+
+    function kbThumbsDown(kbId, title, url) {
+        _kbFeedbackState[kbId] = 'down';
+        var dnBtn = document.getElementById('kbfb-dn-'+kbId);
+        var lbl   = document.getElementById('kbfb-lbl-'+kbId);
+        var form  = document.getElementById('kbff-'+kbId);
+        // Reset thumbs up state
+        var upBtnDn = document.getElementById('kbfb-up-'+kbId);
+        if(upBtnDn){ upBtnDn.classList.remove('kbfb-up-active'); upBtnDn.style.background=''; upBtnDn.style.borderColor=''; }
+        if(dnBtn){ dnBtn.classList.add('kbfb-down-active'); dnBtn.style.background='rgba(234,88,12,0.08)'; dnBtn.style.borderColor='#c2410c'; var svgDn=dnBtn.querySelector('svg'); if(svgDn) svgDn.setAttribute('stroke','#d73a49'); }
+        if(lbl){ lbl.textContent='What was the issue?'; lbl.style.color='#9a6700'; }
+        if(form) form.style.display='block';
+    }
+
+    function kbCancelFeedback(kbId) {
+        _kbFeedbackState[kbId] = 'none';
+        var upBtn = document.getElementById('kbfb-up-'+kbId);
+        var dnBtn = document.getElementById('kbfb-dn-'+kbId);
+        var lbl   = document.getElementById('kbfb-lbl-'+kbId);
+        var form  = document.getElementById('kbff-'+kbId);
+        if(upBtn){ upBtn.classList.remove('kbfb-up-active'); }
+        if(dnBtn){ dnBtn.classList.remove('kbfb-down-active'); dnBtn.querySelector('svg').setAttribute('stroke','currentColor'); dnBtn.disabled=false; dnBtn.style.opacity='1'; }
+        if(lbl){ lbl.textContent='Was this helpful?'; lbl.style.color=''; }
+        if(form) form.style.display='none';
+    }
+
+    function kbSubmitFeedback(kbId, title, url) {
+        var sel     = document.querySelector('input[name="kbff-'+kbId+'"]:checked');
+        var fbType  = sel ? sel.value : 'missing';
+        var comment = (document.getElementById('kbff-cmt-'+kbId)||{}).value || '';
+        var agentName = (agent && agent.getName) ? agent.getName() : 'Agent';
+        var ctId    = contact ? contact.getContactId() : '';
+        var payload = { type:fbType, comment:comment, article_title:title, article_url:url, agent_name:agentName, contact_id:ctId };
+        var submitBtn = document.querySelector('#kbff-'+kbId+' .kbff-submit');
+        if(submitBtn){ submitBtn.textContent='Submitting...'; submitBtn.disabled=true; }
+        if(!NS_CONFLUENCE_API || NS_CONFLUENCE_API.indexOf('PLACEHOLDER')!==-1){
+            setTimeout(function(){ _kbFeedbackSuccess(kbId); },800);
+            return;
+        }
+        fetch(NS_CONFLUENCE_API+'/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+            if(d.success){ _kbFeedbackSuccess(kbId,d.issue_key||''); }
+            else { log('[KB] Feedback error','error'); if(submitBtn){submitBtn.textContent='Submit';submitBtn.disabled=false;} }
+        })
+        .catch(function(e){ log('[KB] Feedback failed: '+e.message,'error'); if(submitBtn){submitBtn.textContent='Submit';submitBtn.disabled=false;} });
+    }
+
+    function _kbFeedbackSuccess(kbId, issueKey) {
+        _kbFeedbackState[kbId] = 'submitted';
+        var form  = document.getElementById('kbff-'+kbId);
+        var lbl   = document.getElementById('kbfb-lbl-'+kbId);
+        var upBtn = document.getElementById('kbfb-up-'+kbId);
+        var dnBtn = document.getElementById('kbfb-dn-'+kbId);
+        var msg   = '✅ Feedback submitted'+(issueKey?' ('+issueKey+')':'');
+        if(form){ form.innerHTML='<div style="padding:8px;background:rgba(46,160,67,0.08);border:1px solid rgba(46,160,67,0.25);border-radius:6px;font-size:11px;color:#1a7f37;font-weight:600;">'+msg+'</div>'; form.style.display='block'; }
+        if(lbl){ lbl.textContent='Feedback submitted'; lbl.style.color='#cf222e'; }
+        if(upBtn){ upBtn.disabled=true; upBtn.style.opacity='0.4'; }
+        if(dnBtn){ dnBtn.disabled=true; }
+        log('[KB] Feedback submitted'+(issueKey?' — '+issueKey:''),'success');
+    }
+
 </script>
 </html>
