@@ -669,7 +669,7 @@
         display:inline-flex; align-items:center; gap:5px;
         padding:5px 12px; background:#7c2d12; color:#fff;
         border:none; border-radius:5px; font-size:11px; font-weight:600;
-        cursor:pointer; margin-top:4px;
+        cursor:pointer; margin-top:4px; width:auto; align-self:flex-start;
     }
     .tx-kb-gap-btn:hover { background:#991b1b; }
     .tx-kb-gap-btn:disabled { opacity:0.7; cursor:default; }
@@ -2835,13 +2835,16 @@ function initProcedureThread(procedureName) {
             bulletsHtml = '<ul style="margin:4px 0 0 14px;padding:0;">' + bullets.map(function(b){ return '<li style="margin:2px 0;">' + b + '</li>'; }).join('') + '</ul>';
         }
         var summaryHtml = summary ? '<div style="margin-bottom:' + (bulletsHtml ? '4px' : '0') + ';">' + summary + '</div>' : '';
+        // Title as link inside body
+        var titleLinkHtml = url
+            ? '<div style="margin-bottom:5px;"><a href="' + url + '" class="ca-ai-card-link' + (isGap ? ' ca-ai-card-link-gap' : '') + '" target="_blank" style="font-size:11px;font-weight:700;">📚 ' + title + ' ↗</a></div>'
+            : '';
         return '<div class="' + cardClass + '" id="' + kbId + '">' +
             '<div class="' + hdrClass + '">' +
                 '<span class="' + lblClass + '">' + noteLabel + '</span>' +
-                (url ? '<a href="' + url + '" class="ca-ai-card-link' + (isGap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + title + ' ↗</a>' : '') +
             '</div>' +
             '<div class="' + bodyClass + '" id="kb-inner-' + kbId + '">' +
-                summaryHtml + bulletsHtml +
+                titleLinkHtml + summaryHtml + bulletsHtml +
             '</div>' +
             '<div class="' + ftrClass + '">' +
                 fbLabel +
@@ -3049,12 +3052,14 @@ function addProcStep(stepKey) {
                         '<div class="ca-ai-fb-btns"><button class="ca-ai-fb-btn">👍</button>' + _dynThumbDown + '</div>' +
                         '</div>';
                 }
+                var _dynTitleLink = _dynLink
+                    ? '<div style="margin-bottom:5px;">' + _dynLink + '</div>'
+                    : '';
                 var noteHtml = '<div class="' + _dynCardClass + ' dynamic-ai-note">' +
                     '<div class="' + _dynHdrClass + '">' +
                         '<span class="' + _dynLblClass + '">' + _dynLabel + '</span>' +
-                        _dynLink +
                     '</div>' +
-                    '<div class="' + _dynBodyClass + '">' + _fmtd + '</div>' +
+                    '<div class="' + _dynBodyClass + '">' + _dynTitleLink + _fmtd + '</div>' +
                     _noteFooter +
                 '</div>';
                 // Also inject into transcript
