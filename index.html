@@ -2795,8 +2795,13 @@ function initProcedureThread(procedureName) {
         var bodyClass = isGap ? 'ca-ai-card-body ca-ai-card-body-gap' : 'ca-ai-card-body';
         var ftrClass  = isGap ? 'ca-ai-card-ftr ca-ai-card-ftr-gap' : 'ca-ai-card-ftr';
         var noteLabel = isGap ? '⚠️ KB Gap' : '⚠️ AI Note';
-        var fbLabel   = isGap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
-        var thumbDown = isGap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse" onclick="kbThumbsDown(\'' + kbId + '\')">👎</button>' : '<button class="ca-ai-fb-btn" onclick="kbThumbsDown(\'' + kbId + '\')">👎</button>';
+        var fbLabel   = isGap ? '<span class="ca-ai-fb-label-gap" id="kbfb-lbl-' + kbId + '">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>';
+        var thumbUpBtn = '<button class="ca-ai-fb-btn" id="kbfb-up-' + kbId + '" onclick="kbThumbsUp(\''+kbId+'\')">👍</button>';
+        var safeTitle = (title||'').replace(/'/g,'\\'').replace(/"/g,'&quot;');
+        var safeUrl   = (url||'');
+        var thumbDown = isGap
+            ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse" id="kbfb-dn-' + kbId + '" onclick="kbThumbsDown(\''+kbId+'\',\''+safeTitle+'\',\''+safeUrl+'\')">👎</button>'
+            : '<button class="ca-ai-fb-btn" id="kbfb-dn-' + kbId + '" onclick="kbThumbsDown(\''+kbId+'\',\''+safeTitle+'\',\''+safeUrl+'\')">👎</button>';
         var bulletsHtml = '';
         if (bullets && bullets.length) {
             bulletsHtml = '<ul style="margin:4px 0 0 14px;padding:0;">' + bullets.map(function(b){ return '<li style="margin:2px 0;">' + b + '</li>'; }).join('') + '</ul>';
@@ -2813,8 +2818,21 @@ function initProcedureThread(procedureName) {
             '<div class="' + ftrClass + '">' +
                 fbLabel +
                 '<div class="ca-ai-fb-btns">' +
-                    '<button class="ca-ai-fb-btn" onclick="kbThumbsUp(\'' + kbId + '\')">👍</button>' +
+                    thumbUpBtn +
                     thumbDown +
+                '</div>' +
+            '</div>' +
+            '<div class="kb-feedback-form" id="kbff-' + kbId + '" style="display:none;">' +
+                '<div class="kbff-title">⚠️ What was the issue?</div>' +
+                '<div class="kbff-options">' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="missing"> Missing information</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="none"> No information found</label>' +
+                    '<label class="kbff-option"><input type="radio" name="kbff-' + kbId + '" value="other"> Other</label>' +
+                '</div>' +
+                '<textarea class="kbff-comment" id="kbff-cmt-' + kbId + '" placeholder="Add a comment (optional)"></textarea>' +
+                '<div class="kbff-actions">' +
+                    '<button class="kbff-cancel" onclick="kbCancelFeedback(\'' + kbId + '\')">Cancel</button>' +
+                    '<button class="kbff-submit" onclick="kbSubmitFeedback(\'' + kbId + '\', \'' + title.replace(/\'/, "\'") + '\', \'' + url + '\')">Submit</button>' +
                 '</div>' +
             '</div>' +
         '</div>';
