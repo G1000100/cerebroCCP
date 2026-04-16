@@ -4428,7 +4428,7 @@ function _resetCbButton() {
         var dnBtn = document.getElementById('kbfb-dn-'+kbId);
         var lbl   = document.getElementById('kbfb-lbl-'+kbId);
         var form  = document.getElementById('kbff-'+kbId);
-        if(upBtn){ upBtn.classList.add('kbfb-up-active'); upBtn.querySelector('svg').setAttribute('stroke','#2ea043'); }
+        if(upBtn){ upBtn.classList.add('kbfb-up-active'); upBtn.style.background='#e6f4ea'; upBtn.style.borderColor='#1a7f37'; var _svg=upBtn.querySelector('svg'); if(_svg) _svg.setAttribute('stroke','#2ea043'); }
         if(dnBtn){ dnBtn.classList.remove('kbfb-down-active'); dnBtn.disabled=true; dnBtn.style.opacity='0.4'; }
         if(lbl){ lbl.textContent='Thanks for the feedback!'; lbl.style.color='#1a7f37'; }
         if(form) form.style.display='none';
