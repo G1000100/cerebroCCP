@@ -3705,6 +3705,12 @@ function initConnect(){
                 log('Refreshed callbacks on Available', 'success');
             }
         });
+        a.onMuteToggle(function(obj){
+            ['btn-mute','btn-mute-sb'].forEach(function(id){
+                var el=document.getElementById(id);
+                if(el) el.innerHTML=obj.muted?'🔊 Unmute':'🔇 Mute';
+            });
+        });
     });
 
     connect.contact(ct=>{
@@ -4067,16 +4073,13 @@ function holdCall(){
     }
 }
 function muteCall(){
-    if(!contact)return;
-    const cn=contact.getConnections()[0];if(!cn)return;
-    if(cn.isMuted()){
-        cn.unmute();
-        ['btn-mute','btn-mute-sb'].forEach(id=>{var el=document.getElementById(id);if(el)el.innerHTML='🔇 Mute';});
-        log('Unmuted','success');
+    if(!agent)return;
+    if(agent.isMuted()){
+        agent.unmute();
+        log('Microphone unmuted','success');
     }else{
-        cn.mute();
-        ['btn-mute','btn-mute-sb'].forEach(id=>{var el=document.getElementById(id);if(el)el.innerHTML='🔊 Unmute';});
-        log('Muted','warning');
+        agent.mute();
+        log('Microphone muted','warning');
     }
 }
 function setAgentStatus(s){
