@@ -4429,7 +4429,7 @@ function _resetCbButton() {
         var lbl   = document.getElementById('kbfb-lbl-'+kbId);
         var form  = document.getElementById('kbff-'+kbId);
         if(upBtn){ upBtn.classList.add('kbfb-up-active'); upBtn.style.background='#e6f4ea'; upBtn.style.borderColor='#1a7f37'; var _svg=upBtn.querySelector('svg'); if(_svg) _svg.setAttribute('stroke','#2ea043'); }
-        if(dnBtn){ dnBtn.classList.remove('kbfb-down-active'); dnBtn.disabled=true; dnBtn.style.opacity='0.4'; }
+        if(dnBtn){ dnBtn.classList.remove('kbfb-down-active'); dnBtn.disabled=false; dnBtn.style.opacity='1'; dnBtn.style.background=''; dnBtn.style.borderColor=''; }
         if(lbl){ lbl.textContent='Thanks for the feedback!'; lbl.style.color='#1a7f37'; }
         if(form) form.style.display='none';
         log('[KB] Positive feedback logged','success');
@@ -4440,6 +4440,9 @@ function _resetCbButton() {
         var dnBtn = document.getElementById('kbfb-dn-'+kbId);
         var lbl   = document.getElementById('kbfb-lbl-'+kbId);
         var form  = document.getElementById('kbff-'+kbId);
+        // Reset thumbs up state
+        var upBtnDn = document.getElementById('kbfb-up-'+kbId);
+        if(upBtnDn){ upBtnDn.classList.remove('kbfb-up-active'); upBtnDn.style.background=''; upBtnDn.style.borderColor=''; }
         if(dnBtn){ dnBtn.classList.add('kbfb-down-active'); dnBtn.style.background='rgba(234,88,12,0.08)'; dnBtn.style.borderColor='#c2410c'; var svgDn=dnBtn.querySelector('svg'); if(svgDn) svgDn.setAttribute('stroke','#d73a49'); }
         if(lbl){ lbl.textContent='What was the issue?'; lbl.style.color='#9a6700'; }
         if(form) form.style.display='block';
