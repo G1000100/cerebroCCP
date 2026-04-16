@@ -2797,7 +2797,7 @@ function initProcedureThread(procedureName) {
         var noteLabel = isGap ? '⚠️ KB Gap' : '⚠️ AI Note';
         var fbLabel   = isGap ? '<span class="ca-ai-fb-label-gap" id="kbfb-lbl-' + kbId + '">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label" id="kbfb-lbl-' + kbId + '">Was this helpful?</span>';
         var thumbUpBtn = '<button class="ca-ai-fb-btn" id="kbfb-up-' + kbId + '" onclick="kbThumbsUp(\''+kbId+'\')">👍</button>';
-        var safeTitle = (title||'').replace(/'/g,'\\'').replace(/"/g,'&quot;');
+        var safeTitle = (title||'').replace(/"/g,'&quot;');
         var safeUrl   = (url||'');
         var thumbDown = isGap
             ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse" id="kbfb-dn-' + kbId + '" onclick="kbThumbsDown(\''+kbId+'\',\''+safeTitle+'\',\''+safeUrl+'\')">👎</button>'
