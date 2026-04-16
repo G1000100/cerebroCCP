@@ -4440,7 +4440,7 @@ function _resetCbButton() {
         var dnBtn = document.getElementById('kbfb-dn-'+kbId);
         var lbl   = document.getElementById('kbfb-lbl-'+kbId);
         var form  = document.getElementById('kbff-'+kbId);
-        if(dnBtn){ dnBtn.classList.add('kbfb-down-active'); dnBtn.querySelector('svg').setAttribute('stroke','#d73a49'); }
+        if(dnBtn){ dnBtn.classList.add('kbfb-down-active'); dnBtn.style.background='rgba(234,88,12,0.08)'; dnBtn.style.borderColor='#c2410c'; var svgDn=dnBtn.querySelector('svg'); if(svgDn) svgDn.setAttribute('stroke','#d73a49'); }
         if(lbl){ lbl.textContent='What was the issue?'; lbl.style.color='#9a6700'; }
         if(form) form.style.display='block';
     }
