@@ -695,7 +695,7 @@
              onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
         <div class="hdr-logo-fallback" id="logo-fb">🛡️</div>
         <div class="hdr-divider"></div>
-        <div class="hdr-title">MHA Intelligent Contact Centre</div>
+        <div class="hdr-title" onclick="resetToIdle()" title="Click to reset workspace" style="cursor:pointer;">MHA Intelligent Contact Centre</div>
     </div>
     <div class="hdr-center">
         <span class="srch-ico">🔍</span>
@@ -4161,6 +4161,48 @@ function submitForm(){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────────────
+function resetToIdle() {
+    var txSec = document.getElementById('tx-section');
+    var isActive = txSec && txSec.classList.contains('visible');
+    var cbPanel = document.getElementById('callback-detail-panel');
+    var isCbActive = cbPanel && cbPanel.style.display !== 'none';
+    if (!isActive && !isCbActive) return;
+    if (wasConnected || contact) {
+        if (!confirm('A call is in progress. Reset workspace anyway?')) return;
+    }
+    stopTimer();
+    if (waitTimer) { clearInterval(waitTimer); waitTimer = null; }
+    if (ws) { ws.close(); ws = null; }
+    setTxStatus(false); setAps('Disconnected');
+    clearTx(); resetKwEngine();
+    if (typeof formTabOpen !== 'undefined' && formTabOpen) closeFormTab();
+    contact = null; wasConnected = false;
+    if (typeof selectedCallbackIdx !== 'undefined') selectedCallbackIdx = null;
+    if (typeof clearProfile === 'function') clearProfile();
+    var stTag = document.getElementById('cpb-status-tag');
+    if (stTag) { stTag.textContent = ''; stTag.className = 'ptag'; stTag.style.cssText = ''; }
+    var cbPanelR = document.getElementById('callback-detail-panel');
+    if (cbPanelR) cbPanelR.style.display = 'none';
+    var acwBar = document.getElementById('acw-bar');
+    if (acwBar) acwBar.classList.remove('visible');
+    var postcallP = document.getElementById('postcall-panel');
+    if (postcallP) postcallP.classList.remove('visible');
+    var qItem = document.getElementById('queue-item-johnny');
+    if (qItem) { qItem.style.display = 'none'; qItem.className = 'call-item'; }
+    var incallList = document.getElementById('incall-list');
+    if (incallList) incallList.innerHTML = '';
+    var ic = document.getElementById('incall-count'); if (ic) ic.textContent = '(0)';
+    var caNoCall = document.getElementById('ca-no-call');
+    var caLive = document.getElementById('ca-live-body');
+    if (caNoCall) caNoCall.style.display = 'flex';
+    if (caLive) caLive.style.display = 'none';
+    var procThread = document.getElementById('ca-proc-thread');
+    if (procThread) procThread.innerHTML = '';
+    if (typeof procStepCount !== 'undefined') procStepCount = 0;
+    setPanel('idle');
+    log('Workspace reset to idle', 'warning');
+}
+
 window.addEventListener('load', () => {
     log('Page loaded');
     setPanel('prelogin');
