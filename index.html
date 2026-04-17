@@ -1605,7 +1605,12 @@ const KW_RULES = [
     id: 'extension_step3',
     label: 'Extension Documents',
     keywords: [
+      'what are the documents',
+      'what are the document',
       'what documents',
+      'what document',
+      'which documents',
+      'which document',
       'documents needed',
       'documents required',
       'what do i need to submit',
@@ -4236,7 +4241,7 @@ var CB_MOCK_STATIC = [
       email:'ahmad.hassan@example.com', reason:'Apply for Disruption',
       rank:'Private', unit:'Tanglin NPC', slotOffsetMinutes:60 },
     { id:'mock-1', name:'Benjamin Tan Jia Jun', nric:'S0087654C', phone:'+65 9374 9945',
-      email:'benjamin.tan@example.com', reason:'Training & Posting',
+      email:'benjamin.tan@example.com', reason:'Extension of Disruption',
       rank:'Private', unit:'Bedok NPC', slotOffsetMinutes:90 }
 ];
 
@@ -4400,6 +4405,15 @@ function selectCallback(idx) {
     _el=document.getElementById('cbd-phone'); if(_el) _el.textContent=_cbPhone;
     _el=document.getElementById('cbd-rank'); if(_el) _el.textContent=_cbRank;
     _el=document.getElementById('cbd-unit'); if(_el) _el.textContent=_cbUnit;
+    // Also populate profile accordion (pf-* fields) so serviceman details section shows data
+    _el=document.getElementById('pf-rank');     if(_el) _el.textContent=_cbRank;
+    _el=document.getElementById('pf-division'); if(_el) _el.textContent=_mc.division||'-';
+    _el=document.getElementById('pf-unit');     if(_el) _el.textContent=_cbUnit;
+    _el=document.getElementById('pf-ord');      if(_el) _el.textContent=_mc.ord||'-';
+    _el=document.getElementById('pf-hkc');      if(_el) _el.textContent=_mc.high_key_count||'Unassigned';
+    _el=document.getElementById('pf-lkc');      if(_el) _el.textContent=_mc.low_key_count||'Unassigned';
+    _el=document.getElementById('pf-last-ict'); if(_el) _el.textContent=_mc.last_ict||'Unassigned';
+    _el=document.getElementById('pf-next-ict'); if(_el) _el.textContent=_mc.next_ict||'Unassigned';
     _el=document.getElementById('cbd-reason'); if(_el) _el.textContent=cb.reason||'-';
     _el=document.getElementById('cbd-slot-display'); if(_el) _el.textContent=cb.slotDisplay||'-';
     _el=document.getElementById('cbd-time-label'); if(_el) _el.textContent=cb.slotDisplay||'Scheduled callback';
@@ -4523,9 +4537,27 @@ function _onOutboundConnected(cb) {
     initProcedureThread('Callback — '+cb.reason);
     addProcStep('step1');
 
+    // Update In Call sidebar section with the correct callback caller
+    var incallList=document.getElementById('incall-list');
+    if(incallList){
+        incallList.innerHTML='';
+        var incDiv=document.createElement('div');
+        incDiv.className='call-item active-item';
+        incDiv.id='incall-cb-item';
+        incDiv.innerHTML='<div class="call-item-top"><div class="call-dot call-dot-green"></div><span class="call-name">'+cb.name+'</span><span class="call-timer" id="dur-mini">00:00</span></div><div class="call-desc">'+cb.reason+'</div>';
+        incallList.appendChild(incDiv);
+        var ic=document.getElementById('incall-count'); if(ic) ic.textContent='(1)';
+    }
+    // Remove callback from sidebar queue if it was already moved there (due-now state)
     if (selectedCallbackIdx !== null) {
-        var qItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
-        if(qItem){qItem.style.opacity='0.5';qItem.style.pointerEvents='none';}
+        var cbQItem=document.getElementById('cb-queue-item-'+selectedCallbackIdx);
+        if(cbQItem) cbQItem.remove();
+    }
+    // Ensure Johnny Pang queue item is hidden (not in incall)
+    var qJohnny=document.getElementById('queue-item-johnny');
+    if(qJohnny && qJohnny.parentElement && qJohnny.parentElement.id==='incall-list'){
+        qJohnny.style.display='none';
+        document.querySelector('#queue-section .sb-calls').prepend(qJohnny);
     }
 
     clearTx();
