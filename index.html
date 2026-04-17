@@ -2249,11 +2249,25 @@ function openFormTab(formName) {
 
     var cpbEmail = document.getElementById('cpb-email');
     var dfEmail = document.getElementById('df-email');
-    if(dfEmail) dfEmail.value = cpbEmail ? cpbEmail.textContent : '';
+    if(dfEmail) {
+        var _fEmail = cpbEmail ? cpbEmail.textContent.trim() : '';
+        var _fNric  = ((document.getElementById('cpb-nric')||{}).textContent||'').replace(/[()]/g,'').trim();
+        var _fMc    = (typeof MOCK_CUSTOMERS!=='undefined') ? (MOCK_CUSTOMERS[_fNric]||{}) : {};
+        if (!_fEmail || _fEmail === '-') _fEmail = _fMc.email || '';
+        dfEmail.value = _fEmail;
+    }
 
     var cpbPhone = document.querySelector('.cpb-phone');
     var dfPhone = document.getElementById('df-phone');
-    if(dfPhone) dfPhone.value = cpbPhone ? cpbPhone.textContent : '';
+    if(dfPhone) {
+        var _fPhone = cpbPhone ? cpbPhone.textContent.trim() : '';
+        if (!_fPhone || _fPhone === '-' || _fPhone === '+65 0000 0000') {
+            var _fNric2 = ((document.getElementById('cpb-nric')||{}).textContent||'').replace(/[()]/g,'').trim();
+            var _fMc2   = (typeof MOCK_CUSTOMERS!=='undefined') ? (MOCK_CUSTOMERS[_fNric2]||{}) : {};
+            _fPhone = _fMc2.phone || _fPhone;
+        }
+        dfPhone.value = _fPhone;
+    }
 
     // Set form title
     var fTitle = document.getElementById('form-view-title');
@@ -4651,9 +4665,11 @@ function _onOutboundConnected(cb) {
     var el;
     el=document.getElementById('cpb-name'); if(el) el.textContent=cb.name.split(' ').slice(0,2).join(' ');
     el=document.getElementById('cpb-nric'); if(el) el.textContent='('+cb.nric+')';
-    el=document.querySelector('.cpb-phone'); if(el) el.textContent=cb.phone;
-    el=document.getElementById('cpb-email'); if(el) el.textContent=cb.email||'-';
     var _obMc=MOCK_CUSTOMERS[cb.nric]||{};
+    var _obPhone=(cb.phone&&cb.phone!=='-'&&cb.phone!=='+65 0000 0000')?cb.phone:(_obMc.phone||cb.phone);
+    var _obEmail=(cb.email&&cb.email!=='-')?cb.email:(_obMc.email||'-');
+    el=document.querySelector('.cpb-phone'); if(el) el.textContent=_obPhone;
+    el=document.getElementById('cpb-email'); if(el) el.textContent=_obEmail;
     el=document.getElementById('pf-rank'); if(el) el.textContent=(cb.rank&&cb.rank!=='-')?cb.rank:(_obMc.rank||'-');
     el=document.getElementById('pf-unit'); if(el) el.textContent=(cb.unit&&cb.unit!=='-')?cb.unit:(_obMc.unit||'-');
     el=document.getElementById('cpb-status-tag'); if(el){el.textContent='● Connected';el.className='ptag ptag-connected';}
