@@ -673,6 +673,15 @@
     }
     .tx-kb-gap-btn:hover { background:#991b1b; }
     .tx-kb-gap-btn:disabled { opacity:0.7; cursor:default; }
+    .tx-followup-action { padding:6px 12px; }
+    .tx-followup-action-inner { display:flex; flex-direction:column; gap:8px; padding:10px 12px; background:rgba(9,105,218,0.06); border:1px solid rgba(9,105,218,0.3); border-radius:6px; width:100%; }
+    .tx-followup-action-hdr { display:flex; align-items:center; gap:7px; }
+    .tx-followup-action-icon { font-size:13px; flex-shrink:0; }
+    .tx-followup-action-label { font-size:10.5px; font-weight:700; color:#0550ae; letter-spacing:0.3px; }
+    .tx-followup-action-text { font-size:11.5px; color:#0a3069; line-height:1.5; }
+    .tx-followup-action-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 14px; background:#0969da; color:#fff; border:none; border-radius:5px; font-size:11px; font-weight:600; cursor:pointer; align-self:flex-start; font-family:'IBM Plex Sans',sans-serif; transition:background 0.15s; }
+    .tx-followup-action-btn:hover { background:#0550ae; }
+    .tx-followup-action-btn:disabled { opacity:0.7; cursor:default; background:#0969da; }
     .ca-kb-gap-report-btn {
         display:flex; align-items:center; gap:5px;
         padding:6px 12px; background:#7c2d12; color:#fff;
@@ -2008,6 +2017,8 @@ const kwShown    = new Set();
 var   txLines    = [];
 var   consentAsked = false;   // tracks if agent asked "consent to proceed"
 var   kbGapDetected = false;  // set true if /generate returns kb_gap during this call
+var   emailConfirmAsked = false;   // tracks if agent asked to confirm caller email
+var   followUpTicketShown = false; // prevents duplicate follow-up action card
 var   consentShown = false;   // prevents duplicate consent suggestion
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -2721,6 +2732,26 @@ function addMsg({text, role, sent, partial}) {
         if (!isAgent && consentAsked && (lower.indexOf('yes') >= 0)) {
             consentShown = true;
             showCreateApplicationSuggestion();
+        }
+    }
+
+    // -- Email confirmation -> Follow-up ticket (two-phase) --
+    if (!partial && !followUpTicketShown) {
+        var _lf = (text || '').toLowerCase();
+        var _iaf = (role||'').toUpperCase() === 'AGENT';
+        var _isExt2 = kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+                      kwShown.has('extension_step3') || kwShown.has('extension_step4');
+        if (_isExt2 && kbGapDetected) {
+            if (_iaf && (
+                _lf.indexOf('confirm your email') >= 0 ||
+                _lf.indexOf('confirm the email') >= 0 ||
+                _lf.indexOf('email address is') >= 0 ||
+                _lf.indexOf('your email is') >= 0
+            )) { emailConfirmAsked = true; }
+            if (!_iaf && emailConfirmAsked && (
+                _lf.indexOf('yes') >= 0 || _lf.indexOf('correct') >= 0 ||
+                _lf.indexOf('yep') >= 0 || _lf.indexOf('yup') >= 0
+            )) { followUpTicketShown = true; injectFollowUpAction(); }
         }
     }
 
@@ -3636,6 +3667,91 @@ for (var i = 0; i < uniKeys.length; i++) {
     }
 }
 
+function injectFollowUpAction() {
+    var c = document.getElementById('tx-msgs');
+    if (!c) return;
+    var _name  = (document.getElementById('cpb-name')  || {}).textContent || '-';
+    var _nric  = ((document.getElementById('cpb-nric') || {}).textContent || '').replace(/[()]/g,'').trim() || '-';
+    var _email = (document.getElementById('cpb-email') || {}).textContent || '-';
+    var wrap = document.createElement('div');
+    wrap.className = 'tx-followup-action';
+    wrap.id = 'tx-followup-action-card';
+    wrap.innerHTML =
+        '<div class="tx-followup-action-inner">' +
+        '<div class="tx-followup-action-hdr">' +
+        '<span class="tx-followup-action-icon">&#128203;</span>' +
+        '<span class="tx-followup-action-label">Follow-Up Required &#8212; Email Confirmed</span>' +
+        '</div>' +
+        '<div class="tx-followup-action-text">Agent committed to follow up with confirmed document requirements within 2&#8211;3 working days to <strong>' + _email + '</strong>. Create a follow-up ticket to track this.</div>' +
+        '<button class="tx-followup-action-btn" id="btn-create-followup"' +
+        ' data-name="' + _name.replace(/"/g,'&quot;') + '"' +
+        ' data-nric="' + _nric + '"' +
+        ' data-email="' + _email.replace(/"/g,'&quot;') + '"' +
+        ' onclick="createFollowUpTicket(this)">&#128203; Create Follow-Up Ticket</button>' +
+        '</div>';
+    c.appendChild(wrap);
+    c.scrollTop = c.scrollHeight;
+    log('Follow-up action card shown', 'success');
+}
+
+function createFollowUpTicket(btn) {
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = 'Creating ticket...';
+    var callerName  = btn.getAttribute('data-name')  || '-';
+    var callerNric  = btn.getAttribute('data-nric')  || '-';
+    var callerEmail = btn.getAttribute('data-email') || '-';
+    var callerPhone = (document.querySelector('.cpb-phone') || {}).textContent || '-';
+    var now = new Date();
+    var tzo = now.getTimezoneOffset() * -1;
+    var tzs = tzo >= 0 ? '+' : '-';
+    var tzh = String(Math.floor(Math.abs(tzo)/60)).padStart(2,'0');
+    var tzm = String(Math.abs(tzo)%60).padStart(2,'0');
+    var iso = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+'T'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':00.000'+tzs+tzh+tzm;
+    var payload = {fields:{
+        issuetype:{id:'10001'}, priority:{id:'3'}, project:{id:'10000'},
+        summary: 'Follow-up: Extension of Disruption document requirements -- '+callerName+' ('+callerNric+')',
+        customfield_10010:'2', customfield_10114:'Telephony',
+        customfield_10115:'example1234567890code', customfield_10116:iso,
+        customfield_10117:callerNric, customfield_10118:callerName,
+        customfield_10119:callerEmail, customfield_10120:callerPhone,
+        customfield_10121:'Singapore Police Force (SPF)',
+        customfield_10122:'Central Police Division - Tanglin NPC',
+        customfield_10123:'Frontline Patrol Officer (PNSF)',
+        customfield_10124:'PN12345A', customfield_10125:'2025-10-03',
+        customfield_10126:'2027-10-02', customfield_10127:'SSgt Lim Jun Hao',
+        customfield_10153:{id:'10034'},
+        description:{type:'doc',version:1,content:[
+            {type:'paragraph',content:[{type:'text',text:'Caller '+callerName+' ('+callerNric+') contacted the Support Line to enquire about documents required to apply for an extension of NS disruption. Identity was verified via Singpass.'}]},
+            {type:'paragraph',content:[{type:'text',text:'Officer was unable to locate the specific document requirements for disruption extension in the knowledge base at the time of the call. General guidance was provided as a fallback. Officer committed to verify the exact requirements with the relevant team and follow up with the caller.'}]},
+            {type:'paragraph',content:[{type:'text',text:'Confirmed follow-up email: '+callerEmail+'. Please provide the confirmed document requirements within 2-3 working days.'}]}
+        ]},
+        customfield_10142:null,customfield_10143:null,customfield_10144:null,
+        customfield_10145:null,customfield_10146:null,
+        customfield_10148:[{id:'10028'}],customfield_10149:[{id:'10029'}],customfield_10151:[{id:'10031'}]
+    }};
+    fetch(JIRA_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(function(r){return r.json().then(function(d){return{ok:r.ok,status:r.status,data:d};});})
+    .then(function(res){
+        if(res.ok){
+            var key=res.data.key||res.data.id||'UNKNOWN';
+            var url='https://dttau-demo-sandbox-htx.atlassian.net/jira/servicedesk/projects/HCCCD/queues/custom/3/';
+            btn.textContent='Ticket created: '+key;
+            btn.style.background='#1a7f37';
+            injectGreenNote('Follow-up ticket <a href="'+url+'" target="_blank" style="color:#1a7f37;font-weight:700;text-decoration:underline;">'+key+'</a> created -- agent will follow up at '+callerEmail+' within 2-3 working days');
+            log('Follow-up JSM ticket created: '+key,'success');
+        } else {
+            var e=res.data.errorMessages?res.data.errorMessages.join(', '):JSON.stringify(res.data.errors||res.data);
+            log('Follow-up ticket error ('+res.status+'): '+e,'error');
+            btn.disabled=false; btn.textContent='Create Follow-Up Ticket';
+        }
+    })
+    .catch(function(e){
+        log('Follow-up ticket failed: '+e.message,'error');
+        btn.disabled=false; btn.textContent='Create Follow-Up Ticket';
+    });
+}
+
 function injectGreenNote(text) {
     // Main transcript
     var c = document.getElementById('tx-msgs');
@@ -3681,7 +3797,7 @@ function updateAiSummary(){
 }
 function resetKwEngine(){
     kwDetected.clear();kwShown.clear();txLines=[];
-    consentAsked=false;consentShown=false;kbGapDetected=false;
+    consentAsked=false;consentShown=false;kbGapDetected=false;emailConfirmAsked=false;followUpTicketShown=false;
     var r=document.getElementById('kw-tags-row');if(r)r.innerHTML='';
     var a=document.getElementById('kw-alert');if(a)a.style.display='none';
     var s=document.getElementById('ai-summary');if(s)s.innerHTML='<span class="ai-idle">Summary will appear as conversation progresses.</span>';
