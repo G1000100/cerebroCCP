@@ -1915,7 +1915,7 @@ const PROCEDURE_STEPS = {
       { text: 'Greet caller and confirm they are a current disruptee seeking extension.', subs: ['"Hi [Rank + Name], I understand you\'re looking to extend your current NS disruption. Let me help you with that."'] },
       { text: 'Confirm their current disruption end date.', subs: [] }
     ],
-    aiNote: 'NSF is currently a disruptee. Original disruption ends on <strong>30 Nov 2026</strong>. Extension application must be submitted at least 3 months before end date.',
+    aiNote: 'NSF is currently a disruptee. Original disruption ends on <strong>15 Nov 2026</strong>. Extension application must be submitted at least 3 months before end date.',
     kb: {
       searchQuery: 'extension extend disruption',
       articleId: 'extension',
@@ -1929,7 +1929,7 @@ const PROCEDURE_STEPS = {
     title: 'Check Eligibility & Timeline',
     instructions: [
       { text: 'Confirm NSF is still enrolled in approved programme.', subs: [] },
-      { text: 'Check if application is at least 3 months before disruption end date.', subs: ['"Your disruption ends on 30 Nov 2026. Application should be submitted by 31 Aug 2026."'] }
+      { text: 'Check if application is at least 3 months before disruption end date.', subs: ['"Your disruption ends on 15 Nov 2026. Application should be submitted by 31 Aug 2026."'] }
     ],
     aiNote: 'Verify that NSF\'s university enrolment is still active and programme is still approved under MINDEF guidelines.',
     kb: {
@@ -4410,8 +4410,8 @@ var CB_MOCK_STATIC = [
 ];
 
 var MOCK_CUSTOMERS = {
-    'S0012345A': { name:'JOHNNY PANG JUN JIE', nric:'S0012345A', initials:'JP', rank:'Corporal', division:'Tanglin NPC', unit:'Central Police Division', phone:'+65 9374 9945', email:'johnny.p@example.com', ord:'2 Oct 2026', disruption_end:'30 Nov 2026' },
-    'T0012345A': { name:'JOHNNY PANG JUN JIE', nric:'S0012345A', initials:'JP', rank:'Corporal', division:'Tanglin NPC', unit:'Central Police Division', phone:'+65 9374 9945', email:'johnny.p@example.com', ord:'2 Oct 2026', disruption_end:'30 Nov 2026' },
+    'S0012345A': { name:'JOHNNY PANG JUN JIE', nric:'S0012345A', initials:'JP', rank:'Corporal', division:'Tanglin NPC', unit:'Central Police Division', phone:'+65 9374 9945', email:'johnny.p@example.com', ord:'2 Oct 2026', disruption_end:'15 Nov 2026' },
+    'T0012345A': { name:'JOHNNY PANG JUN JIE', nric:'S0012345A', initials:'JP', rank:'Corporal', division:'Tanglin NPC', unit:'Central Police Division', phone:'+65 9374 9945', email:'johnny.p@example.com', ord:'2 Oct 2026', disruption_end:'15 Nov 2026' },
     'T0012345B': { rank:'Private',  unit:'Tanglin NPC', phone:'+65 9374 9945', email:'ahmad.hassan@example.com', disruption_end:null },
     'S0087654C': { rank:'Private',  unit:'Bedok NPC',   phone:'+65 9374 9945', email:'benjamin.tan@example.com', disruption_end:null },
 };
