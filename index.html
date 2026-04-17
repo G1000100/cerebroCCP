@@ -3040,20 +3040,20 @@ function addProcStep(stepKey) {
                     var _nt = data.article.title || 'KB Article';
                     var _nu = data.article.url || '';
                     var _nc = 'KB Gap detected during live call. No information found for: ' + _nt + '. Please create or update the KB article.';
-                    // Use data attributes to avoid complex escaping
-                    var _rptBtn = document.createElement('button');
-                    _rptBtn.className = 'ca-kb-gap-report-btn';
-                    _rptBtn.textContent = '📋 Report to KB Team';
-                    _rptBtn.setAttribute('data-title', _nt);
-                    _rptBtn.setAttribute('data-url', _nu);
-                    _rptBtn.setAttribute('data-comment', _nc);
-                    _rptBtn.onclick = function() {
-                        kbDirectReport(this.getAttribute('data-title'), this.getAttribute('data-url'), this.getAttribute('data-comment'));
-                    };
-                    var _rptDiv = document.createElement('div');
-                    _rptDiv.className = _dynFtrClass;
-                    _rptDiv.appendChild(_rptBtn);
-                    _noteFooter = _rptDiv.outerHTML;
+                    // Build footer as an HTML string with inline onclick so the handler
+                    // survives insertAdjacentHTML (outerHTML strips JS property handlers)
+                    var _ntEsc  = _nt.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+                    var _nuEsc  = _nu.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+                    var _ncEsc  = _nc.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+                    _noteFooter = '<div class="' + _dynFtrClass + '">' +
+                        '<button class="ca-kb-gap-report-btn" ' +
+                            'data-title="' + _ntEsc + '" ' +
+                            'data-url="' + _nuEsc + '" ' +
+                            'data-comment="' + _ncEsc + '" ' +
+                            'onclick="kbDirectReport(this.dataset.title,this.dataset.url,this.dataset.comment)">'+
+                            '📋 Report to KB Team' +
+                        '</button>' +
+                    '</div>';
                 } else {
                     _noteFooter = '<div class="' + _dynFtrClass + '">' +
                         _dynFbLabel +
