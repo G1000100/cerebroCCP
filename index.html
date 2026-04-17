@@ -903,16 +903,16 @@
                 <div>
                     <div style="display:flex;align-items:baseline;gap:8px;">
                         <div class="cpb-name" id="cpb-name">Johnny Pang</div>
-                        <span class="cpb-nric" id="cpb-nric" style="background:none;border:none;padding:0;font-size:12px;color:#57606a;">(T0012345A)</span>
+                        <span class="cpb-nric" id="cpb-nric" style="background:none;border:none;padding:0;font-size:12px;color:#57606a;">(S0012345A)</span>
                     </div>
                     <div class="cpb-meta">
                         <span class="ptag ptag-ringing" id="cpb-status-tag">● Ringing</span>
                         <span style="font-size:11px;color:#8c959f;">|</span>
                         <span style="font-size:11px;color:#57606a;font-family:'IBM Plex Mono',monospace;" id="cpb-ir">IR-2024-71846</span>
                         <span style="font-size:11px;color:#8c959f;">|</span>
-                        <span class="cpb-phone" style="font-size:11px;color:#57606a;font-family:'IBM Plex Mono',monospace;">+65 9123 4567</span>
+                        <span class="cpb-phone" style="font-size:11px;color:#57606a;font-family:'IBM Plex Mono',monospace;">+65 9374 9945</span>
                         <span style="font-size:11px;color:#8c959f;">|</span>
-                        <span id="cpb-email" style="font-size:11px;color:#57606a;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4d272225232334633d0d28352c203d2128632e2220">[email&#160;protected]</a></span>
+                        <span id="cpb-email" style="font-size:11px;color:#57606a;">johnny.p@example.com</span>
                     </div>
                 </div>
             </div>
@@ -1012,9 +1012,9 @@
                     </div>
                     <div class="ov-grid-2col">
                         <div class="ov-field"><label>Full name</label><span id="ov-fullname">Johnny Pang Jun Jie</span></div>
-                        <div class="ov-field"><label>Email</label><span id="ov-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c2a8adaaacacbbecb282a7baa3afb2aea7eca1adaf">[email&#160;protected]</a></span></div>
-                        <div class="ov-field"><label>NRIC</label><span id="ov-nric">T0012345A</span></div>
-                        <div class="ov-field"><label>Phone</label><span id="ov-phone">+65 9123 4567</span></div>
+                        <div class="ov-field"><label>Email</label><span id="ov-email">johnny.p@example.com</span></div>
+                        <div class="ov-field"><label>NRIC</label><span id="ov-nric">S0012345A</span></div>
+                        <div class="ov-field"><label>Phone</label><span id="ov-phone">+65 9374 9945</span></div>
                     </div>
                     <div class="ov-grid" style="grid-template-columns:repeat(2,1fr);">
                         <div class="ov-field"><label>Unit</label><span id="ov-unit">Central Police Division</span></div>
@@ -1458,6 +1458,17 @@ function clearProfile() {
 function fetchUserProfile(nric) {
     clearProfile();
     if (!nric) return;
+    // Immediately pre-populate from mock data so overview is never blank
+    var _mock = (typeof MOCK_CUSTOMERS !== 'undefined') ? (MOCK_CUSTOMERS[nric] || {}) : {};
+    if (_mock.name) {
+        populateProfile({
+            name: _mock.name, nric: _mock.nric || nric,
+            initials: _mock.initials || nric.slice(0,2),
+            rank: _mock.rank, division: _mock.division,
+            unit: _mock.unit, phone: _mock.phone,
+            email: _mock.email, ord: _mock.ord
+        });
+    }
     fetch(PROFILE_API + '?nric=' + encodeURIComponent(nric))
         .then(function(res) {
             if (!res.ok) throw new Error('Profile API returned ' + res.status);
@@ -3944,7 +3955,7 @@ function initConnect(){
 // ── QUEUE ITEM CLICK — agent selects a ringing call from sidebar ─────────────
 function selectQueueCall(){
     // Fetch profile and show center panel with overview + accept/decline
-    fetchUserProfile('T0012345A');
+    fetchUserProfile('S0012345A');
     setPanel('ringing');
     log('Agent selected ringing call','success');
     // Highlight the queue item as selected
@@ -4385,8 +4396,8 @@ var CB_MOCK_STATIC = [
 ];
 
 var MOCK_CUSTOMERS = {
-    'S0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com',   disruption_end:'30 Nov 2026' },
-    'T0012345A': { rank:'Corporal', unit:'3 SIR',       phone:'+65 9374 9945', email:'jonny.pang@example.com',   disruption_end:'30 Nov 2026' },
+    'S0012345A': { name:'JOHNNY PANG JUN JIE', nric:'S0012345A', initials:'JP', rank:'Corporal', division:'Tanglin NPC', unit:'Central Police Division', phone:'+65 9374 9945', email:'johnny.p@example.com', ord:'2 Oct 2026', disruption_end:'30 Nov 2026' },
+    'T0012345A': { name:'JOHNNY PANG JUN JIE', nric:'S0012345A', initials:'JP', rank:'Corporal', division:'Tanglin NPC', unit:'Central Police Division', phone:'+65 9374 9945', email:'johnny.p@example.com', ord:'2 Oct 2026', disruption_end:'30 Nov 2026' },
     'T0012345B': { rank:'Private',  unit:'Tanglin NPC', phone:'+65 9374 9945', email:'ahmad.hassan@example.com', disruption_end:null },
     'S0087654C': { rank:'Private',  unit:'Bedok NPC',   phone:'+65 9374 9945', email:'benjamin.tan@example.com', disruption_end:null },
 };
