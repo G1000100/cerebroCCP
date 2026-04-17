@@ -2863,9 +2863,14 @@ function initProcedureThread(procedureName) {
 
 
     // ── KB card builder helpers ──────────────────────────────────────────────
+    function toKbUrl(url) {
+        var m = url ? url.match(/\/pages\/(\d+)/) : null;
+        return m ? 'https://dttau-demo-sandbox-htx.atlassian.net/servicedesk/customer/kb/view/' + m[1] : url;
+    }
+
     function _buildKbArticleHtml(kbId, title, url, summary) {
         return '<div class="ca-kb-article-item" style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">' +
-            '<a href="' + url + '" class="ca-kb-link" target="_blank">' + title +
+            '<a href="' + toKbUrl(url) + '" class="ca-kb-link" target="_blank">' + title +
                 ' <svg class="ca-kb-link-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             '</a>' +
             '<div class="ca-kb-summary" style="margin-top:4px;">' + (summary || '') + '</div>' +
@@ -2918,7 +2923,7 @@ function initProcedureThread(procedureName) {
         var summaryHtml = summary ? '<div style="margin-bottom:' + (bulletsHtml ? '4px' : '0') + ';">' + summary + '</div>' : '';
         // Title as link inside body
         var titleLinkHtml = url
-            ? '<div style="margin-bottom:5px;"><a href="' + url + '" class="ca-ai-card-link' + (isGap ? ' ca-ai-card-link-gap' : '') + '" target="_blank" style="font-size:11px;font-weight:700;">📚 ' + title + ' ↗</a></div>'
+            ? '<div style="margin-bottom:5px;"><a href="' + toKbUrl(url) + '" class="ca-ai-card-link' + (isGap ? ' ca-ai-card-link-gap' : '') + '" target="_blank" style="font-size:11px;font-weight:700;">📚 ' + title + ' ↗</a></div>'
             : '';
         return '<div class="' + cardClass + '" id="' + kbId + '">' +
             '<div class="' + hdrClass + '">' +
@@ -2953,7 +2958,7 @@ function initProcedureThread(procedureName) {
     function _buildKbArticleHtml(kbId, title, url, summary) {
         // Used for dynamic search results - updates kb-inner div
         return '<div style="margin-bottom:4px;">' +
-            '<a href="' + url + '" style="font-size:11px;font-weight:700;color:#0969da;text-decoration:none;" target="_blank">📚 ' + title + ' ↗</a>' +
+            '<a href="' + toKbUrl(url) + '" style="font-size:11px;font-weight:700;color:#0969da;text-decoration:none;" target="_blank">📚 ' + title + ' ↗</a>' +
             '</div>' +
             '<div style="font-size:11px;color:#57606a;line-height:1.6;">' + summary + '</div>';
     }
@@ -3107,7 +3112,7 @@ function addProcStep(stepKey) {
                 var _dynLabel     = data.kb_gap ? '⚠️ KB Gap' : '📚 Knowledge Base';
                 var _dynFbLabel   = data.kb_gap ? '<span class="ca-ai-fb-label-gap">Submit feedback to KB team</span>' : '<span class="ca-ai-fb-label">Was this helpful?</span>';
                 var _dynThumbDown = data.kb_gap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse">👎</button>' : '<button class="ca-ai-fb-btn">👎</button>';
-                var _dynLink      = data.article ? '<a href="' + data.article.url + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
+                var _dynLink      = data.article ? '<a href="' + toKbUrl(data.article.url) + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
                 var _noteFooter = '';
                 if (data.kb_gap) kbGapDetected = true;
                 if (data.kb_gap && data.article) {
