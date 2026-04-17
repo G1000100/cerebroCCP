@@ -2007,6 +2007,7 @@ const kwDetected = new Set();
 const kwShown    = new Set();
 var   txLines    = [];
 var   consentAsked = false;   // tracks if agent asked "consent to proceed"
+var   kbGapDetected = false;  // set true if /generate returns kb_gap during this call
 var   consentShown = false;   // prevents duplicate consent suggestion
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -2122,6 +2123,22 @@ function setPanel(state) {
         // Update status tag
         var stTag = document.getElementById('cpb-status-tag');
         if(stTag){ stTag.textContent='● After Call Work'; stTag.className='ptag'; stTag.style.cssText='background:rgba(210,153,34,0.1);color:#9a6700;border:1px solid rgba(210,153,34,0.3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;'; }
+        // Update postcall draft body based on call flow
+        var _draftBody = document.getElementById('postcall-draft-body');
+        if (_draftBody) {
+            var _isExt = kwShown.has('extension_step1') || kwShown.has('extension_step2') ||
+                         kwShown.has('extension_step3') || kwShown.has('extension_step4');
+            if (_isExt && kbGapDetected) {
+                _draftBody.innerHTML =
+                    '<p>Caller contacted the Support Line to enquire about documents required to apply for an extension of NS disruption. Identity was verified via Singpass. Caller confirmed they are looking to extend their current disruption for continued university studies.</p>' +
+                    '<p>Officer was unable to locate the specific document requirements for disruption extension in the knowledge base at the time of the call. General guidance was provided based on standard disruption applications — documents such as an updated university enrolment letter or confirmation of course extension are typically required, though this is not confirmed for extension cases. Officer has committed to verify the exact requirements with the relevant team and follow up with the caller via email within 2–3 working days. KB gap has been reported to the knowledge base team for article creation.</p>';
+            } else if (_isExt && !kbGapDetected) {
+                _draftBody.innerHTML =
+                    '<p>Caller contacted the Support Line to enquire about documents required to apply for an extension of NS disruption. Identity was verified via Singpass. Caller confirmed they are looking to extend their current disruption for continued university studies.</p>' +
+                    '<p>Officer advised caller on the documents required for the extension application: an updated university letter showing the new duration or extension details, academic transcripts if repeating or progressing, and a written justification for the extension. Caller was directed to submit the application via the NS Portal at least 3 months before the current disruption end date.</p>';
+            }
+            // else: disruption flow — HTML default is already correct, no change needed
+        }
         // Show post-call AI summary panel (between center and right)
         var postcallPanel = document.getElementById('postcall-panel');
         if(postcallPanel) postcallPanel.classList.add('visible');
@@ -3036,6 +3053,7 @@ function addProcStep(stepKey) {
                 var _dynThumbDown = data.kb_gap ? '<button class="ca-ai-fb-btn ca-ai-fb-btn-pulse">👎</button>' : '<button class="ca-ai-fb-btn">👎</button>';
                 var _dynLink      = data.article ? '<a href="' + data.article.url + '" class="ca-ai-card-link' + (data.kb_gap ? ' ca-ai-card-link-gap' : '') + '" target="_blank">📚 ' + data.article.title + ' ↗</a>' : '';
                 var _noteFooter = '';
+                if (data.kb_gap) kbGapDetected = true;
                 if (data.kb_gap && data.article) {
                     var _nt = data.article.title || 'KB Article';
                     var _nu = data.article.url || '';
@@ -3663,7 +3681,7 @@ function updateAiSummary(){
 }
 function resetKwEngine(){
     kwDetected.clear();kwShown.clear();txLines=[];
-    consentAsked=false;consentShown=false;
+    consentAsked=false;consentShown=false;kbGapDetected=false;
     var r=document.getElementById('kw-tags-row');if(r)r.innerHTML='';
     var a=document.getElementById('kw-alert');if(a)a.style.display='none';
     var s=document.getElementById('ai-summary');if(s)s.innerHTML='<span class="ai-idle">Summary will appear as conversation progresses.</span>';
