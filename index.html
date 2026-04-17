@@ -2025,6 +2025,10 @@ function setPanel(state) {
     cpb.classList.remove('active','ringing');
     incP.classList.remove('visible');
     txSec.classList.remove('visible');
+    txSec.style.display = ''; // Clear any inline style set by setPanel('connected')
+    // Always hide callback-detail-panel on any state transition
+    var cbPanelReset=document.getElementById('callback-detail-panel');
+    if(cbPanelReset) cbPanelReset.style.display='none';
     var acwBar=document.getElementById('acw-bar');
     if(acwBar) acwBar.classList.remove('visible');
     // Hide postcall panel
@@ -3721,8 +3725,9 @@ function initConnect(){
     connect.contact(ct=>{
         contact=ct;
         ct.onIncoming(()=>{
-            // Skip for outbound callbacks — selectedCallbackIdx is set when agent clicks Call Back
-            if(selectedCallbackIdx !== null) return;
+            // Only skip if an outbound callback call is actively in progress (wasConnected=true)
+            // Do NOT skip merely because a callback record is selected in the sidebar
+            if(selectedCallbackIdx !== null && wasConnected) return;
             const ph=ct.getInitialConnection()?.getEndpoint()?.phoneNumber||'Unknown';
             onIncoming(ct,ph);
         });
