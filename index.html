@@ -1034,7 +1034,7 @@
                 <div class="ov-grid">
                     <div class="ov-field"><label>Level 1 - Main Category</label><span>NS Administrative Matters</span></div>
                     <div class="ov-field"><label>Level 2 - Subcategory</label><span>Disruption &amp; Deferment</span></div>
-                    <div class="ov-field"><label>Level 3 - Request Type</label><span>Apply for disruption</span></div>
+                    <div class="ov-field"><label>Level 3 - Request Type</label><span id="ov-req-type">Apply for disruption</span></div>
                     <div class="ov-field"><label>Singpass Authentication</label><span>Verified</span></div>
                 </div>
             </div>
@@ -3252,6 +3252,11 @@ function toggleKb(hdr) {
 function renderKbSuggestions(ruleId, ruleLabel, triggeredKw) {
     // If extension_step1 triggered, clear disruption steps and start fresh
     // Guard: only clear if no extension steps already loaded (prevent double-clear)
+    // Update Request Type in Overview when extension flow detected
+    if (ruleId === 'extension_step1') {
+        var ovReqType = document.getElementById('ov-req-type');
+        if (ovReqType) ovReqType.textContent = 'Extension of Disruption';
+    }
     if (ruleId === 'extension_step1' && !kwShown.has('extension_step2')) {
         var cont = document.getElementById('ca-steps-container');
         if (cont) {
