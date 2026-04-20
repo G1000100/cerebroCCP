@@ -4498,7 +4498,7 @@ function _renderCbList() {
         var div = document.createElement('div');
         if (cb.movedToQueue) {
             div.className = 'cb-item cb-moved'; div.id = 'cb-item-' + idx;
-            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name moved">&#8593; ' + cb.name + '</div><div class="cb-item-time moved">Moved to call queue</div><div class="cb-item-reason">' + cb.reason + '</div></div><span class="cb-countdown cb-countdown-green">Now</span><button class="cb-call-btn" disabled>' + _buildPhoneIcon() + '</button>';
+            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name moved">&#8593; ' + cb.name + '</div><div class="cb-item-time moved">Moved to call queue</div><div class="cb-item-reason">Disruption and Deferment</div></div><span class="cb-countdown cb-countdown-green">Now</span><button class="cb-call-btn" disabled>' + _buildPhoneIcon() + '</button>';
         } else {
             pending++;
             var mins   = _minutesUntil(cb.slotTime);
@@ -4506,7 +4506,7 @@ function _renderCbList() {
             var cdText  = mins <= 0 ? 'Now' : 'In ' + mins + ' min';
             div.className = 'cb-item'; div.id = 'cb-item-' + idx;
             div.setAttribute('onclick', 'selectCallback(' + idx + ')');
-            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name">' + cb.name + '</div><div class="cb-item-time">&#128337; ' + cb.slotDisplay + '</div><div class="cb-item-reason">' + cb.reason + '</div></div><span class="cb-countdown ' + cdClass + '" id="cd-' + idx + '">' + cdText + '</span><button class="cb-call-btn" onclick="event.stopPropagation();initiateCallback(' + idx + ')">' + _buildPhoneIcon() + '</button>';
+            div.innerHTML = '<div class="cb-item-info"><div class="cb-item-name">' + cb.name + '</div><div class="cb-item-time">&#128337; ' + cb.slotDisplay + '</div><div class="cb-item-reason">Disruption and Deferment</div></div><span class="cb-countdown ' + cdClass + '" id="cd-' + idx + '">' + cdText + '</span><button class="cb-call-btn" onclick="event.stopPropagation();initiateCallback(' + idx + ')">' + _buildPhoneIcon() + '</button>';
         }
         list.appendChild(div);
     });
