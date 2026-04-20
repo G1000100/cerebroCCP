@@ -4537,7 +4537,7 @@ function _moveToCallQueue(cb, idx) {
     var div = document.createElement('div');
     div.className = 'call-item is-callback'; div.id = 'cb-queue-item-' + idx;
     div.setAttribute('onclick', 'selectCallback(' + idx + ')');
-    div.innerHTML = '<div class="call-item-top"><div class="call-dot" style="width:8px;height:8px;border-radius:50%;background:#0969da;box-shadow:0 0 5px rgba(9,105,218,0.6);flex-shrink:0;animation:pulse 1.5s infinite;"></div><span class="call-name">' + cb.name + '</span><span class="call-badge-cb">&#128222; Callback</span></div><div class="call-desc" style="padding-left:15px;">' + cb.reason + '</div>';
+    div.innerHTML = '<div class="call-item-top"><div class="call-dot" style="width:8px;height:8px;border-radius:50%;background:#0969da;box-shadow:0 0 5px rgba(9,105,218,0.6);flex-shrink:0;animation:pulse 1.5s infinite;"></div><span class="call-name">' + cb.name + '</span><span class="call-badge-cb">&#128222; Callback</span></div><div class="call-desc" style="padding-left:15px;">Disruption and Deferment</div>';
     queueList.insertBefore(div, queueList.firstChild);
     var qc = document.getElementById('queue-count');
     if (qc) { var n = parseInt(qc.textContent.replace(/[()]/g, '')) || 0; qc.textContent = '(' + (n + 1) + ')'; }
