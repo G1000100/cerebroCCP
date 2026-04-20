@@ -4755,7 +4755,7 @@ function _resetCbButton() {
 
     function kbDirectReport(title, url, comment) {
         // Auto-populate agent and contact info
-        var agentName = (agent && agent.getName) ? agent.getName().firstName + ' ' + agent.getName().lastName : 'Agent';
+        var agentName = (agent && agent.getName) ? agent.getName() : 'Agent';
         var contactId = contact ? contact.getContactId() : 'unknown';
         var fullComment = comment + ' | Agent: ' + agentName + ' | Contact ID: ' + contactId;
 
