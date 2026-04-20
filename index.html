@@ -3118,7 +3118,7 @@ function addProcStep(stepKey) {
                 if (data.kb_gap && data.article) {
                     var _nt = data.article.title || 'KB Article';
                     var _nu = data.article.url || '';
-                    var _nc = 'KB Gap detected during live call. No information found for: ' + _nt + '. Please create or update the KB article.';
+                    var _nc = 'KB Gap detected during live call. No information found for: ' + _nt + ' required documents. Please create or update the KB article.';
                     // Build footer as an HTML string with inline onclick so the handler
                     // survives insertAdjacentHTML (outerHTML strips JS property handlers)
                     var _ntEsc  = _nt.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -3174,7 +3174,7 @@ function addProcStep(stepKey) {
                         // KB Gap — orange distinct style with Report button
                         var _artTitle = data.article.title || 'KB Article';
                         var _artUrl   = data.article.url || '';
-                        var _jsmComment = 'KB Gap detected during live call. No information found for: ' + _artTitle + '. Please create or update the KB article.';
+                        var _jsmComment = 'KB Gap detected during live call. No information found for: ' + _artTitle + ' required documents. Please create or update the KB article.';
                         txNote.className = 'tx-kb-gap';
                         txNote.innerHTML = '<div class="tx-kb-gap-inner">' +
                             '<div class="tx-kb-gap-hdr">' +
